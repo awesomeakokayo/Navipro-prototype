@@ -1,0 +1,276 @@
+*{
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+}
+body{
+    min-height: 100vh;
+}
+.container {
+    width: 100%;
+    font-family: 'Poppins', sans-serif;
+}
+.top{
+    width: 100%;
+    justify-content: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 2rem;
+    padding-bottom: 1rem;
+}
+.headline{
+    width: 98%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+.progress{
+    color: white;
+    background: url(Images/Welcome!\ \(1\).png);
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-position: center;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 2045 / 323; 
+    height: max-content;
+    display: inline-block;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+.progress-info{
+    width: 93%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+.timeline, .progress-percentage{
+    text-align: end;
+}
+.progress-bar{
+    width: 93%;
+    height: 10px;
+    background: rgb(242, 242, 242);
+    border-radius: 8px;
+}
+.filling{
+    height: 100%;
+    width: 33%;
+    background: #FF9E00;
+    border-radius: 8px;
+}
+p{
+    margin-bottom: 5px;
+}
+.subheading{
+    font: 18px;
+    font-weight: 400;
+    color: #595959;
+}
+.timeline-p{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    font: 18px;
+    font-weight: 400;
+    color: #595959;
+}
+.title{
+    font-weight: 400;
+    font-size: 32px;
+}
+.period{
+    font-weight: 400;
+    font-size: 24px;
+}
+.bottom{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    margin-top: 2rem;
+    height: 100%;
+    margin: 0 auto;
+    position: relative;
+    padding: 60px 0;
+}
+.spot{
+    width: 40px;
+    height: 40px;
+    background: #225276;
+    border-radius: 50%;
+    margin-right: 5px;
+    display: inline-block;
+    text-align: center;
+    color: white;
+    font-weight: 700;
+    font-size: 18px;
+    line-height: 40px;
+}
+.month{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding: 1rem;
+    border-radius: 100px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 300px;
+    justify-content: space-between;
+    text-align: center;
+    z-index: 0; 
+    background: white;
+}
+.month-info h1{
+    font-weight: 700;
+    font-size: 28px;
+}
+.month-info p{
+    font-weight: 400;
+    font-size: 15px;
+    color: #595959;
+    margin-right: 8px;
+}
+.timeline-line {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 4px;
+    height: 100%;
+    background: #225276;
+    height: calc(100%-120px);
+    z-index: -1;
+}
+.monthly-roadmap{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+}
+.week-right{
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+.number{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #E9EEF1;
+    border-radius: 50%;
+    width: 80px;
+    height: 80px;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+}
+.week-content {
+    flex: 1;
+    margin-right: 15rem;
+}
+.week-content h3{
+    font-weight: 400;
+    font-size: 24px;
+    text-align: left;
+    position: relative; 
+}
+.week-icon {
+    margin-left: auto;
+    margin-left: 15rem;
+}
+.week-number{
+    display: inline-block;
+    font-weight: 400;
+    font-size: 18px;
+    background: #DEE6EA;
+    border-radius: 50%;
+    margin-right: 5px;
+    color: #225276;
+    height: 25px;
+    width: 25px;
+    line-height: 25px; 
+    text-align: center;
+}
+.number{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #E9EEF1;
+    border-radius: 50%;
+    width: 80px;
+    height: 80px;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+}
+.week-content2 {
+    flex: 1;
+    margin-left: 15rem;
+}
+.week-content2 h3{
+    font-weight: 400;
+    font-size: 24px;
+    text-align: left;
+    position: relative; 
+}
+.week-icon2 {
+    margin-left: auto;
+    margin-right: 15rem;
+}
+.week-focus{
+    font-weight: 400;
+    font-size: 15px;
+    color: #225276;
+}
+ul li::marker {
+  color: #225276; 
+}
+.footer{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+.footer span img{
+    width: 200px;
+    height: 200px;
+}
+.footer h3 span img{
+    width: 17px;
+    height: 11.32px;
+}
+.footer h3 span{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: row;
+    background: #225276;
+    height: 23px;
+    width: 23px;
+    border-radius: 50%;
+    margin-right: 10px;
+}
+.footer h3{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    font-size: 24px;
+    font-style: bold;
+    font-weight: 700;
+    color: #225276;
+}
+.footer p{
+    text-align: center;
+    font-size: 18px;
+}
+.footer p b{
+    color: #225276;
+}

@@ -1,0 +1,294 @@
+*{
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+}
+
+body{
+    overflow: hidden;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100vh;
+    font-family:'Poppins', sans-serif;
+}
+
+.top-div {
+    width: 100%; 
+    max-width: 1200px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 5rem; 
+    box-sizing: border-box;
+}
+
+
+.dashboard-link{
+    text-decoration: none;
+    color: #1B455B;
+}
+
+.container{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    max-width: 100%;
+    height: calc(100vh - 180px); 
+    width: 100%;
+    padding: 0 5rem;
+    position: relative;
+    margin-bottom: 120px; 
+}
+
+.direct-message{
+    flex: 1;
+    overflow-y: auto;
+    width: 100%;
+    padding: 1rem;
+    padding-left: 3rem; 
+    scroll-behavior: smooth;
+    direction: rtl;
+}
+    
+.chat-container{
+    direction: ltr; 
+    flex: 1;
+    display: flex;
+    flex-direction: row;
+    gap: 1rem;
+}
+
+.ai-chat{
+    margin-top: 0.7rem;
+}
+
+.ai-name{
+    font-size: 20px;
+    font-weight: bold;
+    color: #1B455B;
+    margin-bottom: 0.8rem;
+}
+
+.chat-container {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+    gap: 0.8rem;
+}
+
+.chat-container .ai-chat {
+    padding: 0.8rem;
+    border-radius: 0.6rem;
+    max-width: 70%;
+}
+
+.chat-container.user {
+    flex-direction: row-reverse;
+}
+
+.chat-container .user-chat {
+    padding: 0.8rem;
+    border: 1px solid gray;
+    border-radius: 0.6rem;
+    max-width: 70%;
+    text-align: right;
+}
+
+.user-name {
+    font-weight: bold;
+    color: #1B455B;
+}
+
+img{
+    width: 40px;
+    height: 40px;
+    border: 1px solid grey;
+    margin-right: 1rem;
+    border-radius: 50%;
+    align-items: top;
+}
+
+.send-message{
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 900px;
+    align-items: center;
+    direction: ltr;
+    position: fixed;
+    transform: translateX(-50%);
+    bottom: 0;
+    background-color: white;
+    padding: 1rem;
+    border-top: 1px solid #eee;
+}
+
+.direct-message::-webkit-scrollbar {
+    width: 10px;
+    margin-right: 1rem;
+}
+
+.direct-message::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 6px;
+}
+
+.direct-message::-webkit-scrollbar-thumb {
+    background-color: #1B455B;
+    border-radius: 6px;
+}
+
+.direct-message::-webkit-scrollbar-thumb:hover {
+    background: #1B455B;
+}
+
+.input-wrapper{
+    width: 100%;
+    padding-left: 3rem;
+}
+
+.send-message{
+    width: 100%;
+    max-width: 900px;
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: white;
+    padding: 1rem;
+    border-top: 1px solid #eee;
+}
+
+.box{
+    display: flex;
+    flex-direction: row;
+    padding: 0.5rem;
+    border: 1px solid gray;
+    border-radius: 8px;
+    width: 100%;
+    font-size: 20px;
+    align-items: flex-start; 
+    gap: 10px;
+}
+
+.box input {
+    flex: 1; 
+    border: none;
+    outline: none;
+    font-size: 16px;
+    font-family: 'Poppins', sans-serif;
+    width: 100%;
+    padding: 0.5rem;
+}
+
+.box textarea {
+    flex: 1;
+    border: none;
+    outline: none;
+    font-size: 16px;
+    font-family: 'Poppins', sans-serif;
+    padding: 0.5rem;
+    resize: none;
+    overflow-y: hidden;
+    min-height: 40px;
+    max-height: 150px;
+    line-height: 1.4;
+    width: 100%;
+}
+
+textarea{
+    width: 820px;
+    resize: none;          /* Prevent manual resizing */
+    border: none;
+    outline: none;
+    font-size: 16px;
+    font-family: 'Poppins', sans-serif;
+    padding: 0.3rem;
+    line-height: 1.4;
+    overflow: hidden;
+}
+
+textarea:focus{
+    box-shadow: none;
+}
+
+.split{
+    font-size: 25px;
+}
+
+.box button{
+    border: none;
+    background: inherit;
+    padding: 0.5rem;
+    font-size: larger;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 40px;
+}
+
+.disclaimer{
+    font-size: 10px;
+    margin-top: 0.5rem;
+    color: #555;
+    text-align: center;
+}
+
+@media screen and (max-width: 480px) {
+    body {
+        padding: 0.25rem;
+    }
+
+    .container {
+        padding: 0 0.5rem;
+        height: 78vh;
+    }
+
+    .direct-message {
+        padding-left: 0.5rem;
+    }
+
+    .chat-container .ai-chat {
+        max-width: 90%;
+        padding: 0.5rem;
+        font-size: 13px;
+    }
+
+    .chat-container .user-chat {
+        max-width: 90%;
+        padding: 0.5rem;
+        font-size: 13px;
+    }
+
+    .ai-name {
+        font-size: 14px;
+    }
+
+    img {
+        width: 28px;
+        height: 28px;
+    }
+
+    .input-wrapper {
+        padding-left: 0.5rem;
+    }
+
+    .send-message {
+        margin: 0.25rem;
+        max-width: calc(100% - 0.5rem);
+    }
+
+    .box input {
+        font-size: 12px;
+    }
+
+    .disclaimer {
+        font-size: 8px;
+    }
+}

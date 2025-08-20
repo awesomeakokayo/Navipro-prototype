@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Allura&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+    </style>
+    <link rel="stylesheet" href="style.css">
+    <title>NaviPro</title>
+</head>
+<body>
+
+    <div class="onboarding-container">
+        <div class="progress-bar-container">
+            <div class="progress-bar-fill" id="progress-bar-fill"> </div>
+        </div>
+
+        <form id="onboarding-form">
+            <div class="step" data-step="1">
+                <h1>
+                    What is your main career goal right now?
+                </h1>
+                <p class="sub-heading">
+                    Don't worry if you're still figuring it out - just pick what's closest.
+                </p>
+
+                <div class="options">
+                    <button class="option-btn" data-value="land_first_job">
+                        <span><img class="icon" src="Images/search-normal.png" alt=""></span>
+                        <div class="detail">
+                            <h3>Land my first job</h3>
+                            <p>Looking to start my career</p>
+                        </div>
+                    </button>
+
+                    <button class="option-btn" data-value="switch_field">
+                        <span><img class="icon" src="Images/mi_switch.png" alt=""></span>
+                        <div class="detail">
+                            <h3>Switch to a new field</h3>
+                            <p>Making a career transition</p>
+                        </div>
+                    </button>
+
+                    <button class="option-btn" data-value="get_remote_job">
+                        <span><img class="icon" src="Images/global-search.png" alt=""></span>
+                        <div class="detail">
+                            <h3>Get a remote job</h3>
+                            <p>work from anywhere</p>
+                        </div>
+                    </button>
+
+                    <button class="option-btn" data-value="start_freelancing">
+                        <span><img class="icon" src="Images/briefcase.png" alt=""></span>
+                        <div class="detail">
+                            <h3>Start freelancing</h3>
+                            <p>Be my own boss</p>
+                        </div>
+                    </button>
+
+                    <button class="option-btn" data-value="upskill_current_field">
+                        <span><img class="icon" src="Images/chart.png" alt=""></span>
+                        <div class="detail">
+                            <h3>Upskill in my current field</h3>
+                            <p>Level up my existing skills</p>
+                        </div>
+                    </button>
+                </div>
+                <div class="next">
+                    <span class="empty"></span>
+                    <button class="next-btn" disabled>Next →</button>
+                </div>
+            </div>
+
+            <div class="step" data-step="2">
+                <div class="top">
+                    <h1>
+                        What role or job title are you working towards?
+                    </h1>
+                    <p class="sub-heading">
+                        Example: UI/UX designer, data analyst, front end developer ...
+                    </p>
+
+                    <div class="options" data-value="target_role">
+                        <input class="target-role" type="text" placeholder="Enter your target role ..." id="target-role">
+                        <p class="support">
+                        </p>
+                    </div>
+                </div>
+                <div class="next">
+                    <button class="back-btn">← Back</button>
+                    <button class="next-btn" disabled>Next →</button>
+                </div>
+            </div>
+
+            <div class="step" data-step="3">
+                <div class="top">
+                    <h1>
+                        When would you like to achieve this goal?
+                    </h1>
+                    <p class="sub-heading">
+                        This helps us plan your roadmap pace
+                    </p>
+
+                    <div class="options">
+                        <div class="option-group">
+                            <button class="select-btn" data-value="3_months">
+                                <span class="lightning"><img class="icons" id="lightning" src="Images/lightning.png" alt=""></span>
+                                <h3>In 3 month</h3>
+                                <p>Fast track</p>
+                            </button>
+
+                            <button class="select-btn" data-value="6_months">
+                                <span class="running"><img class="icons" src="Images/running.png" alt=""></span>
+                                <h3>In 6 months</h3>
+                                <p>Balanced pace</p>
+                            </button>
+                        </div>
+
+                        <div class="option-group">
+                            <button class="select-btn" data-value="1_year">
+                                <span class="muscle"><img class="icons" src="Images/muscle.png" alt=""></span>
+                                <h3>In 1 year</h3>
+                                <p>Steady Progress</p>
+                            </button>
+
+                            <button class="select-btn" data-value="not_sure">
+                                <span class="hour-glass"><img class="icons"  src="Images/hourglass-.png" alt=""></span>
+                                <h3>I'm not sure</h3>
+                                <p>We'll help you decide</p>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="next">
+                    <button class="back-btn">← Back</button>
+                    <button class="next-btn" disabled>Next →</button>
+                </div>
+            </div>
+
+            <div class="step" data-step="4">
+                <div class="top">
+                    <h1>
+                        How much time can you dedicate each week?
+                    </h1>
+                    <p class="sub-heading">
+                        We’ll build your plan around this.
+                    </p>
+
+                    <div class="options">
+                        <div class="option-group">
+                            <button class="select-btn" data-value="1_to_3_hours">
+                                <span class="sprout"><img class="icons" id="lightning" src="Images/sprout.png" alt=""></span>
+                                <h3>1-3 hours</h3>
+                                <p>Light pace</p>
+                            </button>
+
+                            <button class="select-btn" data-value="4_to_6_hours">
+                                <span class="running"><img class="icons" src="Images/railway.png" alt=""></span>
+                                <h3>4-6 hours</h3>
+                                <p>Steady Progress</p>
+                            </button>
+                        </div>
+
+                        <div class="option-group">
+                            <button class="select-btn" data-value="7_to_10_hours">
+                                <span class="gears"><img  class="icons" src="Images/gears.png" alt=""></span>
+                                <h3>7-10 hours</h3>
+                                <p>Good momentum</p>
+                            </button>
+
+                            <button class="select-btn" data-value="10+_hours">
+                                <span class="hour-glass"><img class="icons"  src="Images/Vector.png" alt=""></span>
+                                <h3>10+ hours</h3>
+                                <p>Full speed</p>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="next">
+                    <button class="back-btn">← Back</button>
+                    <button class="next-btn" disabled>Next →</button>
+                </div>
+            </div>
+
+            <div class="step" data-step="5">
+                <div class="top">
+                    <h1>
+                        How do you learn best?
+                    </h1>
+                    <p class="sub-heading">
+                        We’ll tailor your content suggestions
+                    </p>
+
+                    <div class="options">
+                        <div class="option-group">
+                            <button class="select-btn" data-value="watching_videos">
+                                <span class="lightning"><img class="icons" id="lightning" src="Images/video.png" alt=""></span>
+                                <h3>Watching videos</h3>
+                                <p>Visual demonstrations and tutorials</p>
+                            </button>
+
+                            <button class="select-btn" data-value="reading_articles">
+                                <span class="running"><img class="icons" src="Images/book.png" alt=""></span>
+                                <h3>Reading articles</h3>
+                                <p>In-depth information and insights</p>
+                            </button>
+                        </div>
+
+                        <div class="option-group">
+                            <button class="select-btn" data-value="doing_projects">
+                                <span class="muscle"><img  class="icons" src="Images/calculate.png" alt=""></span>
+                                <h3>Doing projects</h3>
+                                <p>Hands-on experience and building</p>
+                            </button>
+
+                            <button class="select-btn" data-value="mix_of_everything">
+                                <span class="hour-glass"><img class="icons"  src="Images/laptop.png" alt=""></span>
+                                <h3>A mix of everything</h3>
+                                <p>Variety keeps me engaged</p>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="next">
+                    <button class="back-btn">← Back</button>
+                    <button class="next-btn" disabled>Next →</button>
+                </div>
+            </div>
+            
+            <div class="step" data-step="6">
+                <h1>
+                    How fast do you want to learn?
+                </h1>
+                <p class="sub-heading">
+                    Choose a pace that feels right for you.
+                </p>
+
+                <div class="options">
+                    <button class="option-btn" data-value="slow">
+                        <span><img class="icon" src="https://img.icons8.com/?size=100&id=914&format=png&color=6f6f6f" alt=""></span>
+                        <div class="detail">
+                            <h3>Slow</h3>
+                            <p>Take my time to understand concepts deeply</p>
+                        </div>
+                    </button>
+
+                    <button class="option-btn" data-value="average">
+                        <span><img class="icon" src="https://img.icons8.com/?size=100&id=GFej7GKIrLRV&format=png&color=737373" alt=""></span>
+                        <div class="detail">
+                            <h3>Average</h3>
+                            <p>Keep a steady pace while learning</p>
+                        </div>
+                    </button>
+
+                    <button class="option-btn" data-value="fast">
+                        <span><img class="icon" src="https://img.icons8.com/?size=100&id=YkjbisfFy45k&format=png&color=737373" alt=""></span>
+                        <div class="detail">
+                            <h3>Fast</h3>
+                            <p>Accelerate my learning process</p>
+                        </div>
+                    </button>
+                </div>
+                <div class="next">
+                    <button class="back-btn">← Back</button>
+                    <button class="next-btn" disabled>Next →</button>
+                </div>
+            </div>
+
+            <div class="step" data-step="7">
+                <h1>
+                    What is your skill level?
+                </h1>
+                <p class="sub-heading">
+                    Choose a level that best describes you.
+                </p>
+
+                <div class="options">
+                    <button class="option-btn" data-value="beginner">
+                        <span><img class="icon" src="https://img.icons8.com/?size=100&id=104&format=png&color=737373" alt=""></span>
+                        <div class="detail">
+                            <h3>Beginner</h3>
+                            <p>I'm new to this topic and need foundational knowledge</p>
+                        </div>
+                    </button>
+
+                    <button class="option-btn" data-value="intermediate">
+                        <span><img class="icon" src="https://img.icons8.com/?size=100&id=GFej7GKIrLRV&format=png&color=737373" alt=""></span>
+                        <div class="detail">
+                            <h3>Intermediate</h3>
+                            <p>I'm comfortable with the basics and ready to dive deeper</p>
+                        </div>
+                    </button>
+
+                    <button class="option-btn" data-value="advanced">
+                        <span><img class="icon" src="https://img.icons8.com/?size=100&id=YkjbisfFy45k&format=png&color=737373" alt=""></span>
+                        <div class="detail">
+                            <h3>Advanced</h3>
+                            <p>I'm confident in my skills and ready for complex challenges</p>
+                        </div>
+                    </button>
+                </div>
+                <div class="next">
+                    <button class="back-btn">← Back</button>
+                    <button class="next-btn" disabled>Generate roadmap</button>
+                </div>
+            </div>
+        </form>
+        
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>

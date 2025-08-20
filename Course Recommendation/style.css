@@ -1,0 +1,75 @@
+*{
+    padding: 0;
+    box-sizing: border-box;
+    margin: 0;
+}
+
+body{
+    padding: 1rem;
+    background: white;
+}
+
+.header{
+    padding: 1rem;
+}
+
+.recommended{
+    display: flex;
+    flex-direction: column;
+}
+
+.course{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    border: 1px solid black;
+    padding: 0.5rem;
+    border-radius: 1rem;
+    margin: 0.5rem;
+}
+
+.left{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.video-image{
+    padding-right: 1rem;
+}
+
+img{
+    width: 100px;
+    height: auto;
+    border-radius: 0.6rem;
+}
+
+.progress-container {
+    width: 100%;
+    background: rgb(231, 229, 229);
+    border-radius: 10px;
+    overflow: hidden;
+    height: 0.5rem;
+    margin-top: 10px;
+}
+
+.progress-bar {
+    height: 100%;
+    background: linear-gradient(to right, orange);
+    transition: width 0.4s ease;
+    border-radius: 1rem;
+}
+
+button{
+    padding-left: 1rem;
+    padding-right: 1rem;
+    padding-top:0.8rem;
+    border: 1px  solid #225672;
+    background-color: white;
+    color: black;
+    padding-bottom: 0.8rem;
+    border-radius: 0.5rem;
+    font-size: 1.2rem;
+    font-weight: bold;
+}
