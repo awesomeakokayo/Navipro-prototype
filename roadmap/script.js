@@ -217,7 +217,7 @@ function setupProgressTracking(userId) {
             
             try {
                 const response = await fetch(
-                  `http://https://naviprobackend.onrender.com/api/complete_task/${userId}`,
+                  `https://naviprobackend.onrender.com/api/complete_task/${userId}`,
                   {
                     method: "POST",
                     headers: {

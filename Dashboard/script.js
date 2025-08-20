@@ -352,7 +352,7 @@ async function getUserProgress() {
 
   try {
     const response = await fetch(
-      `http://https://naviprobackend.onrender.com/api/user_progress/${currentUserId}`
+      `https://naviprobackend.onrender.com/api/user_progress/${currentUserId}`
     );
 
     if (response.ok) {
@@ -611,7 +611,7 @@ async function getTodaysTask() {
 
   try {
     const response = await fetch(
-      `http://https://naviprobackend.onrender.com/api/daily_task/${currentUserId}`
+      `https://naviprobackend.onrender.com/api/daily_task/${currentUserId}`
     );
 
     if (response.ok) {
@@ -751,7 +751,7 @@ async function completeTask() {
 
   try {
     const response = await fetch(
-      `http://https://naviprobackend.onrender.com/api/complete_task/${currentUserId}`,
+      `https://naviprobackend.onrender.com/api/complete_task/${currentUserId}`,
       {
         method: "POST",
         headers: {
@@ -810,7 +810,7 @@ async function getWeeklyVideos() {
 
   try {
     const response = await fetch(
-      `http://https://naviprobackend.onrender.com/api/week_videos/${currentUserId}`
+      `https://naviprobackend.onrender.com/api/week_videos/${currentUserId}`
     );
 
     if (response.ok) {

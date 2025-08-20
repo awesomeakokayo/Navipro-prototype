@@ -16,9 +16,7 @@ async function loadCourses(query) {
 
   try {
     const res = await fetch(
-      `http://127.0.0.1:8000/api/search_videos?query=${encodeURIComponent(
-        query
-      )}&max_results=5`
+      `https://naviprobackend.onrender.com/api/week_videos/${currentUserId}`
     );
     if (!res.ok) throw new Error(`Server returned ${res.status}`);
     const data = await res.json();
