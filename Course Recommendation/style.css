@@ -7,6 +7,7 @@
 body{
     padding: 1rem;
     background: white;
+    font-family: 'Poppins', sans-serif;
 }
 
 .header{
@@ -33,10 +34,18 @@ body{
     display: flex;
     flex-direction: row;
     align-items: center;
+    flex: 1;
+    min-width: 0; /* Allows flex items to shrink below content size */
 }
 
 .video-image{
     padding-right: 1rem;
+    flex-shrink: 0; /* Prevents image from shrinking */
+}
+
+.video-details {
+    flex: 1;
+    min-width: 0; /* Allows text to wrap properly */
 }
 
 img{
@@ -62,14 +71,139 @@ img{
 }
 
 button{
-    padding-left: 1rem;
-    padding-right: 1rem;
-    padding-top:0.8rem;
-    border: 1px  solid #225672;
+    padding: 0.8rem 1rem;
+    border: 1px solid #225672;
     background-color: white;
     color: black;
-    padding-bottom: 0.8rem;
     border-radius: 0.5rem;
     font-size: 1.2rem;
     font-weight: bold;
+    cursor: pointer;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+button:hover {
+    background-color: #225672;
+    color: white;
+}
+
+/* Tablet styles */
+@media (max-width: 768px) {
+    body {
+        padding: 0.5rem;
+    }
+    
+    .header {
+        padding: 0.5rem;
+        text-align: center;
+    }
+    
+    .header h1 {
+        font-size: 1.5rem;
+    }
+    
+    .course {
+        margin: 0.25rem;
+        padding: 1rem;
+    }
+    
+    img {
+        width: 80px;
+    }
+    
+    .video-image {
+        padding-right: 0.75rem;
+    }
+    
+    button {
+        font-size: 1rem;
+        padding: 0.6rem 0.8rem;
+    }
+}
+
+/* Mobile styles */
+@media (max-width: 480px) {
+    body {
+        padding: 0.25rem;
+    }
+    
+    .header {
+        padding: 0.5rem 0.25rem;
+    }
+    
+    .header h1 {
+        font-size: 1.25rem;
+    }
+    
+    .course {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 1rem;
+        margin: 0.25rem;
+        padding: 0.75rem;
+    }
+    
+    .left {
+        flex-direction: column;
+        text-align: center;
+        gap: 0.5rem;
+    }
+    
+    .video-image {
+        padding-right: 0;
+        align-self: center;
+    }
+    
+    .video-details {
+        width: 100%;
+    }
+    
+    .video-details h3 {
+        font-size: 1rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .video-details > div:nth-child(2) {
+        font-size: 0.85rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    img {
+        width: 120px;
+    }
+    
+    button {
+        width: 100%;
+        font-size: 1rem;
+        padding: 0.75rem;
+    }
+    
+    .progress-container {
+        margin-top: 0.5rem;
+    }
+}
+
+/* Very small screens */
+@media (max-width: 320px) {
+    .header h1 {
+        font-size: 1.1rem;
+    }
+    
+    .video-details h3 {
+        font-size: 0.9rem;
+    }
+    
+    .video-details > div:nth-child(2) {
+        font-size: 0.8rem;
+    }
+    
+    img {
+        width: 100px;
+    }
+    
+    button {
+        font-size: 0.9rem;
+        padding: 0.6rem;
+    }
 }

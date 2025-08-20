@@ -107,7 +107,6 @@ p{
     height: 40px;
     background: #225276;
     border-radius: 50%;
-    margin-right: 5px;
     display: inline-block;
     text-align: center;
     color: white;
@@ -174,7 +173,7 @@ p{
 }
 .week-content {
     flex: 1;
-    margin-right: 15rem;
+    margin-right: 10rem;
 }
 .week-content h3{
     font-weight: 400;
@@ -183,8 +182,8 @@ p{
     position: relative; 
 }
 .week-icon {
-    margin-left: auto;
-    margin-left: 15rem;
+    margin-right: auto;
+    margin-left: 8rem;
 }
 .week-number{
     display: inline-block;
@@ -213,7 +212,7 @@ p{
 }
 .week-content2 {
     flex: 1;
-    margin-left: 15rem;
+    margin-left: 10rem;
 }
 .week-content2 h3{
     font-weight: 400;
@@ -223,7 +222,7 @@ p{
 }
 .week-icon2 {
     margin-left: auto;
-    margin-right: 15rem;
+    margin-right: 8rem;
 }
 .week-focus{
     font-weight: 400;
@@ -273,4 +272,191 @@ ul li::marker {
 }
 .footer p b{
     color: #225276;
+}
+
+@media (max-width: 768px) {
+    .container {
+        width: 100%;
+    }
+    
+    .top{
+        width: 100%;
+        padding: 1rem;
+    }
+    
+    .headline{
+        width: 100%;
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+    }
+    
+    .headline span h1{
+        font-size: 20px;
+    }
+    
+    .headline span p{
+        font-size: 14px;
+    }
+    
+    .title{
+        font-size: 24px;
+    }
+    
+    .period{
+        font-size: 18px;
+    }
+    .timeline{
+        display: flex;
+        flex-direction: row;
+        width: 95%;
+        justify-content: space-between;
+    }
+    
+    .timeline-p{
+        font-size: 14px;
+        gap: 5px;
+    }
+    
+    .progress{
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        padding: 0.3rem;
+    }
+    
+    .progress-info{
+        width: 95%;
+        display: flex;
+        flex-direction: row;
+        gap: 0.5rem;
+        text-align: center;
+        justify-content: space-between;
+    }
+
+    .progress-info span{
+        text-align: left;
+    }
+    
+    .progress-info span h1{
+        font-size: 16px;
+    }
+    
+    .progress-info span p{
+        font-size: 12px;
+    }
+    
+    .progress-bar{
+        width: 95%;
+    }
+    
+    .bottom{
+        width: 100%;
+        padding: 40px 1rem;
+    }
+    
+    .monthly-roadmap{
+        width: 100%;
+    }
+    
+    .month{
+        width: 90%;
+        max-width: 280px;
+        padding: 0.8rem;
+    }
+    
+    .month-info h1{
+        font-size: 20px;
+    }
+    
+    .month-info p{
+        font-size: 12px;
+    }
+    
+    .spot{
+        width: 30px;
+        height: 30px;
+        font-size: 14px;
+        line-height: 30px;
+    }
+    
+    .week-right{
+        width: 100%;
+        flex-direction: column;
+        align-items: center;
+        margin: 2rem 0;
+    }
+    
+    .number{
+        width: 0px;
+        height: 0px;
+        position: relative;
+        left: auto;
+        transform: none;
+        margin: 0.1rem 0;
+    }
+    
+    .number img{
+        width: 0px !important;
+    }
+    
+    .week-content, 
+    .week-content2{
+        margin: 0;
+        text-align: center;
+        width: 90%;
+        max-width: 300px;
+    }
+    
+    .week-content h3, 
+    .week-content2 h3{
+        font-size: 16px;
+        text-align: center;
+    }
+    
+    .week-focus{
+        font-size: 12px;
+    }
+    
+    .week-content ul,
+    .week-content2 ul{
+        font-size: 11px;
+        padding-left: 1rem;
+    }
+    
+    .week-icon, 
+    .week-icon2{
+        margin: 0;
+        order: -1;
+    }
+    
+    .week-icon img,
+    .week-icon2 img{
+        width: 80px !important;
+        height: auto;
+    }
+    
+    .timeline-line{
+        display: none;
+    }
+    
+    .footer{
+        padding: 2rem 1rem;
+    }
+    
+    .footer span img{
+        width: 120px;
+        height: 120px;
+    }
+    
+    .footer h3{
+        font-size: 18px;
+        text-align: center;
+    }
+    
+    .footer p{
+        font-size: 14px;
+        padding: 0 1rem;
+    }
 }
