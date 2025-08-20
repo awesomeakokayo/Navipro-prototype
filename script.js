@@ -241,9 +241,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     // Store roadmap data and user ID in localStorage
                     localStorage.setItem('roadmapData', JSON.stringify(data.roadmap));
                     localStorage.setItem('userId', data.user_id);
-                    
-                    // Redirect to Career path page
-                    window.location.href = "../Career path/index.html";
+
+                    // Redirect to Dashboard page
+                    window.location.href = "../Dashboard/index.html";
                 } else {
                     throw new Error(data.message || "Failed to generate roadmap");
                 }
