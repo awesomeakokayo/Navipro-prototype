@@ -164,9 +164,9 @@ function addAIMessage(message, timestamp = null) {
     const timestampStr = timestamp ? `<small class="timestamp">${new Date(timestamp).toLocaleTimeString()}</small>` : '';
     const aiMessageHTML = `
         <div class="chat-container">
-            <div><img src="Images/Frame 3.png" alt="logo"></div>
+            <div><img src="Images/Naviprologo_only.png" alt="logo"></div>
             <div class="ai-chat">
-                <div class="ai-name">NaviAI</div>
+                <div class="ai-name">Navi</div>
                 <div>${message}${timestampStr}</div>
             </div>
         </div>
@@ -182,9 +182,9 @@ function addTypingIndicator() {
     
     const typingHTML = `
         <div class="chat-container" id="typingIndicator">
-            <div><img src="Images/Frame 3.png" alt="logo"></div>
+            <div><img src="Images/naviprologo_only.png" alt="logo"></div>
             <div class="ai-chat">
-                <div class="ai-name">NaviAI</div>
+                <div class="ai-name">Navi</div>
                 <div>Navi is typing...</div>
             </div>
         </div>
