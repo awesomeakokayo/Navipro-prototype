@@ -254,22 +254,100 @@ document.addEventListener("DOMContentLoaded", function () {
         `;
     }
 
-    // Load roadmap content
-    function loadRoadmapContent() {
-        const mainContent = document.getElementById("mainContent");
-        const roadmapData = localStorage.getItem('roadmapData');
-        
-        
-            mainContent.innerHTML = `
-                <div class="roadmap-container" style="width: 100%; height: 100vh; overflow-y: auto;">
-            <iframe 
-                src="../roadmap/index.html" 
-                style="width: 100%; height: 100%; border: none;"
-                onload="this.contentWindow.postMessage(${JSON.stringify(roadmapData)}, '*')"
-            ></iframe>
-        </div>
-            `;
+  async function loadRoadmapContent() {
+    const mainContent = document.getElementById("mainContent");
+    const userId = localStorage.getItem("userId");
+    
+    if (!userId) {
+        mainContent.innerHTML = `<div class="error">User not found. Please login again.</div>`;
+        return;
     }
+
+    try {
+        // Fetch roadmap data from backend database
+        const response = await fetch(`https://naviprobackend.onrender.com/api/user_roadmap/${userId}`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error(`Failed to fetch roadmap: ${response.status}`);
+        }
+
+        const roadmapData = await response.json();
+        
+        // Display the roadmap using an iframe or direct rendering
+        mainContent.innerHTML = `
+                <div class="roadmap-container" style="width: 100%; height: 100vh; overflow-y: auto;">
+                    <iframe 
+                        src="../roadmap/index.html" 
+                        style="width: 100%; height: 100%; border: none;"
+                        onload="this.contentWindow.postMessage(${JSON.stringify(roadmapData)}, '*')"
+                    ></iframe>
+                </div>
+            `;
+    } catch (error) {
+        console.error("Error loading roadmap:", error);
+        mainContent.innerHTML = `
+            <div class="error">
+                <p>Failed to load roadmap. Please try again.</p>
+                <button onclick="loadRoadmapContent()" class="retry-btn">Retry</button>
+            </div>
+        `;
+    }
+}
+
+// Add this to your roadmap page (../roadmap/index.html) to handle the posted message
+window.addEventListener('message', function(event) {
+    // Verify the origin if needed for security
+    // if (event.origin !== "https://yourdomain.com") return;
+    
+    const roadmapData = event.data;
+    if (roadmapData && roadmapData.roadmap) {
+        // Use the roadmap data instead of fetching from localStorage
+        updateRoadmapDisplay(roadmapData);
+        setupProgressTracking(roadmapData.userId || localStorage.getItem("userId"));
+    }
+});
+
+// Also modify your roadmap page to check for message data on load
+document.addEventListener("DOMContentLoaded", function() {
+    // Check if we have data from the parent page first
+    // If not, then try to fetch from backend
+    const urlParams = new URLSearchParams(window.location.search);
+    const userId = urlParams.get('userId') || localStorage.getItem("userId");
+    
+    if (window.roadmapData) {
+        // Data was passed via postMessage
+        updateRoadmapDisplay(window.roadmapData);
+        setupProgressTracking(window.roadmapData.userId || userId);
+    } else if (userId) {
+        // Fetch data from backend
+        fetchRoadmapFromBackend(userId);
+    } else {
+        // No user ID, redirect to onboarding
+        window.location.href = "../index.html";
+    }
+});
+
+async function fetchRoadmapFromBackend(userId) {
+    try {
+        const response = await fetch(`https://naviprobackend.onrender.com/api/user_roadmap/${userId}`);
+        if (response.ok) {
+            const roadmapData = await response.json();
+            updateRoadmapDisplay(roadmapData);
+            setupProgressTracking(userId);
+        } else {
+            throw new Error("Failed to fetch roadmap");
+        }
+    } catch (error) {
+        console.error("Error fetching roadmap:", error);
+        // Show error message to user
+    }
+}
+      
     
     // Load resources content
     function loadResourcesContent() {
