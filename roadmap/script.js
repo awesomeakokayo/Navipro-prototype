@@ -225,6 +225,7 @@ function createWeekElement(week, monthNumber, weekNumber) {
 
   if (isOddWeek) {
     weekDiv.innerHTML = `
+          <div class="week-right">
             <div class="week-content">
                 <h3><span class="week-number">${
                   week.week_number || weekNumber
@@ -259,10 +260,12 @@ function createWeekElement(week, monthNumber, weekNumber) {
                   weekNumber
                 )}.png" alt="">
             </div>
+          </div>
         `;
   } else {
     weekDiv.innerHTML = `
-            <div class="week-icon2">
+          <div class="week-right">
+              <div class="week-icon2">
                 <img width="300" src="Images/${getWeekIcon(
                   weekNumber
                 )}.png" alt="">
@@ -296,6 +299,7 @@ function createWeekElement(week, monthNumber, weekNumber) {
                       .join("")}
                 </ul>
             </div>
+          </div>
         `;
   }
 
