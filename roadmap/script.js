@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", async function () {
-  const userId = localStorage.getItem("userId");
+  let userId = localStorage.getItem("userId");
 
   if (!userId) {
     // No user, redirect back to onboarding
@@ -74,9 +74,15 @@ async function generateNewRoadmap(userId) {
     }
 
     // Store the new user ID if this is a new user
+    // after getting `result` from generate_roadmap
     if (result.user_id && result.user_id !== userId) {
-      localStorage.setItem("userId", result.user_id);
-      userId = result.user_id;
+      try {
+        localStorage.setItem("userId", result.user_id);
+        userId = result.user_id; // now allowed (userId is a let)
+        console.log("Updated userId to:", userId);
+      } catch (e) {
+        console.warn("Could not persist new userId:", e);
+      }
     }
 
     const roadmapData = result.roadmap;
