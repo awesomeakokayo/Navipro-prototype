@@ -351,6 +351,13 @@ function calculateTotalTasks(roadmapData) {
 }
 
 function setupProgressTracking(userId) {
+  // Remove existing listeners to avoid duplicates
+  document
+    .querySelectorAll(".week-content li, .week-content2 li")
+    .forEach((li) => {
+      li.replaceWith(li.cloneNode(true));
+    });
+
   // Add click handlers for task completion
   const taskItems = document.querySelectorAll(
     ".week-content li, .week-content2 li"
@@ -366,9 +373,13 @@ function setupProgressTracking(userId) {
         return;
       }
 
+      // Optional: confirm the user only clicks the current task,
+      // or let server accept any task_id (we updated backend for that).
       try {
         const response = await fetch(
-          `https://naviprobackend.onrender.com/api/complete_task/${userId}`,
+          `https://naviprobackend.onrender.com/api/complete_task/${encodeURIComponent(
+            userId
+          )}`,
           {
             method: "POST",
             headers: {
@@ -383,23 +394,36 @@ function setupProgressTracking(userId) {
 
         if (response.ok) {
           const result = await response.json();
-          if (result.status === "success") {
-            // Mark task as completed
-            this.classList.add("completed");
-            this.style.textDecoration = "line-through";
-            this.style.opacity = "0.6";
 
-            // Update progress display
-            updateProgressDisplay(result);
+          if (result.status === "success") {
+            // If backend returned a fresh roadmap snapshot, re-render fully
+            if (result.roadmap) {
+              // Rebuild whole roadmap using server snapshot
+              generateRoadmapContent(result.roadmap);
+              updateProgressSection(result.roadmap);
+              updateProgressBar(result.roadmap);
+
+              // Rebind listeners to the newly created DOM nodes
+              setupProgressTracking(userId);
+            } else {
+              // Fallback: mark clicked item visually and refresh progress
+              this.classList.add("completed");
+              this.style.textDecoration = "line-through";
+              this.style.opacity = "0.6";
+
+              // Refresh partial data
+              refreshRoadmapData(userId);
+            }
 
             // Show completion message
-            showCompletionMessage(result.message);
-
-            // Refresh the roadmap data from the backend to ensure UI is in sync
-            refreshRoadmapData(userId);
+            showCompletionMessage(result.message || "Task completed!");
+          } else {
+            console.error("Unexpected response structure", result);
           }
         } else {
           console.error("Server responded with error:", response.status);
+          const text = await response.text();
+          console.error("Server message:", text);
         }
       } catch (error) {
         console.error("Error completing task:", error);
@@ -407,6 +431,7 @@ function setupProgressTracking(userId) {
     });
   });
 }
+
 
 async function refreshRoadmapData(userId) {
   try {
