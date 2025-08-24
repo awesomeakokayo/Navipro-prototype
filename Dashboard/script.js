@@ -301,8 +301,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
 // Add this to your roadmap page (../roadmap/index.html) to handle the posted message
 window.addEventListener('message', function(event) {
-    // Verify the origin if needed for security
-    // if (event.origin !== "https://yourdomain.com") return;
     
     const roadmapData = event.data;
     if (roadmapData && roadmapData.roadmap) {
@@ -512,6 +510,7 @@ async function displayUserProgress() {
 }
 
 async function initCharts() {
+  const progress = await getUserProgress();
   console.log("Initializing charts...");
 
   const progressCanvas = document.getElementById("progressChart");
@@ -527,9 +526,9 @@ async function initCharts() {
 
   // Set default values
   const chartData = {
-    completedTasks: 8,
-    inProgressTasks: 12,
-    upcomingTasks: 20,
+    completedTasks: progress.completed_tasks || 0,
+    inProgressTasks: Math.min(6, totalTasks - completedTasks),
+    upcomingTasks: (totalTasks - completedTasks - inProgressTasks),
   };
 
   // Clean up existing charts
@@ -872,7 +871,6 @@ async function completeTask() {
     }
   } catch (error) {
     console.error("Error completing task:", error);
-    alert("Error occurred while completing task");
   }
 }
 
