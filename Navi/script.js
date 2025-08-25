@@ -1,8 +1,3 @@
-// aichat.js
-
-console.log("JavaScript file loaded successfully!");
-
-const firstname = "Alex";
 let currentUserId = null;
 let messageContainer = null;
 let chatInput = null;
@@ -35,8 +30,6 @@ function initializeElements() {
         function autoExpand() {
             // Reset height to auto first to shrink if needed
             textarea.style.height = 'auto';
-            // Set new height based on scrollHeight
-            textarea.style.height = textarea.scrollHeight + 'px';
             
             // Adjust container padding if textarea is getting too tall
             const container = document.querySelector('.container');

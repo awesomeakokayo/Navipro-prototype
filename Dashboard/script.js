@@ -526,9 +526,9 @@ async function initCharts() {
 
   // Set default values
   const chartData = {
-    completedTasks: progress.completed_tasks || 0,
-    inProgressTasks: Math.min(6, totalTasks - completedTasks),
-    upcomingTasks: (totalTasks - completedTasks - inProgressTasks),
+    completedTasks: 8,
+    inProgressTasks: 12,
+    upcomingTasks: 20,
   };
 
   // Clean up existing charts
