@@ -53,6 +53,8 @@ function initializeElements() {
             }
         });
 
+        // Initial expansion
+        autoExpand();
     }
     
     // Add event listeners only if elements exist
@@ -67,9 +69,6 @@ function initializeElements() {
     }
 }
 
-/**
- * Send message to AI chatbot
- */
 // Initialize user session
 function initializeUserSession() {
   const userId = localStorage.getItem("userId");
@@ -77,7 +76,7 @@ function initializeUserSession() {
 
   if (!userId || !roadmapData) {
     console.log("No user session found, redirecting to onboarding...");
-    window.location.href = "../onboarding/index.html";
+    // window.location.href = "../onboarding/index.html";
     return false;
   }
 
@@ -230,7 +229,7 @@ async function sendMessage() {
     
     // Clear input and reset height
     textarea.value = '';
-    textarea.style.height = 'auto';
+    textarea.style.height = '35px';
     document.querySelector('.container').style.marginBottom = '120px';
     
     // Show typing indicator
