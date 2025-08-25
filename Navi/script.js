@@ -176,9 +176,7 @@ function addTypingIndicator() {
       <div class="ai-chat">
         <div class="ai-name">Navi</div>
         <div class="typing-animation">
-          <span class="typing-dot"></span>
-          <span class="typing-dot"></span>
-          <span class="typing-dot"></span>
+          <span class="typing-dot">Navi is Typing...</span>
         </div>
       </div>
     </div>
