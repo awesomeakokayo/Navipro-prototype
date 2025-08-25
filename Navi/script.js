@@ -55,14 +55,16 @@ function initializeElements() {
 
 // Initialize user session
 function initializeUserSession() {
-  // For demo purposes, set a mock user ID
-  currentUserId = "demo-user-123";
-  localStorage.setItem("userId", currentUserId);
-  localStorage.setItem(
-    "roadmapData",
-    JSON.stringify({ goal: "Learn web development" })
-  );
+  const userId = localStorage.getItem("userId");
+  const roadmapData = localStorage.getItem("roadmapData");
 
+  if (!userId || !roadmapData) {
+    console.log("No user session found, redirecting to onboarding...");
+    window.location.href = "../onboarding/index.html";
+    return false;
+  }
+
+  currentUserId = userId;
   console.log("User session initialized:", currentUserId);
   return true;
 }
@@ -85,31 +87,34 @@ async function sendChatMessage(message) {
   }
 
   try {
-     const response = await fetch(
-          `https://naviprobackend.onrender.com/api/chat/${currentUserId}`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              message: message,
-              user_id: currentUserId,
-            }),
-          }
-        );
-
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
-        }
-
-        const data = await response.json();
-        return data;
-      } catch (error) {
-        console.error("Error sending chat message:", error);
-        return null;
+    const response = await fetch(
+      `https://naviprobackend.onrender.com/api/chat/${currentUserId}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          message: message,
+          user_id: currentUserId,
+        }),
       }
+    );
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("Server responded with error:", response.status, errorText);
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
+
+    const data = await response.json();
+    console.log("Received response from backend:", data);
+    return data;
+  } catch (error) {
+    console.error("Error sending chat message:", error);
+    return null;
+  }
+}
 
 /**
  * Add a new user message to the chat
@@ -122,13 +127,13 @@ function addUserMessage(message) {
 
   const sanitizedMessage = sanitizeHTML(message);
   const userMessageHTML = `
-                <div class="chat-container user">
-                    <div class="user-chat">
-                        <div class="user-name">You</div>
-                        <div>${sanitizedMessage}</div>
-                    </div>
-                </div>
-            `;
+    <div class="chat-container user">
+      <div class="user-chat">
+        <div class="user-name">You</div>
+        <div>${sanitizedMessage}</div>
+      </div>
+    </div>
+  `;
   messageContainer.innerHTML += userMessageHTML;
 }
 
@@ -148,14 +153,14 @@ function addAIMessage(message, timestamp = null) {
       ).toLocaleTimeString()}</small>`
     : "";
   const aiMessageHTML = `
-                <div class="chat-container">
-                    <div><img src="Images/Naviprologo_only.png" alt="logo"></div>
-                    <div class="ai-chat">
-                        <div class="ai-name">Navi</div>
-                        <div>${sanitizedMessage}${timestampStr}</div>
-                    </div>
-                </div>
-            `;
+    <div class="chat-container">
+      <div><img src="Images/Naviprologo_only.png" alt="logo"></div>
+      <div class="ai-chat">
+        <div class="ai-name">Navi</div>
+        <div>${sanitizedMessage}${timestampStr}</div>
+      </div>
+    </div>
+  `;
   messageContainer.innerHTML += aiMessageHTML;
 }
 
@@ -166,14 +171,18 @@ function addTypingIndicator() {
   if (!messageContainer) return;
 
   const typingHTML = `
-                <div class="chat-container" id="typingIndicator">
-                    <div><img src="Images/Naviprologo_only.png" alt="logo"></div>
-                    <div class="ai-chat">
-                        <div class="ai-name">Navi</div>
-                        <div>Navi is typing...</div>
-                    </div>
-                </div>
-            `;
+    <div class="chat-container" id="typingIndicator">
+      <div><img src="Images/Naviprologo_only.png" alt="logo"></div>
+      <div class="ai-chat">
+        <div class="ai-name">Navi</div>
+        <div class="typing-animation">
+          <span class="typing-dot"></span>
+          <span class="typing-dot"></span>
+          <span class="typing-dot"></span>
+        </div>
+      </div>
+    </div>
+  `;
   messageContainer.innerHTML += typingHTML;
 }
 
@@ -221,7 +230,12 @@ async function sendMessage() {
   // Clear input and reset height
   chatTextarea.value = "";
   chatTextarea.style.height = "auto";
-  document.querySelector(".container").style.marginBottom = "120px";
+
+  // Reset container margin if needed
+  const container = document.querySelector(".container");
+  if (container) {
+    container.style.marginBottom = "120px";
+  }
 
   // Show typing indicator
   addTypingIndicator();
@@ -230,15 +244,26 @@ async function sendMessage() {
   scrollToBottom();
 
   try {
-    // Get AI response
+    // Get AI response from backend
     const response = await sendChatMessage(message);
 
     // Remove typing indicator
     removeTypingIndicator();
 
-    if (response && response.response) {
-      // Add AI message to chat
-      addAIMessage(response.response, response.timestamp);
+    if (response) {
+      // Add AI message to chat - adjust these properties based on your API response structure
+      const messageText =
+        response.response || response.message || response.answer;
+      const timestamp = response.timestamp || new Date().toISOString();
+
+      if (messageText) {
+        addAIMessage(messageText, timestamp);
+      } else {
+        console.error("Invalid response format from API:", response);
+        addAIMessage(
+          "I'm having trouble responding right now. Please try again."
+        );
+      }
     } else {
       // Handle error case
       addAIMessage(
@@ -268,6 +293,11 @@ function initializeApp() {
   // Check for user session
   if (initializeUserSession()) {
     console.log("Chat initialized for user:", currentUserId);
+
+    // Add welcome message
+    addAIMessage(
+      "Hello! I'm here to help you with your learning journey. What would you like to know?"
+    );
   }
 }
 
