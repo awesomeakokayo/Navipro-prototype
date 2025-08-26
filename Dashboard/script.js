@@ -15,7 +15,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${localStorage.getItem('jwtToken')}`
+          Authorization: `Bearer ${localStorage.getItem("jwtToken")}`,
         },
       }
     );
@@ -51,7 +51,7 @@ async function generateNewRoadmap(userId) {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${localStorage.getItem('jwtToken')}`
+          Authorization: `Bearer ${localStorage.getItem("jwtToken")}`,
         },
         body: JSON.stringify({
           goal: userPreferences.goal || "Learn full-stack development",
@@ -229,7 +229,7 @@ function createWeekElement(week, monthNumber, weekNumber, roadmapData) {
   // Function to check if a task is completed
   const isTaskCompleted = (taskId) => {
     if (!roadmapData.roadmap) return false;
-    
+
     for (const month of roadmapData.roadmap) {
       for (const week of month.weeks || []) {
         for (const task of week.daily_tasks || []) {
@@ -252,14 +252,14 @@ function createWeekElement(week, monthNumber, weekNumber, roadmapData) {
                 <p class="week-focus">${week.focus || "Weekly Focus"}</p>
                 <ul>
                     ${(week.daily_tasks || [])
-                      .map(
-                        (task) => {
-                          const completed = isTaskCompleted(task.task_id);
-                          return `<li data-task-id="${task.task_id || ""}" class="${completed ? 'completed' : ''}">${
-                            task.title || "Task"
-                          }</li>`
-                        }
-                      )
+                      .map((task) => {
+                        const completed = isTaskCompleted(task.task_id);
+                        return `<li data-task-id="${
+                          task.task_id || ""
+                        }" class="${completed ? "completed" : ""}">${
+                          task.title || "Task"
+                        }</li>`;
+                      })
                       .join("")}
                 </ul>
             </div>
@@ -311,14 +311,14 @@ function createWeekElement(week, monthNumber, weekNumber, roadmapData) {
                 <p class="week-focus">${week.focus || "Weekly Focus"}</p>
                 <ul>
                     ${(week.daily_tasks || [])
-                      .map(
-                        (task) => {
-                          const completed = isTaskCompleted(task.task_id);
-                          return `<li data-task-id="${task.task_id || ""}" class="${completed ? 'completed' : ''}">${
-                            task.title || "Task"
-                          }</li>`
-                        }
-                      )
+                      .map((task) => {
+                        const completed = isTaskCompleted(task.task_id);
+                        return `<li data-task-id="${
+                          task.task_id || ""
+                        }" class="${completed ? "completed" : ""}">${
+                          task.title || "Task"
+                        }</li>`;
+                      })
                       .join("")}
                 </ul>
             </div>
@@ -401,7 +401,7 @@ function setupProgressTracking(userId, roadmapData) {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
-              "Authorization": `Bearer ${localStorage.getItem('jwtToken')}`
+              Authorization: `Bearer ${localStorage.getItem("jwtToken")}`,
             },
             body: JSON.stringify({
               task_id: taskId,
@@ -445,7 +445,7 @@ async function refreshRoadmapData(userId) {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${localStorage.getItem('jwtToken')}`
+          Authorization: `Bearer ${localStorage.getItem("jwtToken")}`,
         },
       }
     );
