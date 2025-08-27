@@ -2,13 +2,11 @@ document.addEventListener("DOMContentLoaded", async function () {
   const userId = localStorage.getItem("userId");
 
   if (!userId) {
-    // No user, redirect back to onboarding
     window.location.href = "../index.html";
     return;
   }
 
   try {
-    // First, try to get the user's existing roadmap from the backend
     const roadmapResponse = await fetch(
       `https://naviprobackend.onrender.com/api/user_roadmap/${userId}`,
       {
@@ -20,12 +18,10 @@ document.addEventListener("DOMContentLoaded", async function () {
     );
 
     if (roadmapResponse.ok) {
-      // User has an existing roadmap, use it
       const roadmapData = await roadmapResponse.json();
       updateRoadmapDisplay(roadmapData);
       setupProgressTracking(userId);
     } else if (roadmapResponse.status === 404) {
-      // No existing roadmap, generate a new one
       await generateNewRoadmap(userId);
     } else {
       throw new Error(`Backend error: ${roadmapResponse.status}`);
@@ -38,12 +34,10 @@ document.addEventListener("DOMContentLoaded", async function () {
 
 async function generateNewRoadmap(userId) {
   try {
-    // Get user preferences from localStorage (set during onboarding)
     const userPreferences = JSON.parse(
       localStorage.getItem("userPreferences") || "{}"
     );
 
-    // Call your Render backend with proper data structure
     const response = await fetch(
       "https://naviprobackend.onrender.com/api/generate_roadmap",
       {
@@ -73,15 +67,12 @@ async function generateNewRoadmap(userId) {
       throw new Error("Roadmap generation failed");
     }
 
-    // Store the new user ID if this is a new user
     if (result.user_id && result.user_id !== userId) {
       localStorage.setItem("userId", result.user_id);
       userId = result.user_id;
     }
 
     const roadmapData = result.roadmap;
-
-    // Update UI with the new roadmap
     updateRoadmapDisplay(roadmapData);
     setupProgressTracking(userId);
   } catch (err) {
@@ -91,24 +82,14 @@ async function generateNewRoadmap(userId) {
 }
 
 function updateRoadmapDisplay(roadmapData) {
-  // Update header information
   updateHeaderInfo(roadmapData);
-
-  // Update progress section
   updateProgressSection(roadmapData);
-
-  // Generate roadmap content
   generateRoadmapContent(roadmapData);
-
-  // Update footer
   updateFooter(roadmapData);
-
-  // Update progress bar
   updateProgressBar(roadmapData);
 }
 
 function updateProgressSection(roadmapData) {
-  // Update goal with the actual goal from backend
   const goalElement = document.querySelector(".progress-info h1");
   if (goalElement) {
     goalElement.textContent = `Goal: ${
@@ -116,7 +97,6 @@ function updateProgressSection(roadmapData) {
     }`;
   }
 
-  // Update progress info with proper month counting
   const progressInfo = document.querySelector(".progress-info p");
   if (progressInfo) {
     const progress = roadmapData.progress || {};
@@ -125,7 +105,6 @@ function updateProgressSection(roadmapData) {
     progressInfo.textContent = `Month ${currentMonth} of ${totalMonths} • Keep going`;
   }
 
-  // Update progress percentage
   const progressPercentage = document.querySelector(".progress-percentage p");
   if (progressPercentage) {
     const progress = roadmapData.progress || {};
@@ -138,13 +117,11 @@ function updateProgressSection(roadmapData) {
 }
 
 function updateHeaderInfo(roadmapData) {
-  // Update title with target role from backend
   const title = document.querySelector(".title");
   if (title) {
     title.textContent = `Your ${roadmapData.target_role || "Career"} Path`;
   }
 
-  // Update timeline
   const timeline = document.querySelector(".period");
   if (timeline) {
     const timeframeMap = {
@@ -173,23 +150,23 @@ function generateRoadmapContent(roadmapData) {
   const roadmapContainer = document.querySelector(".monthly-roadmap");
   if (!roadmapContainer) return;
 
-  // Clear existing content
   roadmapContainer.innerHTML = "";
 
-  // Generate content for each month
   if (roadmapData.roadmap && roadmapData.roadmap.length > 0) {
+    // Get completed task IDs from progress data
+    const completedTaskIds = roadmapData.progress?.completed_task_ids || [];
+
     roadmapData.roadmap.forEach((month, monthIndex) => {
-      // Create month header
       const monthElement = createMonthElement(month, monthIndex + 1);
       roadmapContainer.appendChild(monthElement);
 
-      // Generate weeks for this month
       if (month.weeks && month.weeks.length > 0) {
         month.weeks.forEach((week, weekIndex) => {
           const weekElement = createWeekElement(
             week,
             monthIndex + 1,
-            weekIndex + 1
+            weekIndex + 1,
+            completedTaskIds
           );
           roadmapContainer.appendChild(weekElement);
         });
@@ -216,11 +193,15 @@ function createMonthElement(month, monthNumber) {
   return monthDiv;
 }
 
-function createWeekElement(week, monthNumber, weekNumber) {
+function createWeekElement(
+  week,
+  monthNumber,
+  weekNumber,
+  completedTaskIds = []
+) {
   const weekDiv = document.createElement("div");
   weekDiv.className = weekNumber % 2 === 1 ? "week-right" : "week-left";
 
-  // Determine if this is an odd or even week for layout
   const isOddWeek = weekNumber % 2 === 1;
 
   if (isOddWeek) {
@@ -233,12 +214,16 @@ function createWeekElement(week, monthNumber, weekNumber) {
                 <p class="week-focus">${week.focus || "Weekly Focus"}</p>
                 <ul>
                     ${(week.daily_tasks || [])
-                      .map(
-                        (task) =>
-                          `<li data-task-id="${task.task_id || ""}">${
-                            task.title || "Task"
-                          }</li>`
-                      )
+                      .map((task) => {
+                        const isCompleted = completedTaskIds.includes(
+                          task.task_id
+                        );
+                        return `<li data-task-id="${
+                          task.task_id || ""
+                        }" class="${isCompleted ? "completed" : ""}">${
+                          task.title || "Task"
+                        }</li>`;
+                      })
                       .join("")}
                 </ul>
             </div>
@@ -290,12 +275,16 @@ function createWeekElement(week, monthNumber, weekNumber) {
                 <p class="week-focus">${week.focus || "Weekly Focus"}</p>
                 <ul>
                     ${(week.daily_tasks || [])
-                      .map(
-                        (task) =>
-                          `<li data-task-id="${task.task_id || ""}">${
-                            task.title || "Task"
-                          }</li>`
-                      )
+                      .map((task) => {
+                        const isCompleted = completedTaskIds.includes(
+                          task.task_id
+                        );
+                        return `<li data-task-id="${
+                          task.task_id || ""
+                        }" class="${isCompleted ? "completed" : ""}">${
+                          task.title || "Task"
+                        }</li>`;
+                      })
                       .join("")}
                 </ul>
             </div>
@@ -333,7 +322,6 @@ function updateFooter(roadmapData) {
 
   const footerText = document.querySelector(".footer p");
   if (footerText) {
-    // Use goal instead of target_role for more accuracy
     footerText.innerHTML = `Working towards your goal:<br> <b>${
       roadmapData.goal || "Career Development"
     }</b>`;
@@ -355,15 +343,12 @@ function calculateTotalTasks(roadmapData) {
 }
 
 function setupProgressTracking(userId) {
-  // Add click handlers for task completion
   const taskItems = document.querySelectorAll(
     ".week-content li, .week-content2 li"
   );
 
   taskItems.forEach((taskItem) => {
     taskItem.addEventListener("click", async function () {
-      if (this.classList.contains("completed")) return;
-
       const taskId = this.getAttribute("data-task-id");
       if (!taskId) {
         console.error("No task ID found for this task");
@@ -390,8 +375,6 @@ function setupProgressTracking(userId) {
           if (result.status === "success") {
             // Mark task as completed
             this.classList.add("completed");
-            this.style.textDecoration = "line-through";
-            this.style.opacity = "0.6";
 
             // Update progress display
             updateProgressDisplay(result);
@@ -428,6 +411,19 @@ async function refreshRoadmapData(userId) {
       const roadmapData = await response.json();
       updateProgressSection(roadmapData);
       updateProgressBar(roadmapData);
+
+      // Update task completion status without refreshing the whole page
+      const completedTaskIds = roadmapData.progress?.completed_task_ids || [];
+      document
+        .querySelectorAll(".week-content li, .week-content2 li")
+        .forEach((li) => {
+          const taskId = li.getAttribute("data-task-id");
+          if (completedTaskIds.includes(taskId)) {
+            li.classList.add("completed");
+          } else {
+            li.classList.remove("completed");
+          }
+        });
     }
   } catch (error) {
     console.error("Error refreshing roadmap data:", error);
@@ -435,19 +431,16 @@ async function refreshRoadmapData(userId) {
 }
 
 function updateProgressDisplay(result) {
-  // Update progress percentage
   const progressPercentage = document.querySelector(".progress-percentage p");
   if (progressPercentage) {
     progressPercentage.textContent = `${result.total_completed || 0}%`;
   }
 
-  // Update progress bar
   const progressBar = document.getElementById("filling");
   if (progressBar) {
     progressBar.style.width = `${result.total_completed || 0}%`;
   }
 
-  // Update progress info text
   const progressInfo = document.querySelector(".progress-info p");
   if (progressInfo && result.progress) {
     progressInfo.textContent = `Month ${
@@ -457,7 +450,6 @@ function updateProgressDisplay(result) {
 }
 
 function showCompletionMessage(message) {
-  // Create a temporary notification
   const notification = document.createElement("div");
   notification.style.cssText = `
         position: fixed;
@@ -474,13 +466,12 @@ function showCompletionMessage(message) {
 
   document.body.appendChild(notification);
 
-  // Remove after 3 seconds
   setTimeout(() => {
     notification.remove();
   }, 3000);
 }
 
-// Add some CSS for completed tasks
+// Add CSS for completed tasks
 const style = document.createElement("style");
 style.textContent = `
     .week-content li.completed,
