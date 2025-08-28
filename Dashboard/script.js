@@ -633,6 +633,8 @@
       <div class="middle">
           <p>This weeks skill focus: </p>
           <p>  • ${focus.week_focus}</p>
+          <p>  - Resource for today's task: ${focus.resources}</p>
+          <p>  - Task description${focus.description}</p>
       </div>
       `;
     }
@@ -675,7 +677,7 @@
 
               <div class="task-lists">
                   <img class="second-icon" width="25" height="25" src="https://img.icons8.com/?size=100&id=11751&format=png&color=FFFFFF" alt="">
-                  <span>Goal: ${task.description}</span>
+                  <span>Goal: ${task.goal}</span>
               </div>
               
               <div class="task-lists1">
