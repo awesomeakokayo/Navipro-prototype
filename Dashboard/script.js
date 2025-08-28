@@ -633,7 +633,8 @@
       <div class="middle">
           <p>This weeks skill focus: </p>
           <p>  • ${focus.week_focus}</p>
-          <p>  - Task description: ${focus.description}</p>
+          <p> </p>
+          <p>  - Today's task description: ${focus.description}</p>
       </div>
       `;
     }
