@@ -612,13 +612,30 @@
 
     if (!focus) {
       document.getElementById("skill").innerHTML = `
+      <div class="skill-header">
+          <span class="skill-header-left">
+              <img width="25" height="25" src="Images/fatrows (1).png" alt=""> Skill Momentum
+          </span>
+      </div>
+      <div class="middle">
+          <p>This weeks skill focus: </p>
+          <p>  None Available</p>
+      </div>
+      `; return
+    }
+
+    document.getElementById("skill").innerHTML = `
+      <div class="skill-header">
+          <span class="skill-header-left">
+              <img width="25" height="25" src="Images/fatrows (1).png" alt=""> Skill Momentum
+          </span>
+      </div>
       <div class="middle">
           <p>This weeks skill focus: </p>
           <p>  • ${focus.week_focus}</p>
       </div>
       `;
     }
-  }
 
   /**
    * Display today's task
