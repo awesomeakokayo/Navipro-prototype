@@ -141,7 +141,7 @@ form{
 }
 
 .step[data-step="7"] .options .option-btn.selected {
-    background-color: #fcca7b;
+    background-color: #FF9E00;
     border: 2px solid #FF9E00;
 }
 
@@ -175,9 +175,23 @@ form{
     font-family: 'Poppins', sans-serif;
     cursor: pointer
 }
+.option-btn:hover{
+    border: solid 1px #fcca7b;
+}
 .option-btn.selected {
-    background-color: #fcca7b;
+    background-color: #FF9E00;
     border: 2px solid #FF9E00;
+    color: white;
+}
+.option-btn.selected span{
+    background: inherit;
+    border: 1px solid white;
+}
+.option-btn.selected span img {
+  filter: brightness(0) invert(1); /* turns dark icons white */
+}
+.option-btn.selected p{
+    color: white;
 }
 span{
     display: flex;
@@ -295,7 +309,7 @@ h3{
     height: 40px;
 }
 .select-btn.selected {
-    background-color: #fcca7b;
+    background-color: #FF9E00;
     border: 2px solid #FF9E00;
 }
 
