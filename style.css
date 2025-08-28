@@ -128,7 +128,7 @@ form{
     padding-right: 20px;
     padding-left: 20px;
     margin-bottom: 0.5rem;
-} 
+}
 
 .step[data-step="7"] .options .option-btn{
     height: 120px;
@@ -309,7 +309,7 @@ h3{
     height: 40px;
 }
 .select-btn.selected {
-    background-color: #FF9E00;
+    background-color: #fcca7b;
     border: 2px solid #FF9E00;
 }
 
