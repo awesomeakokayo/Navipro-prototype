@@ -199,6 +199,7 @@ img{
     max-height: 150px;
     line-height: 1.4;
     width: 100%;
+    white-space: pre-wrap;
 }
 
 textarea{
@@ -211,10 +212,12 @@ textarea{
     padding: 0.3rem;
     line-height: 1.4;
     overflow: hidden;
+    white-space: pre-wrap;
 }
 
 textarea:focus{
     box-shadow: none;
+    white-space: pre-wrap;
 }
 
 .split{
