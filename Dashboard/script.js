@@ -675,7 +675,7 @@
 
               <div class="task-lists">
                   <img class="second-icon" width="25" height="25" src="https://img.icons8.com/?size=100&id=11751&format=png&color=FFFFFF" alt="">
-                  <span>Goal: ${task.goal}</span>
+                  <span>Goal: ${task.description}</span>
               </div>
               
               <div class="task-lists1">
