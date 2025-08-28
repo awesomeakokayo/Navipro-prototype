@@ -88,7 +88,6 @@ body{
 }
 .chat-message {
   white-space: pre-wrap;  
-  font-family: monospace; 
   line-height: 1.5; 
 }
 
