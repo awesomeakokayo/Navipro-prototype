@@ -86,6 +86,12 @@ body{
     border-radius: 0.6rem;
     max-width: 70%;
 }
+.chat-message {
+  white-space: pre-wrap;  
+  font-family: monospace; 
+  line-height: 1.5; 
+}
+
 
 .chat-container.user {
     flex-direction: row-reverse;

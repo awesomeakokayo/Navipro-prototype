@@ -130,7 +130,7 @@ function addUserMessage(message) {
     <div class="chat-container user">
       <div class="user-chat">
         <div class="user-name">You</div>
-        <div>${sanitizedMessage}</div>
+        <div class="chat-message">${sanitizedMessage}</div>
       </div>
     </div>
   `;
@@ -157,7 +157,7 @@ function addAIMessage(message, timestamp = null) {
       <div><img src="Images/Naviprologo_only.png" alt="logo"></div>
       <div class="ai-chat">
         <div class="ai-name">Navi</div>
-        <div>${sanitizedMessage}${timestampStr}</div>
+        <div class="chat-message">${sanitizedMessage}${timestampStr}</div>
       </div>
     </div>
   `;
