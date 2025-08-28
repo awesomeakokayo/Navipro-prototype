@@ -231,6 +231,7 @@
           displayTodaysTask();
           displayWeeklyVideos();
           updateProgressSection();
+          displayWeeksFocus();
       }
       
       // Load tasks content
@@ -605,6 +606,20 @@
       }
   }
 
+  // Display week's focus
+  async function displayWeeksFocus() {
+    const focus = await getTodaysTask();
+
+    if (!focus) {
+      document.getElementById("skill").innerHTML = `
+      <div class="middle">
+          <p>This weeks skill focus: </p>
+          <p>  • ${focus.week_focus}</p>
+      </div>
+      `;
+    }
+  }
+
   /**
    * Display today's task
    */
@@ -701,6 +716,8 @@
 
               // Refresh the task display to show next task
               await displayTodaysTask();
+
+              await displayWeeksFocus();
               
               // Update progress section
               await updateProgressSection();
@@ -886,6 +903,7 @@
           
           // Load user data
           await displayTodaysTask();
+          await displayWeeksFocus();
           await updateProgressSection();
           await displayWeeklyVideos();
           
