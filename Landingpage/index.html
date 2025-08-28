@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Navipro — AI career guidance to unlock your career potential</title>
+  <meta name="description" content="Navipro provides personalized AI-driven career roadmaps, daily tasks, and video recommendations to help you reach your full potential." />
+  <link rel="canonical" href="https://www.navipro.ai/" />
+  <link rel="stylesheet" href="style.css">
+
+  <!-- OpenGraph / Twitter -->
+  <meta property="og:title" content="Navipro — AI career guidance" />
+  <meta property="og:description" content="Personalized AI-led career roadmaps and daily tasks to accelerate your learning and job readiness." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://www.navipro.ai/" />
+  <meta property="og:image" content="https://www.navipro.ai/og-image.webp" />
+  <meta name="twitter:card" content="summary_large_image" />
+
+  <!-- Preconnect & Preload (fonts, LCP image if hero image is LCP) -->
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="preload" as="image" href="/images/hero-1200.webp" />
+
+  <!-- Minimal critical CSS -->
+  <style>
+     @import url('https://fonts.googleapis.com/css2?family=Allura&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+    :root{--max-w:1100px;--accent:#008cff;--cta:#ff9a00;--muted:#6b7280}
+    *{box-sizing:border-box}
+    body{font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;margin:0;color:#0b1220;line-height:1.4}
+    a{color:inherit;text-decoration:none}
+    header{background:#fff;border-bottom:3px solid #009DE929}
+    .nav{display:flex;align-items:center;justify-content:space-between;padding:14px 0}
+    .nav-links{display:flex;gap:50px;list-style:none;margin:0;padding:0;align-items:center}
+    /* Hero */
+    .hero{display:grid;grid-template-columns:1fr;gap:28px;padding:48px 0 80px;text-align:center}
+    .badge{display:inline-block;border-radius:999px;padding:6px 12px;border:2px solid #225276;font-size:16px;color:#225276;font-weight: 600;}
+    .highlight{color:var(--accent)}
+    .sub{color:black;max-width:890px;margin:0 auto 18px;font-size: 24px;}
+    .hero-form{display:flex;gap:12px;max-width:680px;margin:0 auto;align-items:center;justify-content:center}
+    .input-email{font-family: 'Poppins';font-weight: bold;font-size: 18px;flex:1;padding:14px 16px;border-radius:8px;border:1px solid #e3eefb;background:#fff;min-width:0;}
+    .cta-primary{background:var(--cta);color:#fff;font-weight:bold;font-size: 18px;border:none;padding:12px 18px;border-radius:8px;cursor:pointer}
+    .cta-secondary{background:transparent;color:#1B455B;font-size: 18px;font-weight: bold;border:1px solid #1B455B;padding:10px 14px;border-radius:8px}
+    .about-hero{max-width:520px}
+    .illustration{width:100%;max-width:480px;margin:0 auto}
+    /* Feature cards */
+    .features{display:grid;grid-template-columns:1fr;gap:18px;padding:40px 0}
+    .card{background:#fff;border-radius:14px;padding:18px;box-shadow:0 8px 24px rgba(12,32,64,0.06)}
+    /* Responsive */
+    @media(min-width:800px){
+      .hero{grid-template-columns:1fr}
+      .nav-links{display: hidden;}
+      .about-inner{grid-template-columns:1fr 480px;gap:36px}
+      .features{grid-template-columns:repeat(2,1fr)}
+    }
+  </style>
+
+  <!-- JSON-LD structured data -->
+  <script type="application/ld+json">
+  {
+    "@context":"https://schema.org",
+    "@type":"WebSite",
+    "url":"https://www.getnavipro.com",
+    "name":"Navipro",
+    "potentialAction": {
+      "@type":"SearchAction",
+      "target":"https://www.getnavipro.com/search?q={search_term_string}",
+      "query-input":"required name=search_term_string"
+    }
+  }
+  </script>
+</head>
+<body>
+  <a class="skip-link" href="#main" style="position:absolute;left:-999px;top:auto">Skip to content</a>
+
+  <header role="banner">
+    <div class="container nav" role="navigation" aria-label="Primary">
+      <nav class="nav-link" style="display:flex;align-items:center;gap:18px">
+        <span class="navigate">
+            <a href="/" aria-label="Navipro home" style="display:flex;align-items:center;margin-right: 50px;gap:8px">
+                <img src="images/naviprologo-whitebackground-removebg-preview.png" alt="Navipro logo" width="45" height="40" /> <span class="name">navipro</span>
+            </a>
+            
+            <ul id="navLinks" class="nav-links" role="menubar" aria-label="Main links">
+                <li class="menu" role="none"><a role="menuitem" href="#">Home</a></li>
+                <li class="menu" role="none"><a role="menuitem" href="#">About Us</a></li>
+                <li class="menu" role="none"><a role="menuitem" href="#">Features</a></li>
+                <li class="menu" role="none"><a role="menuitem" href="/contact">Contact</a></li>
+            </ul>
+        </span>
+        <a class="btn-login" href="../login">Log in</a>
+        <div class="hamburger" id="hamburger">&#9776;</div>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main" class="container" role="main">
+    <section class="hero" aria-labelledby="hero-heading">
+      <div style="text-align:center">
+        <span class="badge" aria-hidden="true">Join 50+ users guided in early access</span>
+        <h1 class="hero-heading" id="hero-heading">Unlock your <span class="highlight">career potential</span> <br> with AI driven guidance</h1>
+        <p class="sub">Get unstuck and start moving forward with Navipro - a personalized, AI smart, career guide, that will show you exactly how to reach your full potential</p>
+
+        <form class="hero-form" action="/signup" method="post" aria-label="Get started form">
+          <input id="email" class="input-email" name="email" type="email" placeholder="Enter e-mail here" required aria-required="true" />
+          <span>
+            <button class="cta-primary" type="submit">Get started</button>
+          <a class="cta-secondary" href="/why-navipro" role="button">Why navipro?</a>
+          </span>
+        </form>
+        <p style="margin-top:8px;font-weight:500;font-size:16px">We'll never share your info with anyone</p>
+      </div>
+    </section>
+
+    <!-- About / Illustration -->
+    <section class="about" aria-labelledby="about-heading">
+      <div id="aboutInner" class="container about-inner">
+        <div class="about-hero">
+          <p style="color:#9aa6b2;margin:0">About Us</p>
+          <h2 id="about-heading" style="font-size:40px">Growth should never feel like <span class="highlight">wandering in the dark</span></h2>
+          <p style="color:var(--muted)">That's why we built Navipro - to solve the very problems we know users face, problems we've faced ourselves</p>
+        </div>
+        <div class="cover-image"></div>
+      </div>
+    </section>
+
+    <!-- Feature cards -->
+    <section class="features" aria-labelledby="features-heading">
+      <h2 id="features-heading" style="grid-column:1/-1;text-align:center">These problems brought forth — <span class="highlight">Navipro — the Solution</span></h2>
+
+      <div class="card" role="article" aria-labelledby="f1">
+        <h3 id="f1">Too many paths, no clear direction</h3>
+        <p style="color:var(--muted)">Career choices feel endless — many users are unsure which skills or paths to focus on.</p>
+      </div>
+
+      <div class="card" role="article" aria-labelledby="f2">
+        <h3 id="f2">Lack of personalized guidance</h3>
+        <p style="color:var(--muted)">Generic advice that doesn’t match users' unique skills and goals.</p>
+      </div>
+
+      <div class="card" role="article" aria-labelledby="f3">
+        <h3 id="f3">No clear weekly roadmap</h3>
+        <p style="color:var(--muted)">Hard to turn long-term goals into daily progress — the roadmap should be automatic.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer role="contentinfo" style="background:#fafbff;padding:28px 0;margin-top:40px">
+    <div class="container" style="display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap">
+      <nav aria-label="Footer links" style="display:flex;gap:14px;flex-wrap:wrap">
+        <a href="/about">About</a>
+        <a href="/privacy">Privacy</a>
+        <a href="/terms">Terms</a>
+        <a href="/sitemap.xml">Sitemap</a>
+      </nav>
+      <p style="color:#94a3b8;margin:0">© <span id="year"></span> Navipro</p>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
