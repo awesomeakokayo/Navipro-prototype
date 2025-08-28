@@ -161,7 +161,7 @@
                               <div id="taskContainer" class="task">
                                   <!-- Task content will be loaded dynamically -->
                               </div>
-                              <div class="skill">
+                              <div id="skill" class="skill">
                                   <div class="skill-header">
                                       <span class="skill-header-left">
                                           <img width="25" height="25" src="Images/fatrows (1).png" alt=""> Skill Momentum
