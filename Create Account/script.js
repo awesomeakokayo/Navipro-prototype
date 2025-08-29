@@ -37,7 +37,7 @@ async function authenticatedFetch(endpoint, options = {}) {
   if (response.status === 401) {
     // Token might be expired or invalid
     localStorage.removeItem("jwtToken");
-    window.location.href = "./index.html"; // Redirect to login
+    window.location.href = "../Login/index.html";
     throw new Error("Authentication failed");
   }
 
@@ -50,14 +50,27 @@ function isValidEmail(email) {
   return emailRegex.test(email);
 }
 
+// Function to validate password strength
+function validatePassword(password) {
+  // At least 8 characters, one uppercase, one lowercase, one number
+  const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
+  return passwordRegex.test(password);
+}
+
 // Handle form submission
 const form = document.querySelector("form");
 
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
 
+  // Get input values
+  const firstname = document.getElementById("firstname").value.trim();
+  const lastname = document.getElementById("lastname").value.trim();
   const email = document.getElementById("email").value.trim();
   const password = document.getElementById("password").value.trim();
+  const confirmPassword = document
+    .getElementById("confirmpassword")
+    .value.trim();
 
   // Clear previous errors
   document.querySelectorAll(".error-message").forEach((el) => {
@@ -68,6 +81,16 @@ form.addEventListener("submit", async (e) => {
   let hasErrors = false;
 
   // Frontend validations
+  if (!firstname) {
+    showError("firstnameError", "First name is required");
+    hasErrors = true;
+  }
+
+  if (!lastname) {
+    showError("lastnameError", "Last name is required");
+    hasErrors = true;
+  }
+
   if (!email) {
     showError("emailError", "Email is required");
     hasErrors = true;
@@ -79,6 +102,17 @@ form.addEventListener("submit", async (e) => {
   if (!password) {
     showError("passwordError", "Password is required");
     hasErrors = true;
+  } else if (!validatePassword(password)) {
+    showError(
+      "passwordError",
+      "Password must be at least 8 characters with uppercase, lowercase, and number"
+    );
+    hasErrors = true;
+  }
+
+  if (password !== confirmPassword) {
+    showError("confirmPasswordError", "Passwords don't match");
+    hasErrors = true;
   }
 
   if (hasErrors) {
@@ -88,17 +122,21 @@ form.addEventListener("submit", async (e) => {
   // Show loading state
   const submitButton = form.querySelector('button[type="submit"]');
   const originalText = submitButton.textContent;
-  submitButton.textContent = "Logging in...";
+  submitButton.textContent = "Creating account...";
   submitButton.disabled = true;
+
+  // Combine names
+  const fullName = `${firstname} ${lastname}`;
 
   // Send data to backend
   try {
-    const response = await fetch(`${AUTH_BACKEND_URL}/auth/login`, {
+    const response = await fetch(`${AUTH_BACKEND_URL}/auth/register`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
+        name: fullName,
         email: email,
         password: password,
       }),
@@ -107,38 +145,38 @@ form.addEventListener("submit", async (e) => {
     const data = await response.json();
 
     if (response.ok) {
-      // Store the JWT token
+      // Store the JWT token if provided
       if (data.access_token) {
         localStorage.setItem("jwtToken", data.access_token);
         console.log("JWT token stored successfully");
       }
 
       // Show success message
-      showSuccess("Login successful! Redirecting...");
+      showSuccess("Account created successfully! Redirecting...");
 
       // Redirect after a brief delay
       setTimeout(() => {
-        window.location.href = "../Dashboard/index.html";
-      }, 1000);
+        window.location.href = "../Verify Email/index.html";
+      }, 1500);
     } else {
       // Show error from server
       showError(
         "formError",
-        data.message || "Login failed. Please check your credentials."
+        data.message || "Registration failed. Please try again."
       );
       submitButton.textContent = originalText;
       submitButton.disabled = false;
     }
   } catch (error) {
-    console.error("Error during login:", error);
+    console.error("Error during registration:", error);
     showError("formError", "An error occurred. Please try again later.");
     submitButton.textContent = originalText;
     submitButton.disabled = false;
   }
 });
 
-// Google login handler
-document.getElementById("googleLogin").addEventListener("click", () => {
+// Google register handler
+document.getElementById("googleRegister").addEventListener("click", () => {
   window.location.href = `${AUTH_BACKEND_URL}/auth/google`;
 });
 
@@ -207,21 +245,4 @@ window.addEventListener("DOMContentLoaded", () => {
       localStorage.removeItem("jwtToken");
     }
   }
-});
-
-// Forgot password functionality (if implemented)
-document.getElementById("forgotPassword")?.addEventListener("click", (e) => {
-  e.preventDefault();
-  const email = document.getElementById("email").value.trim();
-
-  if (!email || !isValidEmail(email)) {
-    showError(
-      "emailError",
-      "Please enter a valid email address to reset password"
-    );
-    return;
-  }
-
-  // Implement forgot password logic here
-  alert(`Password reset functionality would be triggered for: ${email}`);
 });
