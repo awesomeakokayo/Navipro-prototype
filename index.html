@@ -67,6 +67,7 @@
     }
   }
   </script>
+  <script src="https://www.google.com/recaptcha/api.js"></script>
 </head>
 <body>
   <a class="skip-link" href="#main" style="position:absolute;left:-999px;top:auto">Skip to content</a>
@@ -100,7 +101,7 @@
         <p class="sub">Get unstuck and start moving forward with Navipro - a personalized, AI smart, career guide, that will show you exactly how to reach your full potential</p>
 
         <form class="hero-form" action="/signup" method="post" aria-label="Get started form">
-          <input id="email" class="input-email" name="email" type="email" placeholder="Enter e-mail here" required aria-required="true" />
+          <input data-sitekey="reCAPTCHA_site_key" data-callback='onSubmit' data-action='submit' id="email" class="input-email" name="email" type="email" placeholder="Enter e-mail here" required aria-required="true" />
           <span>
             <button class="cta-primary" type="submit">Get started</button>
           <a class="cta-secondary" href="/why-navipro" role="button">Why navipro?</a>
