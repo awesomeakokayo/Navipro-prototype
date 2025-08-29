@@ -88,7 +88,7 @@ async function sendChatMessage(message) {
 
   try {
     const response = await fetch(
-      `https://naviprobackend.onrender.com/api/chat/${currentUserId}`,
+      `https://backend-b7ak.onrender.com/api/chat`,
       {
         method: "POST",
         headers: {

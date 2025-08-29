@@ -89,30 +89,36 @@
 
       // Content loading system for different sections
       function loadSectionContent(sectionName) {
+        if (sectionName === "logout") {
+          localStorage.clear();
+          sessionStorage.clear();
+          window.location.href = "../index.html"; // back to landing page
+          return; // stop execution here
+        }
           const mainContent = document.getElementById("mainContent");
           
           // Show loading indicator
           mainContent.innerHTML = '<div style="text-align: center; padding: 50px;"><h3>Loading...</h3></div>';
           
           // Load content based on section
-          switch(sectionName) {
-              case 'dashboard':
-                  loadDashboardContent();
-                  break;
-              case 'tasks':
-                  loadTasksContent();
-                  break;
-              case 'roadmap':
-                  loadRoadmapContent();
-                  break;
-              case 'resources':
-                  loadResourcesContent();
-                  break;
-              default:
-                  loadDashboardContent();
+          switch (sectionName) {
+            case "dashboard":
+              loadDashboardContent();
+              break;
+            case "tasks":
+              loadTasksContent();
+              break;
+            case "roadmap":
+              loadRoadmapContent();
+              break;
+            case "resources":
+              loadResourcesContent();
+              break;
+            default:
+              loadDashboardContent();
           }
       }
-      
+
       // Load dashboard content (default view)
       function loadDashboardContent() {
           const mainContent = document.getElementById("mainContent");
@@ -265,7 +271,7 @@
 
           try {
               // Fetch roadmap data from backend database
-              const response = await fetch(`https://naviprobackend.onrender.com/api/user_roadmap/${userId}`, {
+              const response = await fetch(`https://backend-b7ak.onrender.com/api/user_roadmap`, {
                   method: "GET",
                   headers: {
                       "Content-Type": "application/json",
@@ -343,6 +349,9 @@
                   case 'resources':
                       loadSectionContent('resources');
                       break;
+                  case 'logout':
+                    loadSectionContent('logout');
+                      break;
                   default:
                       console.log('Unknown section:', section);
                       loadSectionContent('dashboard');
@@ -367,7 +376,7 @@
 
       try {
           const response = await fetch(
-              `https://naviprobackend.onrender.com/api/user_progress/${currentUserId}`
+              `https://backend-b7ak.onrender.com/api/user_progress`
           );
 
           if (response.ok) {
@@ -394,7 +403,7 @@
 
       try {
           const response = await fetch(
-              `https://naviprobackend.onrender.com/api/weekly_progress/${currentUserId}`
+              `https://backend-b7ak.onrender.com/api/weekly_progress`
           );
 
           if (response.ok) {
@@ -590,7 +599,7 @@
 
       try {
           const response = await fetch(
-              `https://naviprobackend.onrender.com/api/daily_task/${currentUserId}`
+              `https://backend-b7ak.onrender.com/api/daily_task`
           );
 
           if (response.ok) {
@@ -715,7 +724,7 @@
 
       try {
           const response = await fetch(
-              `https://naviprobackend.onrender.com/api/complete_task/${currentUserId}`,
+              `https://backend-b7ak.onrender.com/api/complete_task`,
               {
                   method: "POST",
                   headers: {
@@ -765,7 +774,7 @@
 
       try {
           const response = await fetch(
-              `https://naviprobackend.onrender.com/api/week_videos/${currentUserId}`
+              `https://backend-b7ak.onrender.com/api/week_videos`
           );
 
           if (response.ok) {

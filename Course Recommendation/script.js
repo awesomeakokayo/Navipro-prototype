@@ -16,7 +16,7 @@ async function loadCourses(query) {
 
   try {
     const res = await fetch(
-      `https://naviprobackend.onrender.com/api/week_videos/${currentUserId}`
+      `https://backend-b7ak.onrender.com/api/week_videos`
     );
     if (!res.ok) throw new Error(`Server returned ${res.status}`);
     const data = await res.json();
