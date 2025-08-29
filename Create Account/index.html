@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Allura&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+    </style>
+    <title>Create Account</title>
+</head>
+<body>
+    <div class="content">
+        <div class="left">
+        
+        </div>
+
+        <div class="right">
+            <span class="logo-container">
+                <img class="logo" src="Images/naviprologo-whitebackground-removebg-preview.png" alt="Logo">
+                <span class="logo-text">navipro</span>
+            </span>
+            <h1>Create your account</h1>
+            <p class="cta">Smarter decisions for your next career move</p>
+            
+            <div class="form-container">
+                <button type="button" id="googleRegister" class="google-register">
+                    <img class="google-logo" src="Images/google_log-removebg-preview.png" alt="Google"> 
+                    Continue with Google
+                </button>
+                
+                <div class="line-divider">
+                    <span>or</span>
+                </div>
+                
+                <form id="registrationForm" onsubmit="registerUser(event)">
+                    <div class="name-row">
+                        <input id="firstname" class="form-input" type="text" placeholder="First name" required>
+                        <input id="lastname" class="form-input" type="text" placeholder="Last name" required>
+                    </div>
+                    <input id="email" class="form-input" type="email" placeholder="fullname@gmail.com" required>
+
+                    <div class="password-container">
+                        <input id="password" class="form-input" type="password" placeholder="Password" minlength="8" required>
+                        <button type="button" class="password-toggle" onclick="togglePassword('password', this)">
+                            <span class="eye-open"></span>
+                        </button>
+                    </div>
+                    
+                    <!-- Confirm password field with toggle -->
+                    <div class="password-container">
+                        <input id="confirmpassword" class="form-input" type="password" placeholder="Confirm Password" minlength="8" required>
+                        <button type="button" class="password-toggle" onclick="togglePassword('confirmpassword', this)">
+                            <span class="eye-open"></span>
+                        </button>
+                    </div>
+
+                    <div class="checkbox-container">
+                        <input type="checkbox" id="terms" required>
+                        <label for="terms">I agree to the <a href="#">Terms & Conditions</a></label>
+                    </div>
+    
+                    <button class="submit" type="submit">Get started</button>
+    
+                    <p class="login-link">
+                        Already have an account? <a href="../login/index.html">Log in</a>
+                    </p>
+                </form>
+                
+                
+            </div>
+        </div>
+    </div>
+    <script src="config.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
