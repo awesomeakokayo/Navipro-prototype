@@ -5,7 +5,7 @@ function onSubmit(token) {
 document.addEventListener("DOMContentLoaded", () => {
   const hamburger = document.getElementById("hamburger");
   const navLinks = document.getElementById("navLinks");
-
+ 
   // accessibility: mark button/expanded state
   hamburger.setAttribute("role", "button");
   hamburger.setAttribute("tabindex", "0");
