@@ -888,6 +888,7 @@
       try {
           const progress = await getUserProgress();
           const weeklyProgress = await getWeeklyProgress();
+          const estimatedTime = await getTodaysTask();;
           
           if (!progress) return;
 
@@ -904,8 +905,9 @@
 
           // Update momentum chart with weekly progress
           if (momentumChart && weeklyProgress) {
+              const time = estimatedTime.estimated_time;
               momentumChart.data.datasets[0].data = weeklyProgress.completed_hours || [4.5, 6.5, 2.5, 5, 3, 0, 0];
-              momentumChart.data.datasets[1].data = weeklyProgress.planned_hours || [1.5, 2, 1, 2, 2, 7, 6];
+              momentumChart.data.datasets[1].data = weeklyProgress.planned_hours || [time, time, time, time, time, time, time];
               momentumChart.update();
           }
 
