@@ -897,7 +897,7 @@
       try {
           const progress = await getUserProgress();
           const weeklyProgress = await getWeeklyProgress();
-          const estimatedTime = await getTodaysTask();;
+          const estimatedTime = await getTodaysTask();
           
           if (!progress) return;
 
