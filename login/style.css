@@ -18,6 +18,20 @@ body {
     margin: 0 auto;
 }
 
+.error-message {
+  color: #e74c3c;
+  font-size: 14px;
+  margin-top: 5px;
+  display: none;
+}
+
+.success-message {
+  color: #27ae60;
+  font-size: 14px;
+  margin-top: 5px;
+  display: none;
+}
+
 .left {
     display: flex;
     align-items: center;

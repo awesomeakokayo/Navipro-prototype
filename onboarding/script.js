@@ -221,7 +221,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 // Send to backend
                 const response = await fetch(
-                  "https://naviprobackend.onrender.com/api/generate_roadmap",
+                  "https://backend-b7ak.onrender.com/api/generate_roadmap",
                   {
                     method: "POST",
                     headers: {
