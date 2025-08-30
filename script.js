@@ -1,3 +1,4 @@
+console.log('JWT Token from localStorage:', localStorage.getItem('jwtToken'));
 // Backend URL configuration
 const APP_BACKEND_URL = 'https://backend-b7ak.onrender.com';
 
