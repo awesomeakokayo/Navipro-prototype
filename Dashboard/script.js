@@ -288,15 +288,9 @@
 
           try {
               // Fetch roadmap data from backend database
-              const response = await fetch(
-                `https://backend-b7ak.onrender.com/api/user_roadmap`,
-                {
-                  method: "GET",
-                  headers: {
-                    "Content-Type": "application/json",
-                  },
-                }
-              );
+              const response = await auth.authenticatedFetch("/api/user_roadmap", {
+                method: "GET",
+              });
 
               if (!response.ok) {
                   throw new Error(`Failed to fetch roadmap: ${response.status}`);
@@ -395,9 +389,7 @@
       }
 
       try {
-          const response = await fetch(
-              `https://backend-b7ak.onrender.com/api/user_progress`
-          );
+          const response = await auth.authenticatedFetch("/api/user_progress");
 
           if (response.ok) {
               const progressData = await response.json();
@@ -422,9 +414,7 @@
       }
 
       try {
-          const response = await fetch(
-            `https://backend-b7ak.onrender.com/api/weekly_progress`
-          );
+          const response = await auth.authenticatedFetch("/api/weekly_progress");
 
           if (response.ok) {
               const weeklyData = await response.json();
@@ -618,9 +608,7 @@
       }
 
       try {
-          const response = await fetch(
-            `https://backend-b7ak.onrender.com/api/daily_task`
-          );
+          const response = await auth.authenticatedFetch("/api/daily_task");
 
           if (response.ok) {
               const taskData = await response.json();
@@ -743,18 +731,12 @@
       }
 
       try {
-          const response = await fetch(
-            `https://backend-b7ak.onrender.com/api/complete_task`,
-            {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({
-                task_completed: true,
-              }),
-            }
-          );
+          const response = await auth.authenticatedFetch("/api/complete_task", {
+            method: "POST",
+            body: JSON.stringify({
+              task_completed: true,
+            }),
+          });
           
           if (response.ok) {
               const result = await response.json();
@@ -793,9 +775,7 @@
       }
 
       try {
-          const response = await fetch(
-            `https://backend-b7ak.onrender.com/api/week_videos`
-          );
+          const response = await auth.authenticatedFetch("/api/week_videos");
 
           if (response.ok) {
               const videoData = await response.json();
