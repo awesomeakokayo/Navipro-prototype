@@ -217,6 +217,8 @@ function createFormErrorElement() {
   return errorDiv;
 }
 
+console.log('JWT Token:', localStorage.getItem('jwtToken'));
+
 // Create success message element if it doesn't exist
 function createSuccessElement() {
   const successDiv = document.createElement("div");
