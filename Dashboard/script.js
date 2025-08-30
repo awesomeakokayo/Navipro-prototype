@@ -5,7 +5,7 @@
   let momentumChart = null;
   
   // Initialize user session using AuthManager
-  function initializeUserSession() {
+  async function initializeUserSession() {
       // Check if user is authenticated
       if (!auth.isAuthenticated()) {
           console.log('User not authenticated, redirecting to login...');
@@ -42,6 +42,21 @@
           return true;
       }
       
+      // Check if user has a roadmap, if not redirect to onboarding
+      try {
+          const roadmapResponse = await auth.authenticatedFetch("/api/user_roadmap");
+          if (roadmapResponse.status === 404) {
+              // User doesn't have a roadmap, redirect to onboarding
+              console.log('No roadmap found, redirecting to onboarding...');
+              window.location.href = '../onboarding/index.html';
+              return false;
+          }
+      } catch (error) {
+          console.log('Error checking roadmap, redirecting to onboarding...');
+          window.location.href = '../onboarding/index.html';
+          return false;
+      }
+      
       return true;
   }
 
@@ -69,9 +84,9 @@
       }
   }
 
-  document.addEventListener("DOMContentLoaded", function () {
+  document.addEventListener("DOMContentLoaded", async function () {
       // Initialize user session first
-      if (!initializeUserSession()) {
+      if (!(await initializeUserSession())) {
           return;
       }
       
