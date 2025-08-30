@@ -225,3 +225,5 @@ document.getElementById("forgotPassword")?.addEventListener("click", (e) => {
   // Implement forgot password logic here
   alert(`Password reset functionality would be triggered for: ${email}`);
 });
+
+console.log('JWT Token:', localStorage.getItem('jwtToken'));
