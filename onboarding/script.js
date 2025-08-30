@@ -141,88 +141,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Handle input field (Step 2)
-    if (targetRoleInput) {
-        targetRoleInput.addEventListener('input', function() {
-            const nextBtn = steps[1].querySelector('.next-btn');
-            if (this.value.trim() !== '') {
-                enableNextButton(1);
-                formData.target_role = this.value.trim();
-                updateStepCompletion();
-            } else {
-                disableNextButton(1);
-                formData.target_role = '';
-                updateStepCompletion();
-            }
-        });
-    }
-
-    // Handle next button clicks
-    nextButtons.forEach((button, index) => {
-        button.addEventListener('click', function(e) {
-            e.preventDefault();
-            
-            // Store target role when moving from step 2
-            if (currentStep === 2 && targetRoleInput) {
-                formData.target_role = targetRoleInput.value.trim();
-            }
-            
-            if (currentStep < steps.length) {
-                steps[currentStep - 1].classList.remove('active');
-                steps[currentStep].classList.add('active');
-                currentStep++;
-                updateProgressBar();
-            }
-        });
-    });
-
-    // Handle back button clicks
-    backButtons.forEach((button, index) => {
-        button.addEventListener('click', function(e) {
-            e.preventDefault();
-            if (currentStep > 1) {
-                steps[currentStep - 1].classList.remove('active');
-                steps[currentStep - 2].classList.add('active');
-                currentStep--;
-                updateProgressBar();
-                
-                // Clear form data for steps after current step to prevent validation issues
-                clearFormDataAfterStep(currentStep);
-            }
-        });
-    });
-    
-    // Function to clear form data for steps after current step
-    function clearFormDataAfterStep(step) {
-        if (step < 5) formData.learning_style = '';
-        if (step < 6) formData.learning_speed = '';
-        if (step < 7) formData.skill_level = '';
-        console.log('Form data after clearing:', formData);
-    }
-
-    // Helper functions
-    function updateProgressBar() {
-        const progress = ((currentStep - 1) / (steps.length - 1)) * 100;
-        progressBar.style.width = `${progress}%`;
-    }
-
-    function enableNextButton(stepIndex) {
-        const nextBtn = steps[stepIndex].querySelector('.next-btn');
-        if (nextBtn) {
-            nextBtn.removeAttribute('disabled');
-            nextBtn.style.background = '#FF9E00';
-        }
-    }
-
-    function disableNextButton(stepIndex) {
-        const nextBtn = steps[stepIndex].querySelector('.next-btn');
-        if (nextBtn) {
-            nextBtn.setAttribute('disabled', '');
-            nextBtn.style.background = '#B9B9B9';
-        }
-    }
-
-    // Handle final step - generate roadmap
+ // Handle final step - generate roadmap
     const finalStep = steps[steps.length - 1];
     const finishBtn = finalStep.querySelector(".next-btn");
 
@@ -265,14 +184,29 @@ document.addEventListener('DOMContentLoaded', function() {
                     skill_level: formData.skill_level
                 };
 
-                // Use authenticatedFetch instead of regular fetch
-                const response = await authenticatedFetch('/api/generate_roadmap', {
+                // Use a direct fetch call instead of authenticatedFetch to avoid automatic redirect
+                const token = localStorage.getItem('jwtToken');
+                if (!token) {
+                    throw new Error('No authentication token found');
+                }
+
+                const response = await fetch(`${APP_BACKEND_URL}/api/generate_roadmap`, {
                     method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`
+                    },
                     body: JSON.stringify(roadmapRequest),
                 });
 
                 if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
+                    if (response.status === 401) {
+                        // Handle authentication error specifically
+                        localStorage.removeItem('jwtToken');
+                        throw new Error('Your session has expired. Please log in again.');
+                    } else {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
                 }
 
                 const data = await response.json();
@@ -292,11 +226,18 @@ document.addEventListener('DOMContentLoaded', function() {
 
             } catch (error) {
                 console.error("Error generating roadmap:", error);
-                alert("Failed to generate roadmap. Please try again.");
                 
-                // Reset button
-                finishBtn.textContent = "Generate roadmap";
-                finishBtn.disabled = false;
+                // Show user-friendly error message instead of redirecting
+                if (error.message.includes('session has expired')) {
+                    alert('Your session has expired. Please log in again.');
+                    window.location.href = "../Login/index.html";
+                } else {
+                    alert("Failed to generate roadmap. Please try again.");
+                    
+                    // Reset button
+                    finishBtn.textContent = "Generate roadmap";
+                    finishBtn.disabled = false;
+                }
             }
         });
     }
