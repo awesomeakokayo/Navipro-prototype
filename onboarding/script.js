@@ -1,3 +1,42 @@
+// Backend URL configuration
+const APP_BACKEND_URL = 'https://backend-b7ak.onrender.com';
+
+// Utility function for authenticated requests
+async function authenticatedFetch(endpoint, options = {}) {
+  const token = localStorage.getItem('jwtToken');
+  
+  if (!token) {
+    console.error('No JWT token found in localStorage');
+    window.location.href = '../Login/index.html';
+    throw new Error('Authentication required');
+  }
+  
+  const headers = {
+    'Content-Type': 'application/json',
+    ...options.headers,
+  };
+  
+  headers['Authorization'] = `Bearer ${token}`;
+  
+  try {
+    const response = await fetch(`${APP_BACKEND_URL}${endpoint}`, {
+      ...options,
+      headers,
+    });
+    
+    if (response.status === 401) {
+      localStorage.removeItem('jwtToken');
+      window.location.href = '../Login/index.html';
+      throw new Error('Authentication failed');
+    }
+    
+    return response;
+  } catch (error) {
+    console.error('Request failed:', error);
+    throw error;
+  }
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     // Get all necessary elements
     const steps = document.querySelectorAll('.step');
@@ -18,6 +57,13 @@ document.addEventListener('DOMContentLoaded', function() {
         learning_speed: '',
         skill_level: ''
     };
+
+    // Check if user has a JWT token
+    const token = localStorage.getItem('jwtToken');
+    if (!token) {
+        window.location.href = "../Login/index.html";
+        return;
+    }
 
     // Initialize first step
     let currentStep = 1;
@@ -219,17 +265,18 @@ document.addEventListener('DOMContentLoaded', function() {
                     skill_level: formData.skill_level
                 };
 
+<<<<<<< HEAD
                 // Send to backend
                 const response = await fetch(
                   "https://backend-b7ak.onrender.com/api/generate_roadmap",
                   {
+=======
+                // Use authenticatedFetch instead of regular fetch
+                const response = await authenticatedFetch('/api/generate_roadmap', {
+>>>>>>> 7981433a51aa5517cb125bb0ad9db25380adcc25
                     method: "POST",
-                    headers: {
-                      "Content-Type": "application/json",
-                    },
                     body: JSON.stringify(roadmapRequest),
-                  }
-                );
+                });
 
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
@@ -238,9 +285,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 const data = await response.json();
                 
                 if (data.success) {
-                    // Store roadmap data and user ID in localStorage
+                    // Store roadmap data in localStorage
                     localStorage.setItem('roadmapData', JSON.stringify(data.roadmap));
-                    localStorage.setItem('userId', data.user_id);
+                    
+                    // Store user preferences for future reference
+                    localStorage.setItem('userPreferences', JSON.stringify(formData));
 
                     // Redirect to Dashboard page
                     window.location.href = "../Dashboard/index.html";

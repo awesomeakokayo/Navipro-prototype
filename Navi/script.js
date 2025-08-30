@@ -87,6 +87,7 @@ async function sendChatMessage(message) {
   }
 
   try {
+<<<<<<< HEAD
     const response = await fetch(`https://backend-b7ak.onrender.com/api/chat`, {
       method: "POST",
       headers: {
@@ -97,6 +98,21 @@ async function sendChatMessage(message) {
         user_id: currentUserId,
       }),
     });
+=======
+    const response = await fetch(
+      `https://backend-b7ak.onrender.com/api/chat`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          message: message,
+          user_id: currentUserId,
+        }),
+      }
+    );
+>>>>>>> 7981433a51aa5517cb125bb0ad9db25380adcc25
 
     if (!response.ok) {
       const errorText = await response.text();
