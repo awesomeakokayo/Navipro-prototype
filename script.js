@@ -1,47 +1,59 @@
 // Backend URL configuration
-const APP_BACKEND_URL = 'https://backend-b7ak.onrender.com'; // Your Python backend
+const APP_BACKEND_URL = 'https://backend-b7ak.onrender.com';
 
-// Utility function for authenticated requests to Python backend
+// Utility function for authenticated requests
 async function authenticatedFetch(endpoint, options = {}) {
   const token = localStorage.getItem('jwtToken');
+  
+  if (!token) {
+    console.error('No JWT token found in localStorage');
+    window.location.href = '../Login/index.html';
+    throw new Error('Authentication required');
+  }
   
   const headers = {
     'Content-Type': 'application/json',
     ...options.headers,
   };
   
-  if (token) {
-    headers['Authorization'] = `Bearer ${token}`;
+  headers['Authorization'] = `Bearer ${token}`;
+  
+  console.log('Making authenticated request to:', `${APP_BACKEND_URL}${endpoint}`);
+  console.log('With headers:', headers);
+  
+  try {
+    const response = await fetch(`${APP_BACKEND_URL}${endpoint}`, {
+      ...options,
+      headers,
+    });
+    
+    if (response.status === 401) {
+      localStorage.removeItem('jwtToken');
+      window.location.href = '../Login/index.html';
+      throw new Error('Authentication failed');
+    }
+    
+    return response;
+  } catch (error) {
+    console.error('Request failed:', error);
+    throw error;
   }
-  
-  const response = await fetch(`${APP_BACKEND_URL}${endpoint}`, {
-    ...options,
-    headers,
-  });
-  
-  if (response.status === 401) {
-    // Token might be expired or invalid
-    localStorage.removeItem('jwtToken');
-    window.location.href = '../Login/index.html';
-    throw new Error('Authentication failed');
-  }
-  
-  return response;
 }
 
 document.addEventListener("DOMContentLoaded", async function () {
+  // Check if user has a JWT token
   const token = localStorage.getItem("jwtToken");
-
+  console.log('JWT Token from storage:', token ? 'Exists' : 'Missing');
+  
   if (!token) {
     window.location.href = "../Login/index.html";
     return;
   }
 
   try {
-    const roadmapResponse = await authenticatedFetch('/api/user_roadmap', {
-      method: "GET"
-    });
-
+    // Use authenticatedFetch instead of regular fetch
+    const roadmapResponse = await authenticatedFetch('/api/user_roadmap');
+    
     if (roadmapResponse.ok) {
       const roadmapData = await roadmapResponse.json();
       updateRoadmapDisplay(roadmapData);
@@ -63,6 +75,7 @@ async function generateNewRoadmap() {
       localStorage.getItem("userPreferences") || "{}"
     );
 
+    // Use authenticatedFetch instead of regular fetch
     const response = await authenticatedFetch('/api/generate_roadmap', {
       method: "POST",
       body: JSON.stringify({
