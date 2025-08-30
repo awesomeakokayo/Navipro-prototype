@@ -4,19 +4,27 @@
   let progressChart = null;
   let momentumChart = null;
   
-  // Initialize user session
+  // Initialize user session using AuthManager
   function initializeUserSession() {
-      const userId = localStorage.getItem('userId');
-      const roadmapData = localStorage.getItem('roadmapData');
-      
-      if (!userId || !roadmapData) {
-          console.log('No user session found, redirecting to onboarding...');
-          window.location.href = '../onboarding/index.html';
+      // Check if user is authenticated
+      if (!auth.isAuthenticated()) {
+          console.log('User not authenticated, redirecting to login...');
+          window.location.href = '../login/index.html';
           return false;
       }
       
-      currentUserId = userId;
+      // Get user ID from JWT token
+      currentUserId = auth.getUserId();
+      if (!currentUserId) {
+          console.log('Could not get user ID from token, redirecting to login...');
+          auth.logout();
+          return false;
+      }
+      
       console.log('User session initialized:', currentUserId);
+      
+      // Update user display
+      updateUserDisplay();
       
       // After roadmap generation, automatically load career path
       if (localStorage.getItem('newRoadmapGenerated') === 'true') {
@@ -35,6 +43,17 @@
       }
       
       return true;
+  }
+
+  // Update user display with information from token
+  function updateUserDisplay() {
+      const userData = auth.getUserData();
+      if (userData) {
+          const userNameElement = document.querySelector('.user-name');
+          if (userNameElement) {
+              userNameElement.textContent = userData.name || 'User';
+          }
+      }
   }
 
   // Update welcome message with user's goal
@@ -90,9 +109,7 @@
       // Content loading system for different sections
       function loadSectionContent(sectionName) {
         if (sectionName === "logout") {
-          localStorage.clear();
-          sessionStorage.clear();
-          window.location.href = "../index.html"; // back to landing page
+          auth.logout(); // Use AuthManager logout
           return; // stop execution here
         }
           const mainContent = document.getElementById("mainContent");
@@ -271,13 +288,9 @@
 
           try {
               // Fetch roadmap data from backend database
-<<<<<<< HEAD
               const response = await fetch(
                 `https://backend-b7ak.onrender.com/api/user_roadmap`,
                 {
-=======
-              const response = await fetch(`https://backend-b7ak.onrender.com/api/user_roadmap`, {
->>>>>>> 7981433a51aa5517cb125bb0ad9db25380adcc25
                   method: "GET",
                   headers: {
                     "Content-Type": "application/json",
@@ -383,11 +396,7 @@
 
       try {
           const response = await fetch(
-<<<<<<< HEAD
-            `https://backend-b7ak.onrender.com/api/user_progress`
-=======
               `https://backend-b7ak.onrender.com/api/user_progress`
->>>>>>> 7981433a51aa5517cb125bb0ad9db25380adcc25
           );
 
           if (response.ok) {
@@ -414,11 +423,7 @@
 
       try {
           const response = await fetch(
-<<<<<<< HEAD
             `https://backend-b7ak.onrender.com/api/weekly_progress`
-=======
-              `https://backend-b7ak.onrender.com/api/weekly_progress`
->>>>>>> 7981433a51aa5517cb125bb0ad9db25380adcc25
           );
 
           if (response.ok) {
@@ -614,11 +619,7 @@
 
       try {
           const response = await fetch(
-<<<<<<< HEAD
             `https://backend-b7ak.onrender.com/api/daily_task`
-=======
-              `https://backend-b7ak.onrender.com/api/daily_task`
->>>>>>> 7981433a51aa5517cb125bb0ad9db25380adcc25
           );
 
           if (response.ok) {
@@ -743,7 +744,6 @@
 
       try {
           const response = await fetch(
-<<<<<<< HEAD
             `https://backend-b7ak.onrender.com/api/complete_task`,
             {
               method: "POST",
@@ -754,18 +754,6 @@
                 task_completed: true,
               }),
             }
-=======
-              `https://backend-b7ak.onrender.com/api/complete_task`,
-              {
-                  method: "POST",
-                  headers: {
-                      "Content-Type": "application/json",
-                  },
-                  body: JSON.stringify({
-                      task_completed: true,
-                  }),
-              }
->>>>>>> 7981433a51aa5517cb125bb0ad9db25380adcc25
           );
           
           if (response.ok) {
@@ -806,11 +794,7 @@
 
       try {
           const response = await fetch(
-<<<<<<< HEAD
             `https://backend-b7ak.onrender.com/api/week_videos`
-=======
-              `https://backend-b7ak.onrender.com/api/week_videos`
->>>>>>> 7981433a51aa5517cb125bb0ad9db25380adcc25
           );
 
           if (response.ok) {

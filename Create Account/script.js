@@ -1,7 +1,4 @@
-// Backend URL configuration
-const AUTH_BACKEND_URL = "https://naviproai-1.onrender.com"; // Your Node.js auth backend
-const APP_BACKEND_URL = "https://backend-b7ak.onrender.com"; // Your Python backend
-
+// Create Account functionality using centralized AuthManager
 // Password visibility toggle
 function togglePassword(inputId, toggleButton) {
   const passwordInput = document.getElementById(inputId);
@@ -14,34 +11,6 @@ function togglePassword(inputId, toggleButton) {
     passwordInput.type = "password";
     eyeIcon.className = "eye-open";
   }
-}
-
-// Utility function for authenticated requests to Python backend
-async function authenticatedFetch(endpoint, options = {}) {
-  const token = localStorage.getItem("jwtToken");
-
-  const headers = {
-    "Content-Type": "application/json",
-    ...options.headers,
-  };
-
-  if (token) {
-    headers["Authorization"] = `Bearer ${token}`;
-  }
-
-  const response = await fetch(`${APP_BACKEND_URL}${endpoint}`, {
-    ...options,
-    headers,
-  });
-
-  if (response.status === 401) {
-    // Token might be expired or invalid
-    localStorage.removeItem("jwtToken");
-    window.location.href = "../Login/index.html";
-    throw new Error("Authentication failed");
-  }
-
-  return response;
 }
 
 // Function to validate email format
@@ -130,7 +99,7 @@ form.addEventListener("submit", async (e) => {
 
   // Send data to backend
   try {
-    const response = await fetch(`${AUTH_BACKEND_URL}/auth/register`, {
+    const response = await fetch(`${auth.AUTH_BACKEND_URL}/auth/register`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -145,10 +114,14 @@ form.addEventListener("submit", async (e) => {
     const data = await response.json();
 
     if (response.ok) {
-      // Store the JWT token if provided
+      // Store the JWT token if provided using AuthManager
       if (data.access_token) {
-        localStorage.setItem("jwtToken", data.access_token);
-        console.log("JWT token stored successfully");
+        auth.setToken(data.access_token);
+        
+        // Store user data if provided
+        if (data.user) {
+          localStorage.setItem("userData", JSON.stringify(data.user));
+        }
       }
 
       // Show success message
@@ -177,7 +150,7 @@ form.addEventListener("submit", async (e) => {
 
 // Google register handler
 document.getElementById("googleRegister").addEventListener("click", () => {
-  window.location.href = `${AUTH_BACKEND_URL}/auth/google`;
+  window.location.href = `${auth.AUTH_BACKEND_URL}/auth/google`;
 });
 
 // Helper function to show error messages
@@ -217,11 +190,6 @@ function createFormErrorElement() {
   return errorDiv;
 }
 
-<<<<<<< HEAD
-=======
-console.log('JWT Token:', localStorage.getItem('jwtToken'));
-
->>>>>>> 7981433a51aa5517cb125bb0ad9db25380adcc25
 // Create success message element if it doesn't exist
 function createSuccessElement() {
   const successDiv = document.createElement("div");
@@ -233,21 +201,8 @@ function createSuccessElement() {
 
 // Check if user is already logged in
 window.addEventListener("DOMContentLoaded", () => {
-  const token = localStorage.getItem("jwtToken");
-  if (token) {
-    // Verify token is still valid
-    try {
-      const payload = JSON.parse(atob(token.split(".")[1]));
-      if (payload.exp * 1000 > Date.now()) {
-        // Token is still valid, redirect to dashboard
-        window.location.href = "../Dashboard/index.html";
-      } else {
-        // Token expired, remove it
-        localStorage.removeItem("jwtToken");
-      }
-    } catch (e) {
-      console.error("Invalid token format", e);
-      localStorage.removeItem("jwtToken");
-    }
+  if (auth.isAuthenticated()) {
+    // User is already authenticated, redirect to dashboard
+    window.location.href = "../Dashboard/index.html";
   }
 });

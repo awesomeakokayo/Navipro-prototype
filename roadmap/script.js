@@ -1,28 +1,21 @@
+// Roadmap functionality using centralized AuthManager
 document.addEventListener("DOMContentLoaded", async function () {
-  const userId = localStorage.getItem("userId");
-
-  if (!userId) {
-    window.location.href = "../index.html";
+  // Check authentication using AuthManager
+  if (!auth.requireAuth()) {
     return;
   }
 
   try {
-    const roadmapResponse = await fetch(
-      `https://backend-b7ak.onrender.com/api/user_roadmap`,
-      {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    );
+    const roadmapResponse = await auth.authenticatedFetch("/api/user_roadmap", {
+      method: "GET",
+    });
 
     if (roadmapResponse.ok) {
       const roadmapData = await roadmapResponse.json();
       updateRoadmapDisplay(roadmapData);
-      setupProgressTracking(userId);
+      setupProgressTracking();
     } else if (roadmapResponse.status === 404) {
-      await generateNewRoadmap(userId);
+      await generateNewRoadmap();
     } else {
       throw new Error(`Backend error: ${roadmapResponse.status}`);
     }
@@ -32,30 +25,24 @@ document.addEventListener("DOMContentLoaded", async function () {
   }
 });
 
-async function generateNewRoadmap(userId) {
+async function generateNewRoadmap() {
   try {
     const userPreferences = JSON.parse(
       localStorage.getItem("userPreferences") || "{}"
     );
 
-    const response = await fetch(
-      "https://backend-b7ak.onrender.com/api/generate_roadmap",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          goal: userPreferences.goal || "Learn full-stack development",
-          target_role: userPreferences.targetRole || "",
-          timeframe: userPreferences.timeframe || "6_months",
-          hours_per_week: userPreferences.hoursPerWeek || "10",
-          learning_style: userPreferences.learningStyle || "visual",
-          learning_speed: userPreferences.learningSpeed || "average",
-          skill_level: userPreferences.skillLevel || "beginner",
-        }),
-      }
-    );
+    const response = await authenticatedFetch("/api/generate_roadmap", {
+      method: "POST",
+      body: JSON.stringify({
+        goal: userPreferences.goal || "Learn full-stack development",
+        target_role: userPreferences.targetRole || "",
+        timeframe: userPreferences.timeframe || "6_months",
+        hours_per_week: userPreferences.hoursPerWeek || "10",
+        learning_style: userPreferences.learningStyle || "visual",
+        learning_speed: userPreferences.learningSpeed || "average",
+        skill_level: userPreferences.skillLevel || "beginner",
+      }),
+    });
 
     if (!response.ok) {
       throw new Error(`Backend error: ${response.status}`);
@@ -67,14 +54,9 @@ async function generateNewRoadmap(userId) {
       throw new Error("Roadmap generation failed");
     }
 
-    if (result.user_id && result.user_id !== userId) {
-      localStorage.setItem("userId", result.user_id);
-      userId = result.user_id;
-    }
-
     const roadmapData = result.roadmap;
     updateRoadmapDisplay(roadmapData);
-    setupProgressTracking(userId);
+    setupProgressTracking();
   } catch (err) {
     console.error("Failed to generate roadmap:", err);
     alert("Could not generate roadmap. Please try again later.");
@@ -342,7 +324,7 @@ function calculateTotalTasks(roadmapData) {
   return total;
 }
 
-function setupProgressTracking(userId) {
+function setupProgressTracking() {
   const taskItems = document.querySelectorAll(
     ".week-content li, .week-content2 li"
   );
@@ -356,19 +338,13 @@ function setupProgressTracking(userId) {
       }
 
       try {
-        const response = await fetch(
-          `https://backend-b7ak.onrender.com/api/complete_task`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              task_id: taskId,
-              task_completed: true,
-            }),
-          }
-        );
+        const response = await auth.authenticatedFetch("/api/complete_task", {
+          method: "POST",
+          body: JSON.stringify({
+            task_id: taskId,
+            task_completed: true,
+          }),
+        });
 
         if (response.ok) {
           const result = await response.json();
@@ -383,7 +359,7 @@ function setupProgressTracking(userId) {
             showCompletionMessage(result.message);
 
             // Refresh the roadmap data from the backend to ensure UI is in sync
-            refreshRoadmapData(userId);
+            refreshRoadmapData();
           }
         } else {
           console.error("Server responded with error:", response.status);
@@ -395,17 +371,11 @@ function setupProgressTracking(userId) {
   });
 }
 
-async function refreshRoadmapData(userId) {
+async function refreshRoadmapData() {
   try {
-    const response = await fetch(
-      `https://backend-b7ak.onrender.com/api/user_roadmap`,
-      {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    );
+    const response = await auth.authenticatedFetch("/api/user_roadmap", {
+      method: "GET",
+    });
 
     if (response.ok) {
       const roadmapData = await response.json();
