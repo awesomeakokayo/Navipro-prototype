@@ -264,16 +264,12 @@ document.addEventListener('DOMContentLoaded', function() {
                     learning_speed: formData.learning_speed,
                     skill_level: formData.skill_level
                 };
-
-<<<<<<< HEAD
                 // Send to backend
                 const response = await fetch(
                   "https://backend-b7ak.onrender.com/api/generate_roadmap",
                   {
-=======
                 // Use authenticatedFetch instead of regular fetch
                 const response = await authenticatedFetch('/api/generate_roadmap', {
->>>>>>> 7981433a51aa5517cb125bb0ad9db25380adcc25
                     method: "POST",
                     body: JSON.stringify(roadmapRequest),
                 });
