@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Allura&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+    </style>
+    <title>Create Account</title>
+</head>
+<body>
+    <div class="content">
+        <div class="left">
+        
+        </div>
+
+        <div class="right">
+            <img class="logo" src="Images/navipro.png" alt="Logo">
+            <h1>Hello, welcome back</h1>
+            <p class="cta">Let's pick up where you left off!</p>
+            
+            <div class="form-container">
+                <button id="googleRegister" class="google-register">
+                    <img class="google-logo" src="Images/google_log-removebg-preview.png" alt="Google"> 
+                    Continue with Google
+                </button>
+                
+                <div class="line-divider">
+                    <span>or</span>
+                </div>
+                
+                <form id="loginForm">
+                    <input id="email" class="form-input" type="email" placeholder="fullname@gmail.com" required>
+
+                    <div class="password-container">
+                        <input id="password" class="form-input" type="password" placeholder="Password" minlength="8" required>
+                        <button type="button" class="password-toggle" onclick="togglePassword('password', this)">
+                            <span class="eye-open"></span>
+                        </button>
+                    </div>
+
+                    <button class="submit" type="submit">Log in</button>
+
+                    <div class="checkbox-container">
+                        <span><input type="checkbox" id="terms">
+                        <label for="terms">Remember me</label></span>
+
+                        <a href="../Forgot Password/index.html">forgot password</a>
+                    </div>
+    
+                    <p class="login-link">
+                        Don't have an account? <a href="../Create Account/index.html">Register</a>
+                    </p>
+                </form>
+                
+                
+            </div>
+        </div>
+    </div>
+    <script src="config.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
