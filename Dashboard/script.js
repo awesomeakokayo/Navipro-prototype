@@ -265,7 +265,7 @@
 
           try {
               // Fetch roadmap data from backend database
-              const response = await fetch(`https://naviprobackend.onrender.com/api/user_roadmap/${userId}`, {
+              const response = await fetch(`https://naviprobackend.onrender.com/api/user_roadmap`, {
                   method: "GET",
                   headers: {
                       "Content-Type": "application/json",
@@ -367,7 +367,7 @@
 
       try {
           const response = await fetch(
-              `https://naviprobackend.onrender.com/api/user_progress/${currentUserId}`
+              `https://naviprobackend.onrender.com/api/user_progress`
           );
 
           if (response.ok) {
@@ -394,7 +394,7 @@
 
       try {
           const response = await fetch(
-              `https://naviprobackend.onrender.com/api/weekly_progress/${currentUserId}`
+              `https://naviprobackend.onrender.com/api/weekly_progress`
           );
 
           if (response.ok) {
@@ -590,7 +590,7 @@
 
       try {
           const response = await fetch(
-              `https://naviprobackend.onrender.com/api/daily_task/${currentUserId}`
+              `https://naviprobackend.onrender.com/api/daily_task`
           );
 
           if (response.ok) {
@@ -715,7 +715,7 @@
 
       try {
           const response = await fetch(
-              `https://naviprobackend.onrender.com/api/complete_task/${currentUserId}`,
+              `https://naviprobackend.onrender.com/api/complete_task`,
               {
                   method: "POST",
                   headers: {
@@ -765,7 +765,7 @@
 
       try {
           const response = await fetch(
-              `https://naviprobackend.onrender.com/api/week_videos/${currentUserId}`
+              `https://naviprobackend.onrender.com/api/week_videos`
           );
 
           if (response.ok) {

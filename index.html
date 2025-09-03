@@ -24,12 +24,12 @@
   <style>
      @import url('https://fonts.googleapis.com/css2?family=Allura&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
     :root{--max-w:1100px;--accent:#008cff;--cta:#ff9a00;--muted:#6b7280}
-    *{box-sizing:border-box}
-    body{font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;margin:0;color:#0b1220;line-height:1.4}
+    *{box-sizing:border-box; margin: 0; padding: 0;}
+    body{font-family:'Poppins',system-ui,Helvetica,Arial;}
     a{color:inherit;text-decoration:none}
     header{background:#fff;border-bottom:3px solid #009DE929}
     .nav{display:flex;align-items:center;justify-content:space-between;padding:14px 0}
-    .nav-links{display:flex;gap:50px;list-style:none;margin:0;padding:0;align-items:center}
+    .nav-links{display:flex;gap:50px;list-style:none;align-items:center;}
     /* Hero */
     .hero{display:grid;grid-template-columns:1fr;gap:28px;padding:48px 0 80px;text-align:center}
     .badge{display:inline-block;border-radius:999px;padding:6px 12px;border:2px solid #225276;font-size:16px;color:#225276;font-weight: 600;}
@@ -39,12 +39,8 @@
     .input-email{font-family: 'Poppins';font-weight: bold;font-size: 18px;flex:1;padding:14px 16px;border-radius:8px;border:1px solid #e3eefb;background:#fff;min-width:0;}
     .cta-primary{background:var(--cta);color:#fff;font-weight:bold;font-size: 18px;border:none;padding:12px 18px;border-radius:8px;cursor:pointer}
     .cta-secondary{background:transparent;color:#1B455B;font-size: 18px;font-weight: bold;border:1px solid #1B455B;padding:10px 14px;border-radius:8px}
-    .about-hero{max-width:520px}
     .illustration{width:100%;max-width:480px;margin:0 auto}
-    /* Feature cards */
     .features{display:grid;grid-template-columns:1fr;gap:18px;padding:40px 0}
-    .card{background:#fff;border-radius:14px;padding:18px;box-shadow:0 8px 24px rgba(12,32,64,0.06)}
-    /* Responsive */
     @media(max-width:769px){
       .hero{grid-template-columns:1fr}
       .nav-links{display: none;}
@@ -113,39 +109,51 @@
 
     <!-- About / Illustration -->
     <section class="about" aria-labelledby="about-heading">
-      <div id="aboutInner" class="container about-inner">
+      <div id="aboutInner" class="container-about-inner">
         <div class="about-hero">
           <p style="color:#9aa6b2;margin:0">About Us</p>
-          <h2 id="about-heading" style="font-size:40px">Growth should never feel like <span class="highlight">wandering in the dark</span></h2>
-          <p style="color:var(--muted)">That's why we built Navipro - to solve the very problems we know users face, problems we've faced ourselves</p>
+          <h2 id="about-heading" style="font-size:64px">Growth should never feel <br>like <span class="highlight">wandering in the dark</span></h2>
+          <p style="color:var(--muted);font-size: 24px; font-weight: 400;">Ambition without direction only leads to frustration. But <span class="highlight">Navipro</span> gives <br> your growth the clarity it’s been missing.</p>
         </div>
-        <div class="cover-image"></div>
       </div>
     </section>
 
     <!-- Feature cards -->
     <section class="features" aria-labelledby="features-heading">
-      <h2 id="features-heading" style="grid-column:1/-1;text-align:center">These problems brought forth — <span class="highlight">Navipro — the Solution</span></h2>
 
-      <div class="card" role="article" aria-labelledby="f1">
-        <h3 id="f1">Too many paths, no clear direction</h3>
-        <p style="color:var(--muted)">Career choices feel endless — many users are unsure which skills or paths to focus on.</p>
+      <div class="card top">
+        <div class="cards">
+          <span class="icon1"><img height="23px" width="23px" src="images/Vector 23.png" alt=""></span>
+          <h2>No support, or momentum?</h2>
+          <p>Navipro will keep you accountable with smart nudges and active progress tracking.</p>
+        </div>
+        <div class="cards">
+          <span class="icon2"><img width="23px" height="23px" src="images/Vector 22.png" alt=""></span>
+          <h2>Generic advice that doesn't cut it?</h2>
+          <p>You get personalized guidance tailored to your skills and your goals.</p>
+        </div>
       </div>
 
-      <div class="card" role="article" aria-labelledby="f2">
-        <h3 id="f2">Lack of personalized guidance</h3>
-        <p style="color:var(--muted)">Generic advice that doesn’t match users' unique skills and goals.</p>
-      </div>
-
-      <div class="card" role="article" aria-labelledby="f3">
-        <h3 id="f3">No clear weekly roadmap</h3>
-        <p style="color:var(--muted)">Hard to turn long-term goals into daily progress — the roadmap should be automatic.</p>
+      <div class="card bottom">
+        <div class="cards">
+          <span class="icon3"><img width="23px" height="23px" src="https://img.icons8.com/parakeet-line/48/F25081/clipboard.png" alt=""></span>
+          <h2>Overwhelmed by options?</h2>
+          <p>Navipro helps you prioritize your goals and choose the right path forward.</p>
+        </div>
+        <div class="cards">
+          <span class="icon4"><img width="23px" height="23px" src="images/Vector 21.png" alt=""></span>
+          <h2>Stuck with no direction?</h2>
+          <p>You get a <strong> step by step roadmap</strong> so you always know what to do next</p>
+          <div class="button-container">
+            <button class="cta-primary" type="button">Generate Roadmap ➔</button>
+          </div>
+        </div>
       </div>
     </section>
   </main>
 
   <footer role="contentinfo" style="background:#fafbff;padding:28px 0;margin-top:40px">
-    <div class="container" style="display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap">
+    <div class="container" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap">
       <nav aria-label="Footer links" style="display:flex;gap:14px;flex-wrap:wrap">
         <a href="/about">About</a>
         <a href="/privacy">Privacy</a>
