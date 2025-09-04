@@ -41,6 +41,7 @@
     .cta-secondary{background:transparent;color:#1B455B;font-size: 18px;font-weight: bold;border:1px solid #1B455B;padding:10px 14px;border-radius:8px}
     .illustration{width:100%;max-width:480px;margin:0 auto}
     .features{display:grid;grid-template-columns:1fr;gap:18px;padding:40px 0}
+    header{ position: relative; z-index: 1000; }
     @media (max-width: 768px){.nav-links{ display: none;}}
   </style>
 
@@ -61,8 +62,6 @@
   <script src="https://www.google.com/recaptcha/api.js"></script>
 </head>
 <body>
-  <a class="skip-link" href="#main" style="position:absolute;left:-999px;top:auto">Skip to content</a>
-
   <header role="banner">
     <div class="container nav" role="navigation" aria-label="Primary">
       <nav class="nav-link" style="display:flex;align-items:center;gap:18px">
@@ -72,10 +71,10 @@
             </a>
             
             <ul id="navLinks" class="nav-links" role="menubar" aria-label="Main links">
-                <li class="menu" role="none"><a role="menuitem" href="#">Home</a></li>
-                <li class="menu" role="none"><a role="menuitem" href="#about">About Us</a></li>
-                <li class="menu" role="none"><a role="menuitem" href="#features">Features</a></li>
-                <li class="menu" role="none"><a role="menuitem" href="#footer">Contact</a></li>
+                <li class="menu"><a role="menuitem" href="#">Home</a></li>
+                <li class="menu"><a role="menuitem" href="#about">About Us</a></li>
+                <li class="menu"><a role="menuitem" href="#features">Features</a></li>
+                <li class="menu"><a role="menuitem" href="#footer">Contact</a></li>
             </ul>
         </span>
         <a class="btn-login" href="../login">Log in</a>
@@ -147,7 +146,7 @@
     </section>
   </main>
 
-  <footer role="contentinfo" style="background:#fafbff;padding:28px 0;margin-top:40px">
+  <footer id="footer" role="contentinfo" style="background:#fafbff;padding:28px 0;margin-top:40px">
     <div class="container" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap">
       <nav aria-label="Footer links" style="display:flex;gap:14px;flex-wrap:wrap">
         <a href="#about">About</a>

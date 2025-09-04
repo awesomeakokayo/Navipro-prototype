@@ -147,7 +147,7 @@ body{
     display: flex;
     flex-direction: row;
     gap: 30px;
-    padding-left: 80px;
+    margin-left: 100px;
 }
 .cards{
     display: flex;
