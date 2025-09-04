@@ -2,6 +2,15 @@ let currentUserId = null;
 let messageContainer = null;
 let chatTextarea = null;
 
+const response = await fetch("https://naviprobackend.onrender.com/api/chat", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+    "X-User-ID": currentUserId,
+  },
+  body: JSON.stringify({ message: message }),
+});
+
 /**
  * Initialize DOM elements after page loads
  */
@@ -58,7 +67,7 @@ function initializeUserSession() {
   const userId = localStorage.getItem("userId");
   const roadmapData = localStorage.getItem("roadmapData");
 
-  if (!userId || !roadmapData) {
+  if (!userId) {
     console.log("No user session found, redirecting to onboarding...");
     window.location.href = "../onboarding/index.html";
     return false;
@@ -93,10 +102,10 @@ async function sendChatMessage(message) {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "x-user-id": currentUserId,
         },
         body: JSON.stringify({
           message: message,
-          user_id: currentUserId,
         }),
       }
     );
