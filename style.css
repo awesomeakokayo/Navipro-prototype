@@ -27,7 +27,7 @@ body{
     background-color: #FF9E00;
     color: white;
     font-size: 18px;
-    font-weight: 700;
+    font-family: 'Poppins';
     border-radius: 16px;
     padding: 12px 53px;
 }
@@ -48,6 +48,9 @@ body{
 }
 .sub{
     font-weight:400;
+}
+.growth{
+    font-size: 64px;
 }
 .hamburger{
     display: none;
@@ -159,9 +162,9 @@ body{
     display: flex;
     justify-content: right;
 }
-.cta-primary{
+/* .cta-primary{
     margin-right: 60px;
-}
+} */
 .icon1{background: #38B0002B; width: 44px; height: 44px;border-radius: 22px;
 display: flex;
 align-items: center;
@@ -182,6 +185,33 @@ justify-content: center;}
 @media (max-width: 768px) {
     .container{
         padding: 20px;
+    }
+    .btn-login{
+    padding: 12px 20px;
+    }
+    .growth{
+        font-size: 40px;
+    }
+    .hero{grid-template-columns:1fr}
+    .nav-links{display: none;}
+    .about-inner{grid-template-columns:1fr 480px;gap:36px}
+    .features{
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+    .features .card{
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 0;
+    }
+    .cards{
+        width: 70vw;
     }
     #hero-heading{
     font-size: 45px;

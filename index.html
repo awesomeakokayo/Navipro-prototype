@@ -41,12 +41,6 @@
     .cta-secondary{background:transparent;color:#1B455B;font-size: 18px;font-weight: bold;border:1px solid #1B455B;padding:10px 14px;border-radius:8px}
     .illustration{width:100%;max-width:480px;margin:0 auto}
     .features{display:grid;grid-template-columns:1fr;gap:18px;padding:40px 0}
-    @media(max-width:769px){
-      .hero{grid-template-columns:1fr}
-      .nav-links{display: none;}
-      .about-inner{grid-template-columns:1fr 480px;gap:36px}
-      .features{grid-template-columns:repeat(2,1fr)}
-    }
   </style>
 
   <!-- JSON-LD structured data -->
@@ -98,7 +92,7 @@
 
         <form class="hero-form" action="/signup" method="post" aria-label="Get started form">
           <input data-sitekey="reCAPTCHA_site_key" data-callback='onSubmit' data-action='submit' id="email" class="input-email" name="email" type="email" placeholder="Enter e-mail here" required aria-required="true" />
-          <span>
+          <span class="ctas">
             <button class="cta-primary" type="submit">Get started</button>
           <a class="cta-secondary" href="/why-navipro" role="button">Why navipro?</a>
           </span>
@@ -112,7 +106,7 @@
       <div id="aboutInner" class="container-about-inner">
         <div class="about-hero">
           <p style="color:#9aa6b2;margin:0">About Us</p>
-          <h2 id="about-heading" style="font-size:64px">Growth should never feel <br>like <span class="highlight">wandering in the dark</span></h2>
+          <h2 id="about-heading" class="growth">Growth should never feel <br>like <span class="highlight">wandering in the dark</span></h2>
           <p style="color:var(--muted);font-size: 24px; font-weight: 400;">Ambition without direction only leads to frustration. But <span class="highlight">Navipro</span> gives <br> your growth the clarity it’s been missing.</p>
         </div>
       </div>
