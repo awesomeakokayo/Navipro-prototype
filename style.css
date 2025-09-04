@@ -141,12 +141,12 @@ body{
     justify-content: center;
     align-items: center;
     width: 100%;
-    gap: 30px;
+    gap: 2em;
 }
 .features .card{
     display: flex;
     flex-direction: row;
-    gap: 30px;
+    gap: 2em;
 }
 .cards{
     display: flex;
