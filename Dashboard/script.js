@@ -1,159 +1,156 @@
-// Global variables
-let currentUserId = null;
-let progressChart = null;
-let momentumChart = null;
 
-// Initialize user session using AuthManager
-async function initializeUserSession() {
-  // Check if user is authenticated
-  if (!auth.isAuthenticated()) {
-    console.log("User not authenticated, redirecting to login...");
-    window.location.href = "../login/index.html";
-    return false;
+  // Global variables
+  let currentUserId = null;
+  let progressChart = null;
+  let momentumChart = null;
+  
+  function getAuthHeaders(additional = {}) {
+    const token = auth.getToken
+      ? auth.getToken()
+      : localStorage.getItem("token");
+    const headers = {
+      "Content-Type": "application/json",
+      ...additional,
+    };
+    if (token) headers["Authorization"] = `Bearer ${token}`;
+    return headers;
   }
 
-  // Get user ID from JWT token
-  currentUserId = auth.getUserId();
-  if (!currentUserId) {
-    console.log("Could not get user ID from token, redirecting to login...");
-    auth.logout();
-    return false;
-  }
+  async function initializeUserSession() {
+    if (!auth.isAuthenticated()) {
+      console.log("User not authenticated, redirecting to login...");
+      window.location.href = "../login/index.html";
+      return false;
+    }
 
-  console.log("User session initialized:", currentUserId);
+    currentUserId = auth.getUserId();
+    if (!currentUserId) {
+      console.log("Could not get user ID from token, redirecting to login...");
+      auth.logout();
+      window.location.href = "../login/index.html";
+      return false;
+    }
 
-  // Update user display
-  updateUserDisplay();
+    console.log("User session initialized:", currentUserId);
+    updateUserDisplay();
 
-  // After roadmap generation, automatically load career path
-  if (localStorage.getItem("newRoadmapGenerated") === "true") {
-    console.log("New roadmap detected, loading roadmap...");
-    loadSectionContent("roadmap");
-    localStorage.removeItem("newRoadmapGenerated"); // Clear the flag
+    // If a new roadmap was just created in onboarding, load it (flag stored by onboarding)
+    if (localStorage.getItem("newRoadmapGenerated") === "true") {
+      localStorage.removeItem("newRoadmapGenerated");
+      loadSectionContent("roadmap");
+      return true;
+    }
 
-    // Highlight the roadmap nav button
-    document.querySelectorAll(".nav-button").forEach((btn, index) => {
-      btn.classList.remove("active");
-      if (index === 2) {
-        // Roadmap button index
-        btn.classList.add("active");
+    // Check if user has a roadmap (use authenticated fetch)
+    try {
+      const resp = await auth.authenticatedFetch("/api/user_roadmap");
+
+      if (resp.status === 404) {
+        console.log("No roadmap found, redirecting to onboarding...");
+        window.location.href = "../onboarding/index.html";
+        return false;
+      } else if (!resp.ok) {
+        
+        console.error("Roadmap check failed:", resp.status);
+        window.location.href = "../onboarding/index.html";
+        return false;
       }
-    });
-    return true;
-  }
 
-  // Check if user has a roadmap, if not redirect to onboarding
-  try {
-    const roadmapResponse = await auth.authenticatedFetch("/api/user_roadmap");
-    if (roadmapResponse.status === 404) {
-      // User doesn't have a roadmap, redirect to onboarding
-      console.log("No roadmap found, redirecting to onboarding...");
+      return true;
+    } catch (err) {
+      console.error("Error checking roadmap:", err);
       window.location.href = "../onboarding/index.html";
       return false;
     }
-  } catch (error) {
-    console.log("Error checking roadmap, redirecting to onboarding...");
-    window.location.href = "../onboarding/index.html";
-    return false;
   }
 
-  return true;
-}
 
-// Update user display with information from token
-function updateUserDisplay() {
-  const userData = auth.getUserData();
-  if (userData) {
-    const userNameElement = document.querySelector(".user-name");
-    if (userNameElement) {
-      userNameElement.textContent = userData.name || "User";
-    }
-  }
-}
-
-// Update welcome message with user's goal
-function updateWelcomeMessage(roadmap) {
-  const welcomeElement = document.querySelector(".welcome-user h2");
-  if (welcomeElement && roadmap.goal) {
-    welcomeElement.textContent = `Stay focused on your core mission - ${roadmap.goal}`;
+  // Update welcome message with user's goal
+  function updateWelcomeMessage(roadmap) {
+      const welcomeElement = document.querySelector('.welcome-user h2');
+      if (welcomeElement && roadmap.goal) {
+          welcomeElement.textContent = `Stay focused on your core mission - ${roadmap.goal}`;
+      }
+      
+      const nameElement = document.querySelector('.welcome-user .name');
+      if (nameElement) {
+          nameElement.textContent = `Welcome to your ${roadmap.target_role || 'Career'} Journey`;
+      }
   }
 
-  const nameElement = document.querySelector(".welcome-user .name");
-  if (nameElement) {
-    nameElement.textContent = `Welcome to your ${
-      roadmap.target_role || "Career"
-    } Journey`;
-  }
-}
+  document.addEventListener("DOMContentLoaded", async function () {
+      const sessionOk = await initializeUserSession();
+      if (!sessionOk)  {
+        return;
+      }
 
-document.addEventListener("DOMContentLoaded", function () {
-  // Initialize user session first
-  if (!initializeUserSession()) {
-    return;
-  }
+      // Initialize user session first
+      if (!initializeUserSession()) {
+          return;
+      }
+      
+      const mainContent = document.getElementById("mainContent");
 
-  const mainContent = document.getElementById("mainContent");
+      // Function to load pages
+      function loadPage(url) {
+          fetch(url)
+            .then((response) => {
+              if (!response.ok) throw new Error("Page not found: " + url);
+              return response.text();
+            })
+            .then((htmlText) => {
+              // Create a virtual DOM from the loaded HTML
+              let parser = new DOMParser();
+              let doc = parser.parseFromString(htmlText, "text/html");
 
-  // Function to load pages
-  function loadPage(url) {
-    fetch(url)
-      .then((response) => {
-        if (!response.ok) throw new Error("Page not found: " + url);
-        return response.text();
-      })
-      .then((htmlText) => {
-        // Create a virtual DOM from the loaded HTML
-        let parser = new DOMParser();
-        let doc = parser.parseFromString(htmlText, "text/html");
+              // Find the mainContent in the loaded file
+              let newContent = doc.querySelector("#mainContent");
 
-        // Find the mainContent in the loaded file
-        let newContent = doc.querySelector("#mainContent");
+              if (newContent) {
+                document.getElementById("mainContent").innerHTML =
+                  newContent.innerHTML;
+              } else {
+                document.getElementById("mainContent").innerHTML =
+                  "<p style='color:red;'>No #mainContent found in file.</p>";
+              }
+            })
+            .catch((error) => {
+              mainContent.innerHTML = `<p style="color:red;">Error loading page</p>`;
+              console.error(error);
+            });
+              loadSectionContent("dashboard");
+      }
 
-        if (newContent) {
-          document.getElementById("mainContent").innerHTML =
-            newContent.innerHTML;
-        } else {
-          document.getElementById("mainContent").innerHTML =
-            "<p style='color:red;'>No #mainContent found in file.</p>";
-        }
-      })
-      .catch((error) => {
-        mainContent.innerHTML = `<p style="color:red;">Error loading page</p>`;
-        console.error(error);
-      });
-  }
-
-  // Content loading system for different sections
-  function loadSectionContent(sectionName) {
-    const mainContent = document.getElementById("mainContent");
-
-    // Show loading indicator
-    mainContent.innerHTML =
-      '<div style="text-align: center; padding: 50px;"><h3>Loading...</h3></div>';
-
-    // Load content based on section
-    switch (sectionName) {
-      case "dashboard":
-        loadDashboardContent();
-        break;
-      case "tasks":
-        loadTasksContent();
-        break;
-      case "roadmap":
-        loadRoadmapContent();
-        break;
-      case "resources":
-        loadResourcesContent();
-        break;
-      default:
-        loadDashboardContent();
-    }
-  }
-
-  // Load dashboard content (default view)
-  function loadDashboardContent() {
-    const mainContent = document.getElementById("mainContent");
-    mainContent.innerHTML = `
+      // Content loading system for different sections
+      function loadSectionContent(sectionName) {
+          const mainContent = document.getElementById("mainContent");
+          
+          // Show loading indicator
+          mainContent.innerHTML = '<div style="text-align: center; padding: 50px;"><h3>Loading...</h3></div>';
+          
+          // Load content based on section
+          switch(sectionName) {
+              case 'dashboard':
+                  loadDashboardContent();
+                  break;
+              case 'tasks':
+                  loadTasksContent();
+                  break;
+              case 'roadmap':
+                  loadRoadmapContent();
+                  break;
+              case 'resources':
+                  loadResourcesContent();
+                  break;
+              default:
+                  loadDashboardContent();
+          }
+      }
+      
+      // Load dashboard content (default view)
+      function loadDashboardContent() {
+          const mainContent = document.getElementById("mainContent");
+          mainContent.innerHTML = `
               <div class="dashboard-layout">
                   <div class="icons">
                       <div class="icons-left">
@@ -262,19 +259,19 @@ document.addEventListener("DOMContentLoaded", function () {
                   </div>
               </div>
           `;
-
-    // Initialize dashboard features
-    initCharts();
-    displayTodaysTask();
-    displayWeeklyVideos();
-    updateProgressSection();
-    displayWeeksFocus();
-  }
-
-  // Load tasks content
-  function loadTasksContent() {
-    const mainContent = document.getElementById("mainContent");
-    mainContent.innerHTML = `
+          
+          // Initialize dashboard features
+          initCharts();
+          displayTodaysTask();
+          displayWeeklyVideos();
+          updateProgressSection();
+          displayWeeksFocus();
+      }
+      
+      // Load tasks content
+      function loadTasksContent() {
+          const mainContent = document.getElementById("mainContent");
+          mainContent.innerHTML = `
               <div class="section-header">
                   <h2>My Tasks</h2>
                   <p>Manage and track your learning tasks</p>
@@ -289,62 +286,51 @@ document.addEventListener("DOMContentLoaded", function () {
                   </div>
               </div>
           `;
-  }
-
-  async function loadRoadmapContent() {
-    const mainContent = document.getElementById("mainContent");
-    const userId = localStorage.getItem("userId");
-
-    if (!userId) {
-      mainContent.innerHTML = `<div class="error">User not found. Please login again.</div>`;
-      return;
-    }
-
-    try {
-      // Fetch roadmap data from backend database
-      const response = await fetch(
-        `https://naviprobackend.onrender.com/api/user_roadmap`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error(`Failed to fetch roadmap: ${response.status}`);
       }
 
-      const roadmapData = await response.json();
+      async function loadRoadmapContent() {
+        const mainContent = document.getElementById("mainContent");
+        if (!currentUserId) {
+          mainContent.innerHTML = `<div class="error">User not found. Please login again.</div>`;
+          return;
+        }
 
-      // Display the roadmap using an iframe or direct rendering
-      mainContent.innerHTML = `
-                      <div class="roadmap-container" style="width: 100%; height: 100vh; overflow-y: auto;">
-                          <iframe 
-                              src="../roadmap/index.html" 
-                              style="width: 100%; height: 100%; border: none;"
-                              onload="this.contentWindow.postMessage(${JSON.stringify(
-                                roadmapData
-                              )}, '*')"
-                          ></iframe>
-                      </div>
-                  `;
-    } catch (error) {
-      console.error("Error loading roadmap:", error);
-      mainContent.innerHTML = `
-                  <div class="error">
-                      <p>Failed to load roadmap. Please try again.</p>
-                      <button onclick="loadRoadmapContent()" class="retry-btn">Retry</button>
-                  </div>
-              `;
-    }
-  }
+        try {
+          const response = await fetch(
+            "https://naviprobackend.onrender.com/api/user_roadmap",
+            { headers: getAuthHeaders() }
+          );
+          if (!response.ok) {
+            if (response.status === 404) {
+              mainContent.innerHTML = `<div>No roadmap found. <a href="../onboarding/index.html">Create one now</a></div>`;
+            } else {
+              throw new Error("Failed to fetch roadmap: " + response.status);
+            }
+            return;
+          }
+          const roadmapData = await response.json();
 
-  // Load resources content
-  function loadResourcesContent() {
-    const mainContent = document.getElementById("mainContent");
-    mainContent.innerHTML = `
+          mainContent.innerHTML = `
+      <div class="roadmap-container" style="width: 100%; height: 100vh; overflow-y: auto;">
+        <iframe id="roadmapFrame" src="../roadmap/index.html" style="width:100%; height:100%; border:none;"></iframe>
+      </div>
+    `;
+          // Post message to iframe after it loads
+          const iframe = document.getElementById("roadmapFrame");
+          iframe.addEventListener("load", () => {
+            iframe.contentWindow.postMessage(roadmapData, "*");
+          });
+        } catch (error) {
+          console.error("Error loading roadmap:", error);
+          mainContent.innerHTML = `<div class="error"><p>Failed to load roadmap. Please try again.</p></div>`;
+        }
+      }
+
+      
+      // Load resources content
+      function loadResourcesContent() {
+          const mainContent = document.getElementById("mainContent");
+          mainContent.innerHTML = `
               <div class="section-header">
                   <h2>Learning Resources</h2>
                   <p>Discover courses and materials for your journey</p>
@@ -355,312 +341,305 @@ document.addEventListener("DOMContentLoaded", function () {
                           onerror="console.error('Failed to load resources')"></iframe>
               </div>
           `;
-  }
-
-  // Assign click events to your nav buttons
-  document.querySelectorAll(".nav-button").forEach((btn) => {
-    btn.addEventListener("click", (e) => {
-      e.preventDefault();
-
-      // Get the button's data attribute or text content to determine which section to load
-      const section =
-        btn.getAttribute("data-section") ||
-        btn.textContent.trim().toLowerCase();
-
-      // Remove active class from all buttons
-      document
-        .querySelectorAll(".nav-button")
-        .forEach((b) => b.classList.remove("active"));
-      // Add active class to clicked button
-      btn.classList.add("active");
-
-      console.log("Loading section:", section);
-
-      switch (section) {
-        case "dashboard":
-          loadSectionContent("dashboard");
-          break;
-        case "my tasks":
-          loadSectionContent("tasks");
-          break;
-        case "my career path":
-          loadSectionContent("roadmap");
-          break;
-        case "resources":
-          loadSectionContent("resources");
-          break;
-        default:
-          console.log("Unknown section:", section);
-          loadSectionContent("dashboard");
       }
-    });
+      
+      // Assign click events to your nav buttons
+      document.querySelectorAll(".nav-button").forEach((btn) => {
+          btn.addEventListener("click", (e) => {
+              e.preventDefault();
+              
+              // Get the button's data attribute or text content to determine which section to load
+              const section = btn.getAttribute('data-section') || btn.textContent.trim().toLowerCase();
+              
+              // Remove active class from all buttons
+              document.querySelectorAll(".nav-button").forEach(b => b.classList.remove("active"));
+              // Add active class to clicked button
+              btn.classList.add("active");
+
+              console.log('Loading section:', section);
+              
+              switch(section) {
+                  case 'dashboard':
+                      loadSectionContent('dashboard');
+                      break;
+                  case 'my tasks':
+                      loadSectionContent('tasks');
+                      break;
+                  case 'my career path':
+                      loadSectionContent('roadmap');
+                      break;
+                  case 'resources':
+                      loadSectionContent('resources');
+                      break;
+                  default:
+                      console.log('Unknown section:', section);
+                      loadSectionContent('dashboard');
+              }
+          });
+      });
+      
+      // Load dashboard by default
+      loadSectionContent('dashboard');
   });
 
-  // Load dashboard by default
-  loadSectionContent("dashboard");
-});
+  // USER PROGRESS TRACKING
 
-// USER PROGRESS TRACKING
+  /**
+   * Get user's overall progress
+   */
+  async function getUserProgress() {
+      if (!currentUserId) {
+          console.error("No user ID available");
+          return null;
+      }
 
-/**
- * Get user's overall progress
- */
-async function getUserProgress() {
-  if (!currentUserId) {
-    console.error("No user ID available");
-    return null;
+      try {
+          const response = await fetch(
+              `https://naviprobackend.onrender.com/api/user_progress`
+          );
+
+          if (response.ok) {
+              const progressData = await response.json();
+              return progressData;
+          } else {
+              console.error("Failed to get user progress");
+              return null;
+          }
+      } catch (error) {
+          console.error("Error fetching progress:", error);
+          return null;
+      }
   }
 
-  try {
-    const response = await fetch(
-      `https://naviprobackend.onrender.com/api/user_progress`
-    );
+  /**
+   * Get user's weekly progress for momentum chart
+   */
+  async function getWeeklyProgress() {
+      if (!currentUserId) {
+          console.error("No user ID available");
+          return null;
+      }
 
-    if (response.ok) {
-      const progressData = await response.json();
-      return progressData;
-    } else {
-      console.error("Failed to get user progress");
-      return null;
-    }
-  } catch (error) {
-    console.error("Error fetching progress:", error);
-    return null;
-  }
-}
+      try {
+          const response = await fetch(
+              `https://naviprobackend.onrender.com/api/weekly_progress`
+          );
 
-/**
- * Get user's weekly progress for momentum chart
- */
-async function getWeeklyProgress() {
-  if (!currentUserId) {
-    console.error("No user ID available");
-    return null;
-  }
-
-  try {
-    const response = await fetch(
-      `https://naviprobackend.onrender.com/api/weekly_progress`
-    );
-
-    if (response.ok) {
-      const weeklyData = await response.json();
-      return weeklyData;
-    } else {
-      console.error("Failed to get weekly progress");
-      return null;
-    }
-  } catch (error) {
-    console.error("Error fetching weekly progress:", error);
-    return null;
-  }
-}
-
-/**
- * Initialize charts with real data
- */
-async function initCharts() {
-  console.log("Initializing charts with real data...");
-
-  const progressCanvas = document.getElementById("progressChart");
-  const momentumCanvas = document.getElementById("momentumChart");
-
-  if (!progressCanvas || !momentumCanvas) {
-    console.error("Canvas elements not found!");
-    return;
+          if (response.ok) {
+              const weeklyData = await response.json();
+              return weeklyData;
+          } else {
+              console.error("Failed to get weekly progress");
+              return null;
+          }
+      } catch (error) {
+          console.error("Error fetching weekly progress:", error);
+          return null;
+      }
   }
 
-  // Get real progress data
-  const progress = await getUserProgress();
-  const weeklyProgress = await getWeeklyProgress();
+  /**
+   * Initialize charts with real data
+   */
+  async function initCharts() {
+      console.log("Initializing charts with real data...");
 
-  // Clean up existing charts
-  if (progressChart) progressChart.destroy();
-  if (momentumChart) momentumChart.destroy();
+      const progressCanvas = document.getElementById("progressChart");
+      const momentumCanvas = document.getElementById("momentumChart");
 
-  // Initialize progress chart with center text
-  if (progress) {
-    const totalTasks = progress.total_tasks;
-    const completedTasks = progress.completed_tasks;
-    const inProgressTasks = Math.min(5, totalTasks - completedTasks);
-    const upcomingTasks = totalTasks - completedTasks - inProgressTasks;
+      if (!progressCanvas || !momentumCanvas) {
+          console.error("Canvas elements not found!");
+          return;
+      }
 
-    progressChart = new Chart(progressCanvas.getContext("2d"), {
-      type: "doughnut",
-      data: {
-        datasets: [
-          {
-            data: [completedTasks, inProgressTasks, upcomingTasks],
-            backgroundColor: ["#2ecc71", "#264653", "#b0b0b0"],
-            cutout: "75%",
-            borderWidth: 0,
-          },
-        ],
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          tooltip: { enabled: false },
-          legend: { display: false },
-        },
-      },
-      plugins: [
-        {
-          id: "centerText",
-          beforeDraw: function (chart) {
-            const width = chart.width;
-            const height = chart.height;
-            const ctx = chart.ctx;
+      // Get real progress data
+      const progress = await getUserProgress();
+      const weeklyProgress = await getWeeklyProgress();
 
-            ctx.restore();
+      // Clean up existing charts
+      if (progressChart) progressChart.destroy();
+      if (momentumChart) momentumChart.destroy();
 
-            // Calculate percentage
-            const total = chart.data.datasets[0].data.reduce(
-              (a, b) => a + b,
-              0
-            );
-            const completed = chart.data.datasets[0].data[0];
-            const percentage = Math.round((completed / total) * 100);
+      // Initialize progress chart with center text
+      if (progress) {
+          const totalTasks = progress.total_tasks;
+          const completedTasks = progress.completed_tasks;
+          const inProgressTasks = Math.min(5, totalTasks - completedTasks);
+          const upcomingTasks = totalTasks - completedTasks - inProgressTasks;
 
-            // Font size relative to chart size
-            const fontSize = (height / 8).toFixed(2);
-            ctx.font = `bold ${fontSize}px Poppins`;
-            ctx.textBaseline = "middle";
-            ctx.textAlign = "center";
-
-            // Draw percentage
-            const text = `${percentage}%`;
-            const textX = width / 2;
-            const textY = height / 2;
-
-            ctx.fillStyle = "#1B455B";
-            ctx.fillText(text, textX, textY);
-
-            ctx.save();
-          },
-        },
-      ],
-    });
-  }
-
-  // Initialize momentum chart with real data
-  if (weeklyProgress) {
-    momentumChart = new Chart(momentumCanvas.getContext("2d"), {
-      type: "bar",
-      data: {
-        labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
-        datasets: [
-          {
-            label: "Completed work",
-            data: weeklyProgress.completed_hours || [4.5, 6.5, 2.5, 5, 3, 0, 0],
-            backgroundColor: "#264653",
-            stack: "a",
-            barThickness: 30,
-          },
-          {
-            label: "Proposed effort",
-            data: weeklyProgress.planned_hours || [1.5, 2, 1, 2, 2, 7, 6],
-            backgroundColor: "#f4a261",
-            stack: "a",
-            borderRadius: { topLeft: 5, topRight: 5 },
-            barThickness: 30,
-          },
-        ],
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: {
-            display: false,
-          },
-        },
-        scales: {
-          x: {
-            stacked: true,
-            grid: {
-              display: false,
-            },
-            ticks: {
-              font: {
-                padding: 8,
-                size: 14,
-                family: "Poppins",
+          progressChart = new Chart(progressCanvas.getContext("2d"), {
+              type: "doughnut",
+              data: {
+                  datasets: [
+                      {
+                          data: [completedTasks, inProgressTasks, upcomingTasks],
+                          backgroundColor: ["#2ecc71", "#264653", "#b0b0b0"],
+                          cutout: "75%",
+                          borderWidth: 0,
+                      },
+                  ],
               },
-              color: "#666",
-            },
-          },
-          y: {
-            stacked: true,
-            beginAtZero: true,
-            max: 8,
-            ticks: {
-              stepSize: 2,
-              font: {
-                size: 15,
-                family: "Poppins",
+              options: {
+                  responsive: true,
+                  maintainAspectRatio: false,
+                  plugins: {
+                      tooltip: { enabled: false },
+                      legend: { display: false },
+                  },
               },
-              color: "#666",
-              padding: 10,
-            },
-            grid: {
-              color: "#f0f0f0",
-            },
-          },
-        },
-        layout: {
-          padding: {
-            top: 10,
-            right: 15,
-            bottom: 10,
-            left: 5,
-          },
-        },
-        responsive: true,
-        responsiveAnimationDuration: 0,
-      },
-    });
+              plugins: [
+                  {
+                      id: "centerText",
+                      beforeDraw: function (chart) {
+                          const width = chart.width;
+                          const height = chart.height;
+                          const ctx = chart.ctx;
+
+                          ctx.restore();
+
+                          // Calculate percentage
+                          const total = chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                          const completed = chart.data.datasets[0].data[0];
+                          const percentage = Math.round((completed / total) * 100);
+
+                          // Font size relative to chart size
+                          const fontSize = (height / 8).toFixed(2);
+                          ctx.font = `bold ${fontSize}px Poppins`;
+                          ctx.textBaseline = "middle";
+                          ctx.textAlign = "center";
+
+                          // Draw percentage
+                          const text = `${percentage}%`;
+                          const textX = width / 2;
+                          const textY = height / 2;
+
+                          ctx.fillStyle = "#1B455B";
+                          ctx.fillText(text, textX, textY);
+
+                          ctx.save();
+                      },
+                  },
+              ],
+          });
+      }
+
+      // Initialize momentum chart with real data
+      if (weeklyProgress) {
+          momentumChart = new Chart(momentumCanvas.getContext("2d"), {
+              type: "bar",
+              data: {
+                  labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+                  datasets: [
+                      {
+                          label: "Completed work",
+                          data: weeklyProgress.completed_hours || [4.5, 6.5, 2.5, 5, 3, 0, 0],
+                          backgroundColor: "#264653",
+                          stack: "a",
+                          barThickness: 30,
+                      },
+                      {
+                          label: "Proposed effort",
+                          data: weeklyProgress.planned_hours || [1.5, 2, 1, 2, 2, 7, 6],
+                          backgroundColor: "#f4a261",
+                          stack: "a",
+                          borderRadius: { topLeft: 5, topRight: 5 },
+                          barThickness: 30,
+                      },
+                  ],
+              },
+              options: {
+                  responsive: true,
+                  maintainAspectRatio: false,
+                  plugins: {
+                      legend: {
+                          display: false,
+                      },
+                  },
+                  scales: {
+                      x: {
+                          stacked: true,
+                          grid: {
+                              display: false,
+                          },
+                          ticks: {
+                              font: {
+                                  padding: 8,
+                                  size: 14,
+                                  family: "Poppins",
+                              },
+                              color: "#666",
+                          },
+                      },
+                      y: {
+                          stacked: true,
+                          beginAtZero: true,
+                          max: 8,
+                          ticks: {
+                              stepSize: 2,
+                              font: {
+                                  size: 15,
+                                  family: "Poppins",
+                              },
+                              color: "#666",
+                              padding: 10,
+                          },
+                          grid: {
+                              color: "#f0f0f0",
+                          },
+                      },
+                  },
+                  layout: {
+                      padding: {
+                          top: 10,
+                          right: 15,
+                          bottom: 10,
+                          left: 5,
+                      },
+                  },
+                  responsive: true,
+                  responsiveAnimationDuration: 0,
+              },
+          });
+      }
+
+      console.log("Charts initialized with real data");
   }
 
-  console.log("Charts initialized with real data");
-}
+  // DAILY TASK SYSTEM
 
-// DAILY TASK SYSTEM
+  /**
+   * Get today's task for user
+   */
+  async function getTodaysTask() {
+      if (!currentUserId) {
+          console.error("No user ID available");
+          return null;
+      }
 
-/**
- * Get today's task for user
- */
-async function getTodaysTask() {
-  if (!currentUserId) {
-    console.error("No user ID available");
-    return null;
+      try {
+          const response = await fetch(
+              `https://naviprobackend.onrender.com/api/daily_task`
+          );
+
+          if (response.ok) {
+              const taskData = await response.json();
+              return taskData;
+          } else {
+              console.error("Failed to get today's task");
+              return null;
+          }
+      } catch (error) {
+          console.error("Error fetching task:", error);
+          return null;
+      }
   }
 
-  try {
-    const response = await fetch(
-      `https://naviprobackend.onrender.com/api/daily_task`
-    );
+  // Display week's focus
+  async function displayWeeksFocus() {
+    const focus = await getTodaysTask();
 
-    if (response.ok) {
-      const taskData = await response.json();
-      return taskData;
-    } else {
-      console.error("Failed to get today's task");
-      return null;
-    }
-  } catch (error) {
-    console.error("Error fetching task:", error);
-    return null;
-  }
-}
-
-// Display week's focus
-async function displayWeeksFocus() {
-  const focus = await getTodaysTask();
-
-  if (!focus) {
-    document.getElementById("skill").innerHTML = `
+    if (!focus) {
+      document.getElementById("skill").innerHTML = `
       <div class="skill-header">
           <span class="skill-header-left">
               <img width="25" height="25" src="Images/fatrows (1).png" alt=""> Skill Momentum
@@ -670,11 +649,10 @@ async function displayWeeksFocus() {
           <p>This weeks skill focus: </p>
           <p>  None Available</p>
       </div>
-      `;
-    return;
-  }
+      `; return
+    }
 
-  document.getElementById("skill").innerHTML = `
+    document.getElementById("skill").innerHTML = `
       <div class="skill-header">
           <span class="skill-header-left">
               <img width="25" height="25" src="Images/fatrows (1).png" alt=""> Skill Momentum
@@ -687,16 +665,16 @@ async function displayWeeksFocus() {
           <p>  - Today's task description: ${focus.description}</p>
       </div>
       `;
-}
+    }
 
-/**
- * Display today's task
- */
-async function displayTodaysTask() {
-  const task = await getTodaysTask();
+  /**
+   * Display today's task
+   */
+  async function displayTodaysTask() {
+      const task = await getTodaysTask();
 
-  if (!task) {
-    document.getElementById("taskContainer").innerHTML = `
+      if (!task) {
+          document.getElementById("taskContainer").innerHTML = `
               <div class="task-header">
                   <span class="active-task">
                       <img width="25" height="25" src="https://img.icons8.com/?size=100&id=KPXIRLDghgMh&format=png&color=737373" alt="">
@@ -705,10 +683,10 @@ async function displayTodaysTask() {
               </div>
               <p style="text-align: center; padding: 20px;">All tasks completed! 🎉</p>
           `;
-    return;
-  }
+          return;
+      }
 
-  document.getElementById("taskContainer").innerHTML = `
+      document.getElementById("taskContainer").innerHTML = `
           <div class="task-header">
               <span class="active-task">
                   <img width="25" height="25" src="https://img.icons8.com/?size=100&id=KPXIRLDghgMh&format=png&color=737373" alt="">
@@ -752,137 +730,124 @@ async function displayTodaysTask() {
               </span>
           </div>
       `;
-}
-
-/**
- * Mark current task as completed
- */
-async function completeTask() {
-  if (!currentUserId) {
-    alert("No user session found");
-    return;
   }
 
-  try {
-    const response = await fetch(
-      `https://naviprobackend.onrender.com/api/complete_task`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          task_completed: true,
-        }),
+  /**
+   * Mark current task as completed
+   */
+  async function completeTask() {
+      if (!currentUserId) {
+          alert("No user session found");
+          return;
       }
-    );
 
-    if (response.ok) {
-      const result = await response.json();
+      try {
+          const response = await fetch(
+              `https://naviprobackend.onrender.com/api/complete_task`,
+              {
+                  method: "POST",
+                  headers: getAuthHeaders(),
+                  body: JSON.stringify({
+                      task_completed: true,
+                  }),
+              }
+          );
+          
+          if (response.ok) {
+              const result = await response.json();
+              
+              // Show success message
+              alert(result.message);
 
-      // Show success message
-      alert(result.message);
+              // Refresh the task display to show next task
+              await displayTodaysTask();
 
-      // Refresh the task display to show next task
-      await displayTodaysTask();
-
-      await displayWeeksFocus();
-
-      // Update progress section
-      await updateProgressSection();
-
-      // Update charts with real data
-      await updateChartsWithRealData();
-    } else {
-      console.error("Failed to complete task");
-      alert("Failed to mark task as complete");
-    }
-  } catch (error) {
-    console.error("Error completing task:", error);
-  }
-}
-
-// YOUTUBE VIDEO RECOMMENDATIONS
-/**
- * Get Youtube videos for current week's focus
- */
-async function getWeeklyVideos() {
-  if (!currentUserId) {
-    console.error("No user ID available");
-    return null;
-  }
-
-  try {
-    const response = await fetch(
-      `https://naviprobackend.onrender.com/api/week_videos`
-    );
-
-    if (response.ok) {
-      const videoData = await response.json();
-      return videoData;
-    } else {
-      console.error("Failed to get weekly videos");
-      return null;
-    }
-  } catch (error) {
-    console.error("Error fetching videos:", error);
-    return null;
-  }
-}
-
-/**
- * Display weekly videos in UI
- */
-async function displayWeeklyVideos() {
-  const videoData = await getWeeklyVideos();
-
-  if (!videoData) {
-    document.getElementById("videoContainer").innerHTML =
-      "<p>No videos available at the moment.</p>";
-    return;
+              await displayWeeksFocus();
+              
+              // Update progress section
+              await updateProgressSection();
+              
+              // Update charts with real data
+              await updateChartsWithRealData();
+              
+          } else {
+              console.error("Failed to complete task");
+              alert("Failed to mark task as complete");
+          }
+      } catch (error) {
+          console.error("Error completing task:", error);
+      }
   }
 
-  // Function to format video duration
-  function formatDuration(duration) {
-    const match = duration.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
-    if (!match) return duration;
+  // YOUTUBE VIDEO RECOMMENDATIONS
+  /**
+   * Get Youtube videos for current week's focus
+   */
+  async function getWeeklyVideos() {
+      if (!currentUserId) {
+          console.error("No user ID available");
+          return null;
+      }
 
-    const hours = parseInt(match[1] || 0);
-    const minutes = parseInt(match[2] || 0);
-    const seconds = parseInt(match[3] || 0);
+      try {
+          const response = await fetch(
+              `https://naviprobackend.onrender.com/api/week_videos`
+          );
 
-    if (hours > 0) {
-      return `${hours}h ${minutes}m`;
-    } else if (minutes > 0) {
-      return `${minutes}m ${seconds}s`;
-    } else {
-      return `${seconds}s`;
-    }
+          if (response.ok) {
+              const videoData = await response.json();
+              return videoData;
+          } else {
+              console.error("Failed to get weekly videos");
+              return null;
+          }
+      } catch (error) {
+          console.error("Error fetching videos:", error);
+          return null;
+      }
   }
 
-  // Display videos in UI
-  document.getElementById("videoContainer").innerHTML = `
+  /**
+   * Display weekly videos in UI
+   */
+  async function displayWeeklyVideos() {
+      const videoData = await getWeeklyVideos();
+
+      if (!videoData) {
+          document.getElementById("videoContainer").innerHTML =
+              "<p>No videos available at the moment.</p>";
+          return;
+      }
+
+      // Function to format video duration
+      function formatDuration(duration) {
+          const match = duration.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
+          if (!match) return duration;
+
+          const hours = parseInt(match[1] || 0);
+          const minutes = parseInt(match[2] || 0);
+          const seconds = parseInt(match[3] || 0);
+
+          if (hours > 0) {
+              return `${hours}h ${minutes}m`;
+          } else if (minutes > 0) {
+              return `${minutes}m ${seconds}s`;
+          } else {
+              return `${seconds}s`;
+          }
+      }
+
+      // Display videos in UI
+      document.getElementById("videoContainer").innerHTML = `
           <div class="video-content">
-              ${videoData.videos
-                .map(
-                  (video) => `
+              ${videoData.videos.map(video => `
                   <div style="display: flex; gap: 10px; margin-bottom: 15px; align-items: center;">
-                      <a href="${
-                        video.url
-                      }"><img class="video-cover" width="80" height="50" src="${
-                    video.thumbnail
-                  }" alt=""></a>
+                      <a href="${video.url}"><img class="video-cover" width="80" height="50" src="${video.thumbnail}" alt=""></a>
                       <div class="video-about" style="flex: 1;">
-                          <a class="video-title" href="${video.url}">${
-                    video.title
-                  }</a>
+                          <a class="video-title" href="${video.url}">${video.title}</a>
                           <div class="video-detail">
-                              <span class="video-author">${
-                                video.channel
-                              } • </span>
-                              <span class="video-duration">${formatDuration(
-                                video.duration
-                              )}</span>
+                              <span class="video-author">${video.channel} • </span>
+                              <span class="video-duration">${formatDuration(video.duration)}</span>
                           </div>
                       </div>
                       <div class="ratings">
@@ -892,149 +857,136 @@ async function displayWeeklyVideos() {
                           <span class="rating">${video.rating || 3.8}</span>
                       </div>
                   </div>
-              `
-                )
-                .join("")}
+              `).join('')}
           </div>
 
           <button onclick="refreshWeeklyVideos()" class="refresh-btn">
               Refresh Videos
           </button>
       `;
-}
-
-/**
- * Refresh weekly videos (useful if user wants new recommendations)
- */
-async function refreshWeeklyVideos() {
-  document.getElementById("videoContainer").innerHTML =
-    "<p>Loading fresh video recommendations...</p>";
-  await displayWeeklyVideos();
-}
-
-// Add this function to update the milestone and summary boxes
-async function updateProgressSection() {
-  const progress = await getUserProgress();
-  if (!progress) {
-    console.error("Could not fetch progress data");
-    return;
   }
 
-  try {
-    // Update completed tasks
-    const completedTasksElement = document.querySelector(".completed-tasks");
-    if (completedTasksElement) {
-      completedTasksElement.textContent = progress.completed_tasks;
-    }
-
-    // Calculate and update in-progress tasks
-    const inProgressElement = document.querySelector(".in-progress-tasks");
-    if (inProgressElement) {
-      const weeklyTasks = 5;
-      const inProgressTasks =
-        weeklyTasks - (progress.completed_tasks % weeklyTasks);
-      inProgressElement.textContent = inProgressTasks;
-    }
-
-    // Calculate and update upcoming tasks
-    const upcomingElement = document.querySelector(".upcoming-tasks");
-    if (upcomingElement) {
-      const upcomingTasks = progress.total_tasks - progress.completed_tasks;
-      upcomingElement.textContent = upcomingTasks;
-    }
-  } catch (error) {
-    console.error("Error updating progress section:", error);
-  }
-}
-
-// Update charts with real data from backend
-async function updateChartsWithRealData() {
-  try {
-    const progress = await getUserProgress();
-    const weeklyProgress = await getWeeklyProgress();
-    const estimatedTime = await getTodaysTask();
-
-    if (!progress) return;
-
-    // Update progress chart with real data
-    if (progressChart) {
-      const totalTasks = progress.total_tasks;
-      const completedTasks = progress.completed_tasks;
-      const inProgressTasks = Math.min(5, totalTasks - completedTasks);
-      const upcomingTasks = totalTasks - completedTasks - inProgressTasks;
-
-      progressChart.data.datasets[0].data = [
-        completedTasks,
-        inProgressTasks,
-        upcomingTasks,
-      ];
-      progressChart.update();
-    }
-
-    // Update momentum chart with weekly progress
-    if (momentumChart && weeklyProgress) {
-      const time = estimatedTime.estimated_time;
-      momentumChart.data.datasets[0].data = weeklyProgress.completed_hours || [
-        4.5, 6.5, 2.5, 5, 3, 0, 0,
-      ];
-      momentumChart.data.datasets[1].data = weeklyProgress.planned_hours || [
-        time,
-        time,
-        time,
-        time,
-        time,
-        time,
-        time,
-      ];
-      momentumChart.update();
-    }
-  } catch (error) {
-    console.error("Error updating charts with real data:", error);
-  }
-}
-
-// Initialize dashboard when DOM is loaded
-window.addEventListener("DOMContentLoaded", async () => {
-  try {
-    // Initialize charts with real data
-    await initCharts();
-
-    // Load user data
-    await displayTodaysTask();
-    await displayWeeksFocus();
-    await updateProgressSection();
-    await displayWeeklyVideos();
-  } catch (error) {
-    console.error("Error initializing dashboard:", error);
-  }
-});
-
-// Handle iframe loading errors
-function handleIframeError(section) {
-  console.error(`Failed to load ${section} iframe`);
-  const fallbackElement = document.getElementById(`${section}-fallback`);
-  if (fallbackElement) {
-    fallbackElement.style.display = "block";
-  }
-}
-
-// Mobile menu toggle
-document.addEventListener("DOMContentLoaded", function () {
-  const menuToggle = document.getElementById("menuToggle");
-  const navigation = document.getElementById("navigation");
-
-  if (menuToggle) {
-    menuToggle.addEventListener("click", function () {
-      navigation.classList.toggle("active");
-      menuToggle.classList.toggle("active");
-    });
+  /**
+   * Refresh weekly videos (useful if user wants new recommendations)
+   */
+  async function refreshWeeklyVideos() {
+      document.getElementById("videoContainer").innerHTML =
+          "<p>Loading fresh video recommendations...</p>";
+      await displayWeeklyVideos();
   }
 
-  // Close menu when clicking outside
-  document.addEventListener("click", function (e) {
-    if (!navigation.contains(e.target) && !menuToggle.contains(e.target)) {
-      navigation.classList.remove("active");
-      menuToggle.classList.remove("active");
-    }
+  // Add this function to update the milestone and summary boxes
+  async function updateProgressSection() {
+      const progress = await getUserProgress();
+      if (!progress) {
+          console.error("Could not fetch progress data");
+          return;
+      }
+
+      try {
+          // Update completed tasks
+          const completedTasksElement = document.querySelector(".completed-tasks");
+          if (completedTasksElement) {
+              completedTasksElement.textContent = progress.completed_tasks;
+          }
+
+          // Calculate and update in-progress tasks
+          const inProgressElement = document.querySelector(".in-progress-tasks");
+          if (inProgressElement) {
+              const weeklyTasks = 5;
+              const inProgressTasks = weeklyTasks - (progress.completed_tasks % weeklyTasks);
+              inProgressElement.textContent = inProgressTasks;
+          }
+
+          // Calculate and update upcoming tasks
+          const upcomingElement = document.querySelector(".upcoming-tasks");
+          if (upcomingElement) {
+              const upcomingTasks = progress.total_tasks - progress.completed_tasks;
+              upcomingElement.textContent = upcomingTasks;
+          }
+      } catch (error) {
+          console.error("Error updating progress section:", error);
+      }
+  }
+
+  // Update charts with real data from backend
+  async function updateChartsWithRealData() {
+      try {
+          const progress = await getUserProgress();
+          const weeklyProgress = await getWeeklyProgress();
+          const estimatedTime = await getTodaysTask();
+          
+          if (!progress) return;
+
+          // Update progress chart with real data
+          if (progressChart) {
+              const totalTasks = progress.total_tasks;
+              const completedTasks = progress.completed_tasks;
+              const inProgressTasks = Math.min(5, totalTasks - completedTasks);
+              const upcomingTasks = totalTasks - completedTasks - inProgressTasks;
+
+              progressChart.data.datasets[0].data = [completedTasks, inProgressTasks, upcomingTasks];
+              progressChart.update();
+          }
+
+          // Update momentum chart with weekly progress
+          if (momentumChart && weeklyProgress) {
+            const time = estimatedTime.estimated_time;
+            momentumChart.data.datasets[0].data =
+              weeklyProgress.completed_hours || [4.5, 6.5, 2.5, 5, 3, 0, 0];
+            momentumChart.data.datasets[1].data =
+              weeklyProgress.planned_hours || [time, time, time, time, time, time, time,];
+            momentumChart.update();
+          }
+
+      } catch (error) {
+          console.error("Error updating charts with real data:", error);
+      }
+  }
+
+  // Initialize dashboard when DOM is loaded
+  window.addEventListener("DOMContentLoaded", async () => {
+      try {
+          // Initialize charts with real data
+          await initCharts();
+          
+          // Load user data
+          await displayTodaysTask();
+          await displayWeeksFocus();
+          await updateProgressSection();
+          await displayWeeklyVideos();
+          
+      } catch (error) {
+          console.error("Error initializing dashboard:", error);
+      }
   });
-});
+
+  // Handle iframe loading errors
+  function handleIframeError(section) {
+      console.error(`Failed to load ${section} iframe`);
+      const fallbackElement = document.getElementById(`${section}-fallback`);
+      if (fallbackElement) {
+          fallbackElement.style.display = 'block';
+      }
+  }
+
+  // Mobile menu toggle
+  document.addEventListener("DOMContentLoaded", function () {
+      const menuToggle = document.getElementById("menuToggle");
+      const navigation = document.getElementById("navigation");
+
+      if (menuToggle) {
+          menuToggle.addEventListener("click", function () {
+              navigation.classList.toggle("active");
+              menuToggle.classList.toggle("active");
+          });
+      }
+
+      // Close menu when clicking outside
+      document.addEventListener("click", function (e) {
+          if (!navigation.contains(e.target) && !menuToggle.contains(e.target)) {
+              navigation.classList.remove("active");
+              menuToggle.classList.remove("active");
+          }
+      });
+  });

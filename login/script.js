@@ -46,15 +46,15 @@ form.addEventListener("submit", async (e) => {
 
     const data = await response.json();
 
-    if (response.ok) {
-      // Store the access token
-      localStorage.setItem("access_token", data.access_token);
+    // if (response.ok) {
+    //   // Store the access token
+    //   localStorage.setItem("access_token", data.access_token);
 
       // Redirect to dashboard or appropriate page
-      window.location.href = "../Dashboard/index.html";
-    } else {
-      alert(data.message || "Login failed. Please try again.");
-    }
+    //   window.location.href = "../Dashboard/index.html";
+    // } else {
+    //   alert(data.message || "Login failed. Please try again.");
+    // }
   } catch (error) {
     console.error("Error during login:", error);
     alert("An error occurred. Please try again later.");
@@ -67,9 +67,9 @@ document.getElementById("googleRegister").addEventListener("click", () => {
 });
 
 // Check if we have a token in localStorage and redirect if already logged in
-window.addEventListener("DOMContentLoaded", () => {
-  const token = localStorage.getItem("access_token");
-  if (token) {
-    window.location.href = "../Dashboard/index.html";
-  }
-});
+// window.addEventListener("DOMContentLoaded", () => {
+//   const token = localStorage.getItem("access_token");
+//   if (token) {
+//     window.location.href = "../Dashboard/index.html";
+//   }
+// });
