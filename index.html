@@ -106,7 +106,9 @@
         <div class="about-hero">
           <p style="color:#9aa6b2;margin:0">About Us</p>
           <h2 id="about-heading" class="growth">Growth should never feel <br>like <span class="highlight">wandering in the dark</span></h2>
-          <p style="color:var(--muted);font-size: 24px; font-weight: 400;">Ambition without direction only leads to frustration. But <span class="highlight">Navipro</span> gives <br> your growth the clarity it’s been missing.</p>
+          <p style="color:var(--muted);font-size: 24px; font-weight: 400; @media screen and (max-width: 768px) {
+            font-size: 16px;
+          }">Ambition without direction only leads to frustration. But <span class="highlight">Navipro</span> gives <br> your growth the clarity it’s been missing.</p>
         </div>
       </div>
     </section>
@@ -143,12 +145,91 @@
       </div>
     </section>
 
+    <!-- Features -->
     <section class="feature" id="feature">
+        <p>Features</p>
+        <h1 class="hero-heading" id="hero-heading">
+          Go from confusion to clarity <br> <span class="highlight"> in 4 easy steps</span>
+        </h1>
+        <p style="color:white;font-size: 24px; font-weight: 400; text-align: center; @media screen and (max-width: 768px) {
+            font-size: 16px;
+          }">We’ve broken down the journey into four simple stages.
+        </p>
+        <div class="feature-cards">
+          <div class="feature-card right">
+            <div class="image">
+              <img src="images/onboard.png" alt="">
+            </div>
+            <div class="feature-content">
+              <img src="images/number_one.png" alt="">
+              <h3>
+                Set your career destination
+              </h3>
+              <p>Define the role or goal you’re aiming for - Navipro will shape the roadmap to get you there.</p>
+            </div>
+          </div>
 
+          <div class="feature-card">
+            <div class="feature-content">
+              <img src="images/number_two.png" alt="">
+              <h3>
+                Pick a time frame that works for you
+              </h3>
+              <p>
+                Whether you want to upskill in 3 months or 12, Navipro will create a plan that fits your life
+              </p>
+            </div>
+             <div class="image">
+              <img src="images/timeframe.png" alt="">
+            </div>
+          </div>
+
+          <div class="feature-card right">
+            <div class="image">
+              <img src="images/roadmap.png" alt="">
+            </div>
+            <div class="feature-content">
+              <img src="images/number_three.png" alt="">
+              <h3>
+                Follow your guided roadmap
+              </h3>
+              <p>Receive step-by-step actions tailored to your journey, with zero guess work</p>
+            </div>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-content">
+              <img src="images/number_four.png" alt="">
+              <h3>
+                Track wins and unlock progress
+              </h3>
+              <p>See your growth in real time, stay motivated, and know exactly what comes next.</p>
+            </div>
+             <div class="image">
+              <img src="images/progress.png" alt="">
+            </div>
+          </div>
+        </div>
+    </section>
+
+    <section class="hero" aria-labelledby="hero-heading">
+      <div style="text-align:center">
+        <h1 class="hero-heading" id="hero-heading">Ready to take <span class="highlight">the next step</span></h1>
+        <p class="sub">Sign up for the beta version and get early access before everyone else</p>
+
+        <form class="hero-form" action="/signup" method="post" aria-label="Get started form">
+          <input data-sitekey="reCAPTCHA_site_key" data-callback='onSubmit' data-action='submit' id="email" class="input-email" name="email" type="email" placeholder="Enter e-mail here" required aria-required="true" />
+          <span class="ctas">
+            <button class="cta-primary" type="submit">Get started</button>
+          <a class="cta-secondary" href="/why-navipro" role="button">Join Discord</a>
+          </span>
+        </form>
+        <p id="info">We'll never share your info with anyone</p>
+      </div>
     </section>
   </main>
 
-  <footer id="footer" role="contentinfo" style="background:#fafbff;padding:28px 0;margin-top:40px">
+  <footer id="footer" role="contentinfo" style="background:#fafbff;padding:28px 0;">
     <div class="container" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap">
       <nav aria-label="Footer links" style="display:flex;gap:14px;flex-wrap:wrap">
         <a href="#about">About</a>

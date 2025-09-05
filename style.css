@@ -51,6 +51,7 @@ body{
     line-height: 84px;
     font-weight: 600;
     font-style: bold;
+    text-align: center;
 }
 .sub{
     font-weight:400;
@@ -88,7 +89,7 @@ body{
   min-height: 120vh;
   background-image: url('images/Vector 24.png'), url('images/Ellipse857.png');
   background-repeat: no-repeat, no-repeat;
-  background-position: center bottom, center 120%; 
+  background-position: center bottom, center ; 
   background-size: contain, cover;
   padding-bottom: 1em;
   z-index: 0;
@@ -112,7 +113,6 @@ body{
   position: absolute;
   bottom: 0;
   left: -10%; 
-  width: 120%; 
   height: auto;
   aspect-ratio: 1/1;
   background: url('/images/illustration.png') no-repeat left bottom;
@@ -154,7 +154,7 @@ body{
     flex-direction: column;
     gap: 10px;
     width: 527px;
-    padding: 24px 32px;
+    padding: 1.5em 2px;
     background-color: white;
     border-radius: 32px;
 }
@@ -196,8 +196,54 @@ justify-content: center;}
     width: 100%;
     min-height: 100vh;
     padding-bottom: 1em;
-    z-index: 0;
+    padding-top: 1em;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: white;
     background: linear-gradient(to bottom, #1B455B 0%, #3992C1C7 78%);
+    border-top-left-radius: 24px;
+    border-top-right-radius: 24px;
+    padding: 4em 0;
+}
+.feature-cards{
+    padding-top: 4em;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    gap: 4em;
+}
+.feature-card {
+    width: 90vw;
+    background: inherit;
+    display: flex;
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: space-between;
+}
+.image{
+    width: 64%;
+    background-color: #BACBD3;
+    border: 8px solid #BACBD3;
+    display: flex;
+    border-radius: 32px;
+}
+.image img{
+    width: 100%;
+    border-radius: 25px;
+    height: 100%;
+}
+.feature-content{
+    width: 34%;
+    padding-bottom: 2em;
+}
+.feature-content img{
+    width: 24%;
+    height: auto;
+}
+.feature-content p{
+    font-size: 20px;
 }
 
 @media (max-width: 768px) {
@@ -211,8 +257,6 @@ justify-content: center;}
     max-width: 100%;   
     background-size: contain;
     }
-
-
     .container{
         width: 100%;
     }
@@ -245,11 +289,13 @@ justify-content: center;}
         margin: 0;
     }
     .cards{
-        width: 70vw;
+        width: 85vw;
+        padding: 1em;
     }
     #hero-heading{
-    font-size: 45px;
-    line-height: 50px;
+        text-align: center;
+        font-size: 45px;
+        line-height: 50px;
     }
     .sub{
         font-size: 16px;
@@ -300,5 +346,19 @@ justify-content: center;}
         color: grey;
         font-size: 10px;
         padding-top: 10px;
+    }
+    .feature-card {
+        flex-direction: column;
+        align-items: center;
+    }
+    .right{
+        display: flex;
+        flex-direction: column-reverse;
+    }
+        .image{
+        width: 100%;
+    }
+    .feature-content{
+        width: 100%;
     }
 }
