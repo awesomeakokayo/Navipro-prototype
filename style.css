@@ -97,12 +97,12 @@ body{
   content: "";
   position: absolute;
   bottom: 0;
-  left: -10%; /* push part of the image outside */
-  width: 100%; /* slightly oversize so it covers */
+  left: -10%; 
+  width: 100%;
   height: auto;
   aspect-ratio: 1/1;
   background: url('/images/Big\ Shoes\ Dynamic\ Pose.png') no-repeat left bottom;
-  background-size: contain; /* keeps proportions */
+  background-size: contain;
   z-index: -1;
   background-size: 600px;
 }
@@ -141,7 +141,6 @@ body{
     justify-content: center;
     align-items: center;
     width: 100%;
-    gap: 1em;
 }
 .features .card{
     display: flex;
