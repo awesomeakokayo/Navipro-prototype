@@ -111,8 +111,8 @@ body{
   content: "";
   position: absolute;
   bottom: 0;
-  left: -10%; /* push part of the image outside */
-  width: 120%; /* slightly oversize so it covers */
+  left: -10%; 
+  width: 120%; 
   height: auto;
   aspect-ratio: 1/1;
   background: url('/images/illustration.png') no-repeat left bottom;
@@ -201,6 +201,18 @@ justify-content: center;}
 }
 
 @media (max-width: 768px) {
+    .hero::before {
+    left: 0;
+    width: 100%;
+    }
+    .why::before {
+    left: 0;
+    width: 100%;
+    max-width: 100%;   
+    background-size: contain;
+    }
+
+
     .container{
         width: 100%;
     }
@@ -220,6 +232,7 @@ justify-content: center;}
         align-items: center;
         justify-content: center;
         padding-left: 0;
+        padding-right: 0;
         padding-top: 2em;
         padding-bottom: 2em;
     }
@@ -240,6 +253,7 @@ justify-content: center;}
     }
     .sub{
         font-size: 16px;
+        width: 90vw;
     }
     .hamburger{
         display: block;
@@ -267,7 +281,9 @@ justify-content: center;}
         flex-direction: column;
     }
     .input-email{
-        width: 100%;
+        width: 90%;
+        padding: 10px 0;
+        padding-bottom: 20px;
     }
     .about-hero{
     width: 100%;
@@ -283,5 +299,6 @@ justify-content: center;}
     #info{
         color: grey;
         font-size: 10px;
+        padding-top: 10px;
     }
 }
