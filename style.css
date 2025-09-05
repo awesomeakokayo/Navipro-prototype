@@ -83,7 +83,7 @@ body{
   background: url('images/Rectangle\ 36.png') no-repeat center bottom;
   background-size: contain; /* or cover depending on design */
 }
-.features {
+.why {
   position: relative;
   min-height: 120vh;
   background-image: url('images/Vector 24.png'), url('images/Ellipse857.png');
@@ -93,7 +93,7 @@ body{
   padding-bottom: 1em;
   z-index: 0;
 }
-.features::before {
+.why::before {
   content: "";
   position: absolute;
   bottom: 0;
@@ -135,14 +135,16 @@ body{
     padding: 0;
     margin: 0;
 }
-.features{
+.why{
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     width: 100%;
+    gap: 1em;
+    padding-left: 3em;
 }
-.features .card{
+.why .card{
     display: flex;
     flex-direction: row;
     gap: 1em;
@@ -181,14 +183,26 @@ justify-content: center;}
 display: flex;
 align-items: center;
 justify-content: center;} 
-.icon4{background: #24b3ff33; width: 44px; height: 44px;border-radius: 22px;
-display: flex;
-align-items: center;
-justify-content: center;}
+.icon4{
+    background: #24b3ff33; 
+    width: 44px; 
+    height: 44px;
+    border-radius: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.feature{
+    width: 100%;
+    min-height: 100vh;
+    padding-bottom: 1em;
+    z-index: 0;
+    background: linear-gradient(to bottom, #1B455B 0%, #3992C1C7 78%);
+}
 
 @media (max-width: 768px) {
     .container{
-        padding: 20px;
+        width: 100%;
     }
     .btn-login{
     padding: 12px 20px;
@@ -199,14 +213,17 @@ justify-content: center;}
     .hero{grid-template-columns:1fr}
     .nav-links{display: none;}
     .about-inner{grid-template-columns:1fr 480px;gap:36px}
-    .features{
+    .why{
         width: 100%;
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
+        padding-left: 0;
+        padding-top: 2em;
+        padding-bottom: 2em;
     }
-    .features .card{
+    .why .card{
         width: 100%;
         display: flex;
         flex-direction: column;
