@@ -3,19 +3,7 @@
   let currentUserId = null;
   let progressChart = null;
   let momentumChart = null;
-  
-  fetch("https://naviprobackend.onrender.com/api/generate_roadmap", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "X-User-ID": currentUserId, // string from your auth flow
-    },
-    body: JSON.stringify(payload),
-  })
-    .then((r) => r.json())
-    .then(console.log)
-    .catch(console.error);
-
+  z
   function getAuthHeaders(additional = {}) {
     const token = auth.getToken
       ? auth.getToken()
