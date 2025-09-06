@@ -1,3 +1,15 @@
+fetch("https://naviprobackend.onrender.com/api/generate_roadmap", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+    "X-User-ID": currentUserId, // string from your auth flow
+  },
+  body: JSON.stringify(payload),
+})
+  .then((r) => r.json())
+  .then(console.log)
+  .catch(console.error);
+
 document.addEventListener("DOMContentLoaded", () => {
   const hamburger = document.getElementById("hamburger");
   const navLinks = document.getElementById("navLinks");
