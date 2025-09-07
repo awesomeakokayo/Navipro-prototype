@@ -50,6 +50,13 @@ form.addEventListener("submit", async (e) => {
       // Store the access token
       localStorage.setItem("access_token", data.access_token);
 
+      // Store the user_id if the backend sends it
+      if (data.user_id) {
+        localStorage.setItem("user_id", data.user_id);
+      } else {
+        console.warn(" No user_id received from backend!");
+      }
+
       // Redirect to dashboard or appropriate page
       window.location.href = "../Dashboard/index.html";
     } else {
