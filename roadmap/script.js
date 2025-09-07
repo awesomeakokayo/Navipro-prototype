@@ -8,7 +8,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
   try {
     const roadmapResponse = await fetch(
-      `https://naviprobackend.onrender.com/api/user_roadmap/${userId}`,
+      `https://naviprobackend.onrender.com/api/user_roadmap`,
       {
         method: "GET",
         headers: {
