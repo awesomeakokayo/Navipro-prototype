@@ -1,0 +1,121 @@
+*{
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+
+}
+
+body{
+    font-family: 'Poppins', sans-serif;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #e2e2e2;
+}
+
+.content{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 37rem;
+    background-color: white;
+    padding: 2rem;
+    border-radius: 1rem;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+}
+
+h1{
+    color: #225672;
+}
+
+
+.icon img{
+    width: 20rem;
+    margin-bottom: 1rem;
+}
+
+.welcome-message{
+    color: #737373;
+    font-size: 18px;
+    text-align: center;
+    margin-bottom: 1.2rem;
+}
+
+.verified-email{
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+button{
+    padding: 1rem;
+    border-radius: 9px;
+    cursor: pointer;
+    font-size: 18px;
+    font-family: 'Poppins', sans-serif;
+}
+
+.visit-dashboard{
+    border: none;
+    background-color: #225672;
+    color: white;
+    margin-right: 0.5rem;
+}
+
+.get-started{
+    padding: 0.9rem;
+    border-top: 1px solid #FF9E00;
+    border-right: 1px solid #FF9E00;
+    border-bottom: 1px solid #FF9E00;
+    border-left: 1px solid #FF9E00;
+    border-width: 1.5px;
+    background-color: white;
+    color: #FF9E00;
+}
+
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 100vw;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    backdrop-filter: blur(8px); /* this blurs the background */
+    background-color: rgba(0, 0, 0, 0.3); /* semi-transparent dark */
+    z-index: 1000;
+    }
+
+    .overlay-content {
+    background: white;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 5px 25px rgba(0,0,0,0.2);
+    }
+
+@media (max-width: 768px) {
+    body{
+        padding: 1rem;
+    }
+    .content{
+        width: 20rem;
+    }
+    .verified-email{
+        text-align: center;
+    }
+    .buttons{
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    .buttons, .visit-dashboard{
+        margin-bottom: 1rem;
+        justify-content: center;
+    }
+    .welcome-message{
+        font-size: 15px;
+    }
+}
