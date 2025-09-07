@@ -5,65 +5,109 @@ let currentTaskId = null;
 let progressChart = null;
 let momentumChart = null;
 
+// Look for token in various places and user id too
 function getAuthHeaders(additional = {}) {
-  const token =
-    typeof auth !== "undefined" && auth.getToken
-      ? auth.getToken()
-      : localStorage.getItem("token");
+  // Prefer auth shim first if available
+  const tokenFromAuth = (typeof auth !== "undefined" && auth.getToken) ? auth.getToken() : null;
+
+  // Look for tokens saved in localStorage under common names
+  const tokenFromStorage = localStorage.getItem("token") || localStorage.getItem("access_token") || null;
+
+  const token = tokenFromAuth || tokenFromStorage || null;
+
+  // Look for user id in storage under common names
+  const storedUserId = localStorage.getItem("user_id") || localStorage.getItem("userId") || null;
   const headers = {
     "Content-Type": "application/json",
-    ...additional,
+    ...additional
   };
+
   if (token) headers["Authorization"] = `Bearer ${token}`;
+  if (storedUserId) headers["X-User-ID"] = storedUserId; // make sure backend accepts X-User-ID
+
   return headers;
 }
 
 function parseJwt(token) {
   try {
+    if (!token) return null;
     const payload = token.split(".")[1];
     if (!payload) return null;
     const json = atob(payload.replace(/-/g, "+").replace(/_/g, "/"));
-    return JSON.parse(decodeURIComponent(escape(json)));
+    try { return JSON.parse(decodeURIComponent(escape(json))); }
+    catch (e) { return JSON.parse(json); }
   } catch (e) {
     return null;
   }
 }
 
 async function initializeUserSession() {
-  if (
-    typeof auth === "undefined" ||
-    !auth.isAuthenticated ||
-    !auth.isAuthenticated()
-  ) {
-    console.log("User not authenticated -> redirecting to login");
-    window.location.href = "../login/index.html";
-    return false;
-  }
-
-  currentUserId =
-    typeof auth !== "undefined" && auth.getUserId ? auth.getUserId() : null;
-
-  if (!currentUserId) {
-    const token =
-      typeof auth !== "undefined" && auth.getToken
-        ? auth.getToken()
-        : localStorage.getItem("token");
-    if (token) {
-      const payload = parseJwt(token);
-      currentUserId = payload?.sub || payload?.user_id || payload?.uid || null;
+  // If auth shim exists and says authenticated, use it
+  if (typeof auth !== "undefined" && auth.isAuthenticated && auth.isAuthenticated()) {
+    currentUserId = (typeof auth !== "undefined" && auth.getUserId) ? auth.getUserId() : null;
+    if (currentUserId) {
+      console.log("[auth] auth shim provided user:", currentUserId);
+      return true;
     }
   }
 
-  if (!currentUserId) {
-    console.log("Could not get user id -> logging out and redirecting");
-    if (auth && auth.logout) auth.logout();
-    window.location.href = "../login/index.html";
-    return false;
+  // Fallback: check tokens and stored user id
+  const token = (typeof auth !== "undefined" && auth.getToken) ? auth.getToken() : (localStorage.getItem("token") || localStorage.getItem("access_token"));
+  const storedUserId = localStorage.getItem("user_id") || localStorage.getItem("userId") || null;
+
+  // If we have a stored user id already, accept that and proceed
+  if (storedUserId) {
+    currentUserId = storedUserId;
+    console.log("[auth] using stored user_id:", currentUserId);
+    return true;
   }
 
-  console.log("User session initialized:", currentUserId);
-  return true;
+  // If we have a token, try to derive user id from it
+  if (token) {
+    const payload = parseJwt(token);
+    const derived = payload && (payload.sub || payload.user_id || payload.uid || payload.id);
+    if (derived) {
+      currentUserId = derived;
+      // store for future runs
+      localStorage.setItem("user_id", currentUserId);
+      localStorage.setItem("userId", currentUserId);
+      console.log("[auth] derived user_id from token:", currentUserId);
+      return true;
+    }
+
+    // If token didn't include user_id, try calling auth backend /auth/me
+    try {
+      const meResp = await fetch(`${backendURL}/auth/me`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        }
+      });
+      if (meResp.ok) {
+        const meData = await meResp.json();
+        const uid = meData.user_id || meData.userId || meData.id || null;
+        if (uid) {
+          currentUserId = uid;
+          localStorage.setItem("user_id", uid);
+          localStorage.setItem("userId", uid);
+          console.log("[auth] fetched user_id from /auth/me:", uid);
+          return true;
+        }
+      } else {
+        console.warn("auth/me returned", meResp.status);
+      }
+    } catch (err) {
+      console.warn("auth/me fetch failed:", err);
+    }
+  }
+
+  // Nothing worked — redirect to login
+  console.log("User not authenticated -> redirecting to login");
+  window.location.href = "../login/index.html";
+  return false;
 }
+
 
 function loadSectionContent(sectionName) {
   const mainContent = document.getElementById("mainContent");
