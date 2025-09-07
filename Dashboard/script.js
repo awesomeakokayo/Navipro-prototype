@@ -1,113 +1,113 @@
-// dashboard.js - drop-in replacement (copy & paste)
-
 let currentUserId = null;
 let currentTaskId = null;
 let progressChart = null;
 let momentumChart = null;
 
-// Look for token in various places and user id too
 function getAuthHeaders(additional = {}) {
-  // Prefer auth shim first if available
   const tokenFromAuth = (typeof auth !== "undefined" && auth.getToken) ? auth.getToken() : null;
-
-  // Look for tokens saved in localStorage under common names
-  const tokenFromStorage = localStorage.getItem("token") || localStorage.getItem("access_token") || null;
-
+  const tokenFromStorage = localStorage.getItem("token") || localStorage.getItem("access_token") || localStorage.getItem("accessToken") || null;
   const token = tokenFromAuth || tokenFromStorage || null;
 
-  // Look for user id in storage under common names
   const storedUserId = localStorage.getItem("user_id") || localStorage.getItem("userId") || null;
+
   const headers = {
     "Content-Type": "application/json",
     ...additional
   };
 
   if (token) headers["Authorization"] = `Bearer ${token}`;
-  if (storedUserId) headers["X-User-ID"] = storedUserId; // make sure backend accepts X-User-ID
+  if (storedUserId) headers["X-User-ID"] = storedUserId;
+
+  // Debug — remove or reduce in production
+  console.debug("[getAuthHeaders] tokenPresent:", !!token, "userIdPresent:", !!storedUserId);
 
   return headers;
 }
 
 function parseJwt(token) {
   try {
-    if (!token) return null;
-    const payload = token.split(".")[1];
-    if (!payload) return null;
-    const json = atob(payload.replace(/-/g, "+").replace(/_/g, "/"));
-    try { return JSON.parse(decodeURIComponent(escape(json))); }
-    catch (e) { return JSON.parse(json); }
+    if (!token || typeof token !== "string") return null;
+    const part = token.split(".")[1];
+    if (!part) return null;
+    const payloadStr = atob(part.replace(/-/g, "+").replace(/_/g, "/"));
+    try { return JSON.parse(decodeURIComponent(escape(payloadStr))); }
+    catch (e) { return JSON.parse(payloadStr); }
   } catch (e) {
     return null;
   }
 }
 
 async function initializeUserSession() {
-  // If auth shim exists and says authenticated, use it
-  if (typeof auth !== "undefined" && auth.isAuthenticated && auth.isAuthenticated()) {
-    currentUserId = (typeof auth !== "undefined" && auth.getUserId) ? auth.getUserId() : null;
-    if (currentUserId) {
-      console.log("[auth] auth shim provided user:", currentUserId);
-      return true;
+  console.debug("[initializeUserSession] start");
+
+  if (typeof auth !== "undefined" && typeof auth.isAuthenticated === "function" && auth.isAuthenticated()) {
+    try {
+      const uid = (typeof auth.getUserId === "function") ? auth.getUserId() : null;
+      if (uid) {
+        currentUserId = uid;
+        console.log("[auth] auth shim provided user:", currentUserId);
+        return true;
+      }
+    } catch (e) {
+      console.warn("[initializeUserSession] auth shim present but failed to getUserId:", e);
     }
   }
 
-  // Fallback: check tokens and stored user id
-  const token = (typeof auth !== "undefined" && auth.getToken) ? auth.getToken() : (localStorage.getItem("token") || localStorage.getItem("access_token"));
-  const storedUserId = localStorage.getItem("user_id") || localStorage.getItem("userId") || null;
+  // Check localStorage for stored user id or token
+  const storedId = localStorage.getItem("user_id") || localStorage.getItem("userId") || null;
+  const token = localStorage.getItem("token") || localStorage.getItem("access_token") || localStorage.getItem("accessToken") || null;
 
-  // If we have a stored user id already, accept that and proceed
-  if (storedUserId) {
-    currentUserId = storedUserId;
+  // If user id already in storage — accept it and proceed
+  if (storedId) {
+    currentUserId = storedId;
     console.log("[auth] using stored user_id:", currentUserId);
     return true;
   }
 
-  // If we have a token, try to derive user id from it
   if (token) {
     const payload = parseJwt(token);
-    const derived = payload && (payload.sub || payload.user_id || payload.uid || payload.id);
+    const derived = payload && (payload.sub || payload.user_id || payload.uid || payload.id || null);
     if (derived) {
       currentUserId = derived;
-      // store for future runs
+      // persist for future loads
       localStorage.setItem("user_id", currentUserId);
       localStorage.setItem("userId", currentUserId);
-      console.log("[auth] derived user_id from token:", currentUserId);
+      console.log("[auth] derived user_id from token payload:", currentUserId);
       return true;
     }
 
-    // If token didn't include user_id, try calling auth backend /auth/me
     try {
+      console.debug("[initializeUserSession] trying auth /auth/me for user info");
       const meResp = await fetch(`${backendURL}/auth/me`, {
         method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`
-        }
+        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
       });
+
       if (meResp.ok) {
         const meData = await meResp.json();
-        const uid = meData.user_id || meData.userId || meData.id || null;
+        const uid = meData.user_id || meData.userId || meData.id || meData.sub || null;
         if (uid) {
           currentUserId = uid;
           localStorage.setItem("user_id", uid);
           localStorage.setItem("userId", uid);
-          console.log("[auth] fetched user_id from /auth/me:", uid);
+          console.log("[auth] fetched user_id from auth /auth/me:", uid);
           return true;
+        } else {
+          console.warn("[initializeUserSession] /auth/me returned ok but no id in body:", meData);
         }
       } else {
-        console.warn("auth/me returned", meResp.status);
+        console.warn("[initializeUserSession] auth /auth/me returned status:", meResp.status);
       }
     } catch (err) {
-      console.warn("auth/me fetch failed:", err);
+      console.warn("[initializeUserSession] fetch /auth/me failed:", err);
     }
   }
 
-  // Nothing worked — redirect to login
-  console.log("User not authenticated -> redirecting to login");
+  // Nothing worked: print debug and redirect
+  console.warn("[initializeUserSession] no auth shim, no stored userId, no token-derived id -> redirecting to login");
   window.location.href = "../login/index.html";
   return false;
 }
-
 
 function loadSectionContent(sectionName) {
   const mainContent = document.getElementById("mainContent");
