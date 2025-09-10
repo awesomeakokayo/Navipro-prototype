@@ -27,11 +27,8 @@ document.addEventListener("DOMContentLoaded", async function () {
       `https://navipro-backend.onrender.com/api/user_roadmap`,
       {
         method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`,
+        headers: getAuthHeaders()
         },
-      }
     );
 
     if (roadmapResponse.ok) {
@@ -414,7 +411,7 @@ async function refreshRoadmapData(userId) {
       `https://navipro-backend.onrender.com/api/user_roadmap`,
       {
         method: "GET",
-        headers: getAuthheaders(),
+        headers: getAuthHeaders(),
       }
     );
 
