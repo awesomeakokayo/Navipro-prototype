@@ -4,22 +4,33 @@ let progressChart = null;
 let momentumChart = null;
 
 function getAuthHeaders(additional = {}) {
-  const tokenFromAuth = (typeof auth !== "undefined" && auth.getToken) ? auth.getToken() : null;
-  const tokenFromStorage = localStorage.getItem("token") || localStorage.getItem("access_token") || localStorage.getItem("accessToken") || null;
+  const tokenFromAuth =
+    typeof auth !== "undefined" && auth.getToken ? auth.getToken() : null;
+  const tokenFromStorage =
+    localStorage.getItem("token") ||
+    localStorage.getItem("access_token") ||
+    localStorage.getItem("accessToken") ||
+    null;
   const token = tokenFromAuth || tokenFromStorage || null;
 
-  const storedUserId = localStorage.getItem("user_id") || localStorage.getItem("userId") || null;
+  const storedUserId =
+    localStorage.getItem("user_id") || localStorage.getItem("userId") || null;
 
   const headers = {
     "Content-Type": "application/json",
-    ...additional
+    ...additional,
   };
 
   if (token) headers["Authorization"] = `Bearer ${token}`;
   if (storedUserId) headers["X-User-ID"] = storedUserId;
 
-  // Debug — remove or reduce in production
-  console.debug("[getAuthHeaders] tokenPresent:", !!token, "userIdPresent:", !!storedUserId);
+  // Debug
+  console.debug(
+    "[getAuthHeaders] tokenPresent:",
+    !!token,
+    "userIdPresent:",
+    !!storedUserId
+  );
 
   return headers;
 }
@@ -30,8 +41,11 @@ function parseJwt(token) {
     const part = token.split(".")[1];
     if (!part) return null;
     const payloadStr = atob(part.replace(/-/g, "+").replace(/_/g, "/"));
-    try { return JSON.parse(decodeURIComponent(escape(payloadStr))); }
-    catch (e) { return JSON.parse(payloadStr); }
+    try {
+      return JSON.parse(decodeURIComponent(escape(payloadStr)));
+    } catch (e) {
+      return JSON.parse(payloadStr);
+    }
   } catch (e) {
     return null;
   }
@@ -40,52 +54,74 @@ function parseJwt(token) {
 async function initializeUserSession() {
   console.debug("[initializeUserSession] start");
 
-  if (typeof auth !== "undefined" && typeof auth.isAuthenticated === "function" && auth.isAuthenticated()) {
+  // 1) Auth shim
+  if (
+    typeof auth !== "undefined" &&
+    typeof auth.isAuthenticated === "function" &&
+    auth.isAuthenticated()
+  ) {
     try {
-      const uid = (typeof auth.getUserId === "function") ? auth.getUserId() : null;
+      const uid =
+        typeof auth.getUserId === "function" ? auth.getUserId() : null;
       if (uid) {
         currentUserId = uid;
         console.log("[auth] auth shim provided user:", currentUserId);
         return true;
       }
     } catch (e) {
-      console.warn("[initializeUserSession] auth shim present but failed to getUserId:", e);
+      console.warn(
+        "[initializeUserSession] auth shim present but failed to getUserId:",
+        e
+      );
     }
   }
 
-  // Check localStorage for stored user id or token
-  const storedId = localStorage.getItem("user_id") || localStorage.getItem("userId") || null;
-  const token = localStorage.getItem("token") || localStorage.getItem("access_token") || localStorage.getItem("accessToken") || null;
+  // 2) LocalStorage
+  const storedId =
+    localStorage.getItem("user_id") || localStorage.getItem("userId") || null;
+  const token =
+    localStorage.getItem("token") ||
+    localStorage.getItem("access_token") ||
+    localStorage.getItem("accessToken") ||
+    null;
 
-  // If user id already in storage — accept it and proceed
   if (storedId) {
     currentUserId = storedId;
     console.log("[auth] using stored user_id:", currentUserId);
     return true;
   }
 
+  // 3) Token decode
   if (token) {
     const payload = parseJwt(token);
-    const derived = payload && (payload.sub || payload.user_id || payload.uid || payload.id || null);
+    const derived =
+      payload &&
+      (payload.sub || payload.user_id || payload.uid || payload.id || null);
     if (derived) {
       currentUserId = derived;
-      // persist for future loads
       localStorage.setItem("user_id", currentUserId);
       localStorage.setItem("userId", currentUserId);
       console.log("[auth] derived user_id from token payload:", currentUserId);
       return true;
     }
 
+    // 4) Try /auth/me
     try {
-      console.debug("[initializeUserSession] trying auth /auth/me for user info");
+      console.debug(
+        "[initializeUserSession] trying auth /auth/me for user info"
+      );
       const meResp = await fetch(`${backendURL}/auth/me`, {
         method: "GET",
-        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
       });
 
       if (meResp.ok) {
         const meData = await meResp.json();
-        const uid = meData.user_id || meData.userId || meData.id || meData.sub || null;
+        const uid =
+          meData.user_id || meData.userId || meData.id || meData.sub || null;
         if (uid) {
           currentUserId = uid;
           localStorage.setItem("user_id", uid);
@@ -93,21 +129,73 @@ async function initializeUserSession() {
           console.log("[auth] fetched user_id from auth /auth/me:", uid);
           return true;
         } else {
-          console.warn("[initializeUserSession] /auth/me returned ok but no id in body:", meData);
+          console.warn(
+            "[initializeUserSession] /auth/me returned ok but no id in body:",
+            meData
+          );
         }
       } else {
-        console.warn("[initializeUserSession] auth /auth/me returned status:", meResp.status);
+        console.warn(
+          "[initializeUserSession] auth /auth/me returned status:",
+          meResp.status
+        );
       }
     } catch (err) {
       console.warn("[initializeUserSession] fetch /auth/me failed:", err);
     }
   }
 
-  // Nothing worked: print debug and redirect
-  console.warn("[initializeUserSession] no auth shim, no stored userId, no token-derived id -> redirecting to login");
+  // 5) Fallback
+  console.warn(
+    "[initializeUserSession] no auth shim, no stored userId, no token-derived id -> redirecting to login"
+  );
   window.location.href = "../login/index.html";
   return false;
 }
+
+// === NEW: Load roadmap from backend ===
+async function loadRoadmap() {
+  if (!currentUserId) {
+    console.error("No user ID found, cannot load roadmap");
+    return;
+  }
+
+  try {
+    const res = await fetch(`${backendURL}/roadmap/${currentUserId}`, {
+      method: "GET",
+      headers: getAuthHeaders(),
+    });
+
+    if (!res.ok) {
+      if (res.status === 404) {
+        console.log("[dashboard] No roadmap found, showing create option");
+        showCreateRoadmapOption();
+        return;
+      }
+      throw new Error(`Failed to fetch roadmap (status ${res.status})`);
+    }
+
+    const data = await res.json();
+    console.log("[dashboard] Loaded roadmap:", data);
+
+    if (data && data.roadmap) {
+      renderRoadmap(data.roadmap); // <-- implement your renderer
+    } else {
+      showCreateRoadmapOption();
+    }
+  } catch (err) {
+    console.error("[dashboard] loadRoadmap error:", err);
+    showCreateRoadmapOption();
+  }
+}
+
+// === Entry point ===
+document.addEventListener("DOMContentLoaded", async () => {
+  const ok = await initializeUserSession();
+  if (ok) {
+    loadRoadmap();
+  }
+});
 
 function loadSectionContent(sectionName) {
   const mainContent = document.getElementById("mainContent");
