@@ -1,73 +1,58 @@
+const backendURL = "https://navipro-backend.onrender.com/api";
+
 function getAuthHeaders(additional = {}) {
-  const tokenFromAuth =
-    typeof auth !== "undefined" && auth.getToken ? auth.getToken() : null;
-  const tokenFromStorage =
+  const token =
     localStorage.getItem("token") ||
     localStorage.getItem("access_token") ||
-    localStorage.getItem("accessToken") ||
-    null;
-  const token = tokenFromAuth || tokenFromStorage || null;
+    localStorage.getItem("accessToken");
 
   const storedUserId =
-    localStorage.getItem("user_id") || localStorage.getItem("userId") || null;
+    localStorage.getItem("user_id") || localStorage.getItem("userId");
 
-  const headers = {
-    "Content-Type": "application/json",
-    ...additional,
-  };
-
+  const headers = { "Content-Type": "application/json", ...additional };
   if (token) headers["Authorization"] = `Bearer ${token}`;
   if (storedUserId) headers["X-User-ID"] = storedUserId;
-
-  // Debug
-  console.debug(
-    "[getAuthHeaders] tokenPresent:",
-    !!token,
-    "userIdPresent:",
-    !!storedUserId
-  );
 
   return headers;
 }
 
-function parseJwt(token) {
-  try {
-    if (!token || typeof token !== "string") return null;
-    const part = token.split(".")[1];
-    if (!part) return null;
-    const payloadStr = atob(part.replace(/-/g, "+").replace(/_/g, "/"));
-    try {
-      return JSON.parse(decodeURIComponent(escape(payloadStr)));
-    } catch (e) {
-      return JSON.parse(payloadStr);
-    }
-  } catch (e) {
-    return null;
+async function initializeUserSession() {
+  const storedId =
+    localStorage.getItem("user_id") || localStorage.getItem("userId");
+  const token =
+    localStorage.getItem("token") ||
+    localStorage.getItem("access_token") ||
+    localStorage.getItem("accessToken");
+
+  if (storedId && token) {
+    console.log("[auth] using stored userId:", storedId);
+    return true;
   }
+
+  console.warn("[auth] no userId or token -> redirecting to login");
+  window.location.href = "../index.html";
+  return false;
 }
 
 document.addEventListener("DOMContentLoaded", async function () {
-  const userId = localStorage.getItem("userId");
+  const ok = await initializeUserSession();
+  if (!ok) return;
 
-  if (!userId) {
-    window.location.href = "../index.html";
-    return;
-  }
+  const userId =
+    localStorage.getItem("user_id") || localStorage.getItem("userId");
 
   try {
-    const roadmapResponse = await fetch(
-      `https://navipro-backend.onrender.com/api/user_roadmap`,
-      {
-        method: "GET",
-        headers: getAuthHeaders(),
-      }
-    );
+    const roadmapResponse = await fetch(`${backendURL}/user_roadmap`, {
+      method: "GET",
+      headers: getAuthHeaders(),
+    });
 
     if (roadmapResponse.ok) {
       const roadmapData = await roadmapResponse.json();
       updateRoadmapDisplay(roadmapData);
       setupProgressTracking(userId);
     } else if (roadmapResponse.status === 404) {
+      console.log("[roadmap] none found, generating new one...");
       await generateNewRoadmap(userId);
     } else {
       throw new Error(`Backend error: ${roadmapResponse.status}`);
