@@ -1,7 +1,4 @@
-// === robust-login.js ===
-// Paste/replace your current login submit handler with this.
-// Requires backendURL to be available (e.g. const backendURL = "https://naviproai-1.onrender.com")
-
+// Toggle password visibility
 function togglePassword(inputId, toggleButton) {
   const passwordInput = document.getElementById(inputId);
   const eyeIcon = toggleButton && toggleButton.querySelector("span");
@@ -15,6 +12,7 @@ function togglePassword(inputId, toggleButton) {
   }
 }
 
+// Decode JWT payload
 function parseJwt(token) {
   try {
     if (!token) return null;
@@ -44,13 +42,15 @@ async function fetchUserFromAuth(token) {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        // if your auth uses cookies, use credentials:'include'
-        // credentials: 'include'
       });
       if (!res.ok) continue;
       const body = await res.json();
       const uid =
-        body?.user_id || body?.userId || body?.id || body?.sub || null;
+        body?.user_id ||
+        body?.userId || // camelCase support
+        body?.id ||
+        body?.sub ||
+        null;
       if (uid) return { user_id: uid, body };
     } catch (err) {
       console.warn("fetchUserFromAuth failed for", p, err);
@@ -97,8 +97,6 @@ if (form) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
-        // If your auth uses cookies for session, uncomment:
-        // credentials: 'include'
       });
 
       // Always try to get JSON body for debugging
@@ -148,7 +146,12 @@ if (form) {
         const payload = parseJwt(token);
         if (payload) {
           userId =
-            payload.sub || payload.user_id || payload.uid || payload.id || null;
+            payload.sub ||
+            payload.user_id ||
+            payload.uid ||
+            payload.id ||
+            payload.userId || // camelCase fix
+            null;
           if (userId) {
             console.log("[login] derived user_id from token payload:", userId);
             storeAuth(token, userId);
@@ -173,7 +176,6 @@ if (form) {
       // If no token but we did get user_id earlier, already handled.
       // Otherwise, if we have token but no user id, warn and continue but do not redirect silently.
       if (token && !userId) {
-        // Store token so dashboard can try to derive user id itself
         storeAuth(token, null);
         alert(
           "Login succeeded but user id could not be resolved. Dashboard will try to derive it automatically. If you see repeated redirects, contact your auth backend developer."
@@ -202,7 +204,6 @@ if (form) {
 const googleBtn = document.getElementById("googleRegister");
 if (googleBtn) {
   googleBtn.addEventListener("click", () => {
-    // If your OAuth flow uses server-side redirects, this is fine
     window.location.href = `${backendURL}/auth/google`;
   });
 }

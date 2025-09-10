@@ -1,141 +1,100 @@
+// chat.js — fixed chat script (drop-in replacement)
+
+// runtime state
 let currentUserId = null;
 let messageContainer = null;
 let chatTextarea = null;
+let sendBtn = null;
 
-const response = await fetch("https://naviprobackend.onrender.com/api/chat", {
-  method: "POST",
-  headers: {
+// Build auth headers for backend calls (reads token and userId from localStorage)
+function getAuthHeaders(additional = {}) {
+  const token =
+    localStorage.getItem("token") ||
+    localStorage.getItem("access_token") ||
+    localStorage.getItem("accessToken") ||
+    null;
+
+  const userId =
+    localStorage.getItem("userId") || localStorage.getItem("user_id") || null;
+
+  const headers = {
     "Content-Type": "application/json",
-    "X-User-ID": currentUserId,
-  },
-  body: JSON.stringify({ message: message }),
-});
+    ...additional,
+  };
 
-/**
- * Initialize DOM elements after page loads
- */
-function initializeElements() {
-  messageContainer = document.querySelector(".direct-message");
-  chatTextarea = document.querySelector(".auto-expand");
+  if (token) headers["Authorization"] = `Bearer ${token}`;
+  if (userId) headers["X-User-ID"] = userId;
 
-  console.log("Message container found:", messageContainer);
-  console.log("Chat textarea found:", chatTextarea);
-
-  if (!messageContainer) {
-    console.error("Could not find .direct-message container");
-  }
-
-  if (!chatTextarea) {
-    console.error("Could not find .auto-expand textarea");
-  }
-
-  if (chatTextarea) {
-    // Auto-expand function
-    function autoExpand() {
-      // Reset height to auto first to shrink if needed
-      chatTextarea.style.height = "auto";
-      // Set new height based on scrollHeight
-      chatTextarea.style.height = chatTextarea.scrollHeight + "px";
-
-      // Adjust container padding if textarea is getting too tall
-      const container = document.querySelector(".container");
-      if (container) {
-        const textareaHeight = chatTextarea.offsetHeight;
-        container.style.marginBottom = textareaHeight + 70 + "px";
-      }
-    }
-
-    // Add event listeners for content changes
-    chatTextarea.addEventListener("input", autoExpand);
-    chatTextarea.addEventListener("change", autoExpand);
-
-    // Handle Enter key (with Shift for new line)
-    chatTextarea.addEventListener("keydown", function (event) {
-      if (event.key === "Enter" && !event.shiftKey) {
-        event.preventDefault();
-        sendMessage();
-      }
-    });
-
-    // Initial expansion
-    autoExpand();
-  }
+  return headers;
 }
 
-// Initialize user session
-function initializeUserSession() {
-  const userId = localStorage.getItem("userId");
-  const roadmapData = localStorage.getItem("roadmapData");
-
-  if (!userId) {
-    console.log("No user session found, redirecting to onboarding...");
-    window.location.href = "../onboarding/index.html";
-    return false;
-  }
-
-  currentUserId = userId;
-  console.log("User session initialized:", currentUserId);
-  return true;
-}
-
-// Sanitize HTML to prevent XSS
+// sanitize text to avoid XSS
 function sanitizeHTML(text) {
   const div = document.createElement("div");
   div.textContent = text;
   return div.innerHTML;
 }
 
-async function sendChatMessage(message) {
-  if (!currentUserId) {
-    console.error("No user ID available");
-    return null;
-  }
+// DOM initialization
+function initializeElements() {
+  messageContainer = document.querySelector(".direct-message");
+  chatTextarea = document.querySelector(".auto-expand");
+  sendBtn =
+    document.querySelector(".send-btn") || document.querySelector("#sendBtn");
 
-  if (!message.trim()) {
-    return null;
-  }
+  console.log("Message container found:", !!messageContainer);
+  console.log("Chat textarea found:", !!chatTextarea);
+  console.log("Send button found:", !!sendBtn);
 
-  try {
-    const response = await fetch(
-      `https://naviprobackend.onrender.com/api/chat`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-user-id": currentUserId,
-        },
-        body: JSON.stringify({
-          message: message,
-        }),
+  // Auto-expand textarea
+  if (chatTextarea) {
+    function autoExpand() {
+      chatTextarea.style.height = "auto";
+      chatTextarea.style.height = chatTextarea.scrollHeight + "px";
+      const container = document.querySelector(".container");
+      if (container) {
+        container.style.marginBottom = chatTextarea.offsetHeight + 70 + "px";
       }
-    );
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error("Server responded with error:", response.status, errorText);
-      throw new Error(`HTTP error! status: ${response.status}`);
     }
+    chatTextarea.addEventListener("input", autoExpand);
+    chatTextarea.addEventListener("change", autoExpand);
+    chatTextarea.addEventListener("keydown", function (event) {
+      if (event.key === "Enter" && !event.shiftKey) {
+        event.preventDefault();
+        sendMessage();
+      }
+    });
+    autoExpand();
+  }
 
-    const data = await response.json();
-    console.log("Received response from backend:", data);
-    return data;
-  } catch (error) {
-    console.error("Error sending chat message:", error);
-    return null;
+  // Attach click listener to send button if present
+  if (sendBtn) {
+    sendBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      sendMessage();
+    });
   }
 }
 
-/**
- * Add a new user message to the chat
- */
-function addUserMessage(message) {
-  if (!messageContainer) {
-    console.error("Message container not available");
-    return;
+// session initialization
+function initializeUserSession() {
+  const userId =
+    localStorage.getItem("userId") || localStorage.getItem("user_id");
+  if (!userId) {
+    console.log("No user session found, redirecting to onboarding...");
+    window.location.href = "../onboarding/index.html";
+    return false;
   }
+  currentUserId = userId;
+  console.log("User session initialized:", currentUserId);
+  return true;
+}
 
+// UI helpers
+function addUserMessage(message) {
+  if (!messageContainer) return;
   const sanitizedMessage = sanitizeHTML(message);
-  const userMessageHTML = `
+  messageContainer.innerHTML += `
     <div class="chat-container user">
       <div class="user-chat">
         <div class="user-name">You</div>
@@ -143,26 +102,19 @@ function addUserMessage(message) {
       </div>
     </div>
   `;
-  messageContainer.innerHTML += userMessageHTML;
+  scrollToBottom();
 }
 
-/**
- * Add a new AI message to the chat
- */
 function addAIMessage(message, timestamp = null) {
-  if (!messageContainer) {
-    console.error("Message container not available");
-    return;
-  }
-
+  if (!messageContainer) return;
   const sanitizedMessage = sanitizeHTML(message);
   const timestampStr = timestamp
     ? `<small class="timestamp">${new Date(
         timestamp
       ).toLocaleTimeString()}</small>`
     : "";
-  const aiMessageHTML = `
-    <div class="chat-container">
+  messageContainer.innerHTML += `
+    <div class="chat-container ai">
       <div><img src="Images/Naviprologo_only.png" alt="logo"></div>
       <div class="ai-chat">
         <div class="ai-name">Navi</div>
@@ -170,153 +122,146 @@ function addAIMessage(message, timestamp = null) {
       </div>
     </div>
   `;
-  messageContainer.innerHTML += aiMessageHTML;
+  scrollToBottom();
 }
 
-/**
- * Add typing indicator
- */
 function addTypingIndicator() {
   if (!messageContainer) return;
-
+  removeTypingIndicator();
   const typingHTML = `
     <div class="chat-container" id="typingIndicator">
       <div><img src="Images/Naviprologo_only.png" alt="logo"></div>
       <div class="ai-chat">
         <div class="ai-name">Navi</div>
-        <div class="typing-animation">
-          <span class="typing-dot">Navi is Typing...</span>
-        </div>
+        <div class="typing-animation"><span class="typing-dot">Navi is Typing...</span></div>
       </div>
     </div>
   `;
   messageContainer.innerHTML += typingHTML;
+  scrollToBottom();
 }
 
-/**
- * Remove typing indicator
- */
 function removeTypingIndicator() {
-  const typingIndicator = document.getElementById("typingIndicator");
-  if (typingIndicator) {
-    typingIndicator.remove();
-  }
+  const existing = document.getElementById("typingIndicator");
+  if (existing) existing.remove();
 }
 
-/**
- * Scroll chat to bottom
- */
 function scrollToBottom() {
-  if (messageContainer) {
-    messageContainer.scrollTop = messageContainer.scrollHeight;
+  if (!messageContainer) return;
+  messageContainer.scrollTop = messageContainer.scrollHeight;
+}
+
+// network call to backend chat endpoint
+async function sendChatMessage(message) {
+  if (!currentUserId) {
+    console.error("No user ID available");
+    return null;
+  }
+  if (!message || !message.trim()) return null;
+
+  const headers = getAuthHeaders();
+  try {
+    const resp = await fetch("https://naviprobackend.onrender.com/api/chat", {
+      method: "POST",
+      headers,
+      body: JSON.stringify({ message }),
+    });
+
+    if (resp.status === 401) {
+      console.warn("Chat API returned 401 — redirecting to login");
+      // Optionally show a nice message to user and then redirect
+      window.location.href = "../login/index.html";
+      return null;
+    }
+
+    if (!resp.ok) {
+      const txt = await resp.text().catch(() => "");
+      console.error("Chat API error:", resp.status, txt);
+      return null;
+    }
+
+    const data = await resp.json();
+    return data;
+  } catch (err) {
+    console.error("sendChatMessage network error:", err);
+    return null;
   }
 }
 
-/**
- * Handle sending a chat message
- */
+// Main send function (invoked by Enter or send button)
 async function sendMessage() {
-  console.log("sendMessage function called!");
-
   if (!chatTextarea) {
     console.error("Textarea not found!");
     return;
   }
+  let msg = chatTextarea.value || "";
+  msg = msg.trim();
+  if (!msg) return;
 
-  const message = chatTextarea.value.trim();
-  console.log("Message to send:", message);
-
-  if (!message) {
-    console.log("Empty message, returning");
-    return;
+  // UI: disable input while sending
+  if (sendBtn) {
+    sendBtn.disabled = true;
+    sendBtn.dataset.origText = sendBtn.textContent;
+    sendBtn.textContent = "Sending...";
   }
+  chatTextarea.disabled = true;
 
-  // Add user message to chat
-  addUserMessage(message);
-
-  // Clear input and reset height
+  addUserMessage(msg);
   chatTextarea.value = "";
   chatTextarea.style.height = "auto";
-
-  // Reset container margin if needed
-  const container = document.querySelector(".container");
-  if (container) {
-    container.style.marginBottom = "120px";
-  }
-
-  // Show typing indicator
   addTypingIndicator();
 
-  // Scroll to bottom
-  scrollToBottom();
-
   try {
-    // Get AI response from backend
-    const response = await sendChatMessage(message);
-
-    // Remove typing indicator
+    const response = await sendChatMessage(msg);
     removeTypingIndicator();
 
     if (response) {
-      // Add AI message to chat - adjust these properties based on your API response structure
       const messageText =
-        response.response || response.message || response.answer;
+        response.response || response.message || response.answer || "";
       const timestamp = response.timestamp || new Date().toISOString();
-
-      if (messageText) {
-        addAIMessage(messageText, timestamp);
-      } else {
-        console.error("Invalid response format from API:", response);
+      if (messageText) addAIMessage(messageText, timestamp);
+      else
         addAIMessage(
           "I'm having trouble responding right now. Please try again."
         );
-      }
     } else {
-      // Handle error case
       addAIMessage(
         "I'm having trouble responding right now. Please try again."
       );
     }
-
-    // Scroll to bottom after new message
-    scrollToBottom();
-  } catch (error) {
-    console.error("Error getting AI response:", error);
+  } catch (err) {
+    console.error("Error in sendMessage:", err);
     removeTypingIndicator();
     addAIMessage("Sorry, there was an error processing your message.");
+  } finally {
+    if (sendBtn) {
+      sendBtn.disabled = false;
+      sendBtn.textContent = sendBtn.dataset.origText || "Send";
+    }
+    if (chatTextarea) chatTextarea.disabled = false;
     scrollToBottom();
   }
 }
 
-/**
- * Initialize chat functionality
- */
+// expose globally for old HTML onclick handlers
+window.sendMessage = sendMessage;
+
+// initialize app
 function initializeApp() {
-  console.log("Initializing app...");
-
-  // Initialize elements first
+  console.log("Initializing chat app...");
   initializeElements();
-
-  // Check for user session
-  if (initializeUserSession()) {
-    console.log("Chat initialized for user:", currentUserId);
-
-    // Add welcome message
-    addAIMessage(
-      "Hello! I'm here to help you with your learning journey. What would you like to know?"
-    );
-  }
+  const ok = initializeUserSession();
+  if (!ok) return;
+  addAIMessage(
+    "Hello! I'm here to help you with your learning journey. What would you like to know?"
+  );
+  // focus textarea
+  if (chatTextarea) chatTextarea.focus();
 }
 
-// Initialize when DOM is loaded
+// DOM ready
 if (document.readyState === "loading") {
   document.addEventListener("DOMContentLoaded", initializeApp);
 } else {
-  // DOM already loaded
   initializeApp();
 }
-
-// Make sendMessage globally accessible for onclick handler
-window.sendMessage = sendMessage;
-
-console.log("Script setup complete");
