@@ -6,6 +6,8 @@ function getAuthHeaders(additional = {}) {
 
   const storedUserId =
     localStorage.getItem("user_id") || localStorage.getItem("userId");
+    console.log(userId)
+    console.log(user_id)
 
   const headers = { "Content-Type": "application/json", ...additional };
   if (token) headers["Authorization"] = `Bearer ${token}`;
