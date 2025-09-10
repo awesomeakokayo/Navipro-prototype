@@ -1,3 +1,6 @@
+// Replace with your actual backend root URL
+const backendURL = "https://naviprobackend.onrender.com/api";
+
 let currentUserId = null;
 let currentTaskId = null;
 let progressChart = null;
