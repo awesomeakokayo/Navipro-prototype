@@ -161,7 +161,7 @@ async function sendChatMessage(message) {
 
   const headers = getAuthHeaders();
   try {
-    const resp = await fetch("https://naviprobackend.onrender.com/api/chat", {
+    const resp = await fetch("https://navipro-backend.onrender.com/api/chat", {
       method: "POST",
       headers,
       body: JSON.stringify({ message }),

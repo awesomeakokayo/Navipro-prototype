@@ -211,7 +211,7 @@ function getAuthHeaders(additional = {}) {
         };
 
         const response = await fetch(
-          "https://naviprobackend.onrender.com/api/generate_roadmap",
+          "https://navipro-backend.onrender.com/api/generate_roadmap",
           {
             method: "POST",
             headers: getAuthHeaders(),

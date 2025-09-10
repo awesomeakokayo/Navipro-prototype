@@ -1,5 +1,5 @@
 // Replace with your actual backend root URL
-const backendURL = "https://naviprobackend.onrender.com/api";
+const backendURL = "https://navipro-backend.onrender.com/api";
 
 let currentUserId = null;
 let currentTaskId = null;
@@ -403,7 +403,7 @@ async function loadRoadmapContent() {
 
   try {
     const response = await fetch(
-      "https://naviprobackend.onrender.com/api/user_roadmap",
+      "https://navipro-backend.onrender.com/api/user_roadmap",
       {
         headers: getAuthHeaders(),
       }
@@ -455,7 +455,7 @@ async function getUserProgress() {
   if (!currentUserId) return null;
   try {
     const response = await fetch(
-      "https://naviprobackend.onrender.com/api/user_progress",
+      "https://navipro-backend.onrender.com/api/user_progress",
       {
         headers: getAuthHeaders(),
       }
@@ -477,7 +477,7 @@ async function getWeeklyProgress() {
   }
   try {
     const response = await fetch(
-      "https://naviprobackend.onrender.com/api/weekly_progress",
+      "https://navipro-backend.onrender.com/api/weekly_progress",
       {
         headers: getAuthHeaders(),
       }
@@ -503,7 +503,7 @@ async function getTodaysTask() {
   if (!currentUserId) return null;
   try {
     const response = await fetch(
-      "https://naviprobackend.onrender.com/api/daily_task",
+      "https://navipro-backend.onrender.com/api/daily_task",
       {
         headers: getAuthHeaders(),
       }
@@ -523,7 +523,7 @@ async function getWeeklyVideos() {
   if (!currentUserId) return null;
   try {
     const response = await fetch(
-      "https://naviprobackend.onrender.com/api/week_videos",
+      "https://navipro-backend.onrender.com/api/week_videos",
       {
         headers: getAuthHeaders(),
       }
@@ -771,7 +771,7 @@ async function completeTask() {
     if (currentTaskId) body.task_id = currentTaskId;
 
     const response = await fetch(
-      "https://naviprobackend.onrender.com/api/complete_task",
+      "https://navipro-backend.onrender.com/api/complete_task",
       {
         method: "POST",
         headers: getAuthHeaders(),

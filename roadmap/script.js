@@ -24,7 +24,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
   try {
     const roadmapResponse = await fetch(
-      `https://naviprobackend.onrender.com/api/user_roadmap`,
+      `https://navipro-backend.onrender.com/api/user_roadmap`,
       {
         method: "GET",
         headers: {
@@ -55,7 +55,7 @@ async function generateNewRoadmap(userId) {
     );
 
     const response = await fetch(
-      "https://naviprobackend.onrender.com/api/generate_roadmap",
+      "https://navipro-backend.onrender.com/api/generate_roadmap",
       {
         method: "POST",
         headers: getAuthHeaders(),
@@ -371,7 +371,7 @@ function setupProgressTracking(userId) {
 
       try {
         const response = await fetch(
-          `https://naviprobackend.onrender.com/api/complete_task`,
+          `https://navipro-backend.onrender.com/api/complete_task`,
           {
             method: "POST",
             headers: getAuthHeaders(),
@@ -410,7 +410,7 @@ function setupProgressTracking(userId) {
 async function refreshRoadmapData(userId) {
   try {
     const response = await fetch(
-      `https://naviprobackend.onrender.com/api/user_roadmap`,
+      `https://navipro-backend.onrender.com/api/user_roadmap`,
       {
         method: "GET",
         headers: getAuthheaders(),
