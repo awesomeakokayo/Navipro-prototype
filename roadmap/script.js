@@ -1,13 +1,49 @@
 function getAuthHeaders(additional = {}) {
-  const token = localStorage.getItem("token")
-  const storedUserId =
-    localStorage.getItem("user_id") || localStorage.getItem("userId");
+  const tokenFromAuth =
+    typeof auth !== "undefined" && auth.getToken ? auth.getToken() : null;
+  const tokenFromStorage =
+    localStorage.getItem("token") ||
+    localStorage.getItem("access_token") ||
+    localStorage.getItem("accessToken") ||
+    null;
+  const token = tokenFromAuth || tokenFromStorage || null;
 
-  const headers = { "Content-Type": "application/json", ...additional };
+  const storedUserId =
+    localStorage.getItem("user_id") || localStorage.getItem("userId") || null;
+
+  const headers = {
+    "Content-Type": "application/json",
+    ...additional,
+  };
+
   if (token) headers["Authorization"] = `Bearer ${token}`;
-  if (storedUserId) headers["X-User-ID"] = storedUserId; 
+  if (storedUserId) headers["X-User-ID"] = storedUserId;
+
+  // Debug
+  console.debug(
+    "[getAuthHeaders] tokenPresent:",
+    !!token,
+    "userIdPresent:",
+    !!storedUserId
+  );
 
   return headers;
+}
+
+function parseJwt(token) {
+  try {
+    if (!token || typeof token !== "string") return null;
+    const part = token.split(".")[1];
+    if (!part) return null;
+    const payloadStr = atob(part.replace(/-/g, "+").replace(/_/g, "/"));
+    try {
+      return JSON.parse(decodeURIComponent(escape(payloadStr)));
+    } catch (e) {
+      return JSON.parse(payloadStr);
+    }
+  } catch (e) {
+    return null;
+  }
 }
 
 document.addEventListener("DOMContentLoaded", async function () {
@@ -23,8 +59,8 @@ document.addEventListener("DOMContentLoaded", async function () {
       `https://navipro-backend.onrender.com/api/user_roadmap`,
       {
         method: "GET",
-        headers: getAuthHeaders()
-        },
+        headers: getAuthHeaders(),
+      }
     );
 
     if (roadmapResponse.ok) {
