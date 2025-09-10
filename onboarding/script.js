@@ -21,15 +21,17 @@ document.addEventListener("DOMContentLoaded", function () {
   steps[0].classList.add("active");
   updateProgressBar();
 
-  function getAuthHeaders(additional = {}) {
-    const token =
-      typeof auth !== "undefined" && auth.getToken
-        ? auth.getToken()
-        : localStorage.getItem("token");
-    const headers = { "Content-Type": "application/json", ...additional };
-    if (token) headers["Authorization"] = `Bearer ${token}`;
-    return headers;
-  }
+function getAuthHeaders(additional = {}) {
+  const token =
+    typeof auth !== "undefined" && auth.getToken
+      ? auth.getToken()
+      : localStorage.getItem("token");
+
+  const headers = { "Content-Type": "application/json", ...additional };
+  if (token) headers["Authorization"] = `Bearer ${token}`;
+
+  return headers;
+}
 
   function getStepData(stepNumber) {
     switch (stepNumber) {

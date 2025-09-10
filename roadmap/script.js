@@ -1,3 +1,19 @@
+function getAuthHeaders(additional = {}) {
+  const token =
+    typeof auth !== "undefined" && auth.getToken
+      ? auth.getToken()
+      : localStorage.getItem("token");
+
+  const storedUserId =
+    localStorage.getItem("user_id") || localStorage.getItem("userId");
+
+  const headers = { "Content-Type": "application/json", ...additional };
+  if (token) headers["Authorization"] = `Bearer ${token}`;
+  if (storedUserId) headers["X-User-ID"] = storedUserId; 
+
+  return headers;
+}
+
 document.addEventListener("DOMContentLoaded", async function () {
   const userId = localStorage.getItem("userId");
 
@@ -42,9 +58,7 @@ async function generateNewRoadmap(userId) {
       "https://naviprobackend.onrender.com/api/generate_roadmap",
       {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: getAuthHeaders(),
         body: JSON.stringify({
           goal: userPreferences.goal || "Learn full-stack development",
           target_role: userPreferences.targetRole || "",
@@ -357,12 +371,10 @@ function setupProgressTracking(userId) {
 
       try {
         const response = await fetch(
-          `https://naviprobackend.onrender.com/api/complete_task/${userId}`,
+          `https://naviprobackend.onrender.com/api/complete_task`,
           {
             method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
+            headers: getAuthHeaders(),
             body: JSON.stringify({
               task_id: taskId,
               task_completed: true,
@@ -398,12 +410,10 @@ function setupProgressTracking(userId) {
 async function refreshRoadmapData(userId) {
   try {
     const response = await fetch(
-      `https://naviprobackend.onrender.com/api/user_roadmap/${userId}`,
+      `https://naviprobackend.onrender.com/api/user_roadmap`,
       {
         method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: getAuthheaders(),
       }
     );
 
