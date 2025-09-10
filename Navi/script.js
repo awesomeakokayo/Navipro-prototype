@@ -1,12 +1,9 @@
-// chat.js — fixed chat script (drop-in replacement)
-
 // runtime state
 let currentUserId = null;
 let messageContainer = null;
 let chatTextarea = null;
 let sendBtn = null;
 
-// Build auth headers for backend calls (reads token and userId from localStorage)
 function getAuthHeaders(additional = {}) {
   const token =
     localStorage.getItem("token") ||
@@ -46,7 +43,6 @@ function initializeElements() {
   console.log("Chat textarea found:", !!chatTextarea);
   console.log("Send button found:", !!sendBtn);
 
-  // Auto-expand textarea
   if (chatTextarea) {
     function autoExpand() {
       chatTextarea.style.height = "auto";
@@ -164,12 +160,14 @@ async function sendChatMessage(message) {
     const resp = await fetch("https://navipro-backend.onrender.com/api/chat", {
       method: "POST",
       headers,
-      body: JSON.stringify({ message }),
+      body: JSON.stringify({
+        user_id: currentUserId,
+        message: message,
+       }),
     });
 
     if (resp.status === 401) {
       console.warn("Chat API returned 401 — redirecting to login");
-      // Optionally show a nice message to user and then redirect
       window.location.href = "../login/index.html";
       return null;
     }
@@ -188,7 +186,6 @@ async function sendChatMessage(message) {
   }
 }
 
-// Main send function (invoked by Enter or send button)
 async function sendMessage() {
   if (!chatTextarea) {
     console.error("Textarea not found!");
@@ -198,7 +195,6 @@ async function sendMessage() {
   msg = msg.trim();
   if (!msg) return;
 
-  // UI: disable input while sending
   if (sendBtn) {
     sendBtn.disabled = true;
     sendBtn.dataset.origText = sendBtn.textContent;
