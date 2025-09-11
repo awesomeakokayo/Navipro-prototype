@@ -493,8 +493,8 @@ async function getWeeklyProgress() {
   } catch (e) {
     console.error("Error fetching weekly progress:", e);
     return {
-      completed_hours: [4.5, 6.5, 2.5, 5, 3, 0, 0],
-      planned_hours: [1.5, 2, 1, 2, 2, 7, 6],
+      completed_hours: [0, 0, 0, 0, 0, 0, 0],
+      planned_hours: [2, 2, 2, 2, 2, 2, 2],
     };
   }
 }
@@ -619,14 +619,14 @@ async function initCharts() {
         datasets: [
           {
             label: "Completed work",
-            data: weeklyProgress.completed_hours || [4.5, 6.5, 2.5, 5, 3, 0, 0],
+            data: weeklyProgress.completed_hours || [0, 0, 0, 0, 0, 0, 0],
             backgroundColor: "#264653",
             stack: "a",
             barThickness: 30,
           },
           {
             label: "Proposed effort",
-            data: weeklyProgress.planned_hours || [1.5, 2, 1, 2, 2, 7, 6],
+            data: weeklyProgress.planned_hours || [2, 2, 2, 2, 2, 2, 2],
             backgroundColor: "#f4a261",
             stack: "a",
             barThickness: 30,
@@ -841,7 +841,7 @@ async function displayWeeklyVideos() {
           </div>
           <div class="ratings">
             <span class="star"><img width="15" height="15" src="https://img.icons8.com/?size=100&id=MVWV8hpGIZqp&format=png&color=FD7E14" alt=""></span>
-            <span class="rating">${video.rating || 3.8}</span>
+            <span class="rating">${video.rating || 3.9}</span>
           </div>
         </div>`
         )

@@ -49,10 +49,6 @@ body{
     padding: 10px;
 }
 
-h1{
-    font-size: 2rem;
-    font-weight: 400;
-}
 .sub-heading{
     font-size: 1.32rem;
     font-weight: 400;
@@ -112,14 +108,17 @@ form{
 }
 
 .step[data-step="5"] .top .options .select-btn{
-    height: 234px;
-    width: 574px;
-    padding-top:32px;
-    padding-bottom: 32px;
-    padding-right: 20px;
-    padding-left: 20px;
+    padding: 10px 16px ;
 }
 
+.top h1{
+    font-size: 40px;
+    font-weight: 400;
+    width: 90%;
+}
+h1{
+    font-weight: 400;
+}
 .step[data-step="6"] .options .option-btn{
     height: 120px;
     width: 450px;
@@ -141,7 +140,7 @@ form{
 }
 
 .step[data-step="7"] .options .option-btn.selected {
-    background-color: #fcca7b;
+    background-color: #FF9E00;
     border: 2px solid #FF9E00;
 }
 
@@ -154,7 +153,7 @@ form{
 }
 
 .options{
-    width: 65%;
+    width: 73%;
     display: flex;
     margin: auto;
     align-items: center;
@@ -175,9 +174,42 @@ form{
     font-family: 'Poppins', sans-serif;
     cursor: pointer
 }
+.option-btn:hover{
+    border: solid 1px #fcca7b;
+}
 .option-btn.selected {
-    background-color: #fcca7b;
+    background-color: #FF9E00;
     border: 2px solid #FF9E00;
+    color: white;
+}
+.option-btn.selected span{
+    background: inherit;
+    border: 1px solid white;
+}
+.option-btn.selected span img {
+  filter: brightness(0) invert(1); 
+}
+.option-btn.selected p{
+    color: white;
+}
+.select-btn:hover{
+    border: solid 1px #fcca7b;
+}
+.selct-btn.selected {
+    background-color: #FF9E00;
+    border: 2px solid #FF9E00;
+    color: white;
+}
+
+.select-btn.selected h3{
+    color: white;
+}
+.select-btn.selected span{
+    background: inherit;
+    border: 1px solid white;
+}
+.select-btn.selected p{
+    color: white;
 }
 span{
     display: flex;
@@ -259,7 +291,7 @@ h3{
 .select-btn{
     background: inherit;
     height: 202px;
-    width: 275px;
+    width: 315px;
     margin: 10px;
     border-radius: 16px;
     border: 2px solid #B9B9B9;
@@ -334,9 +366,15 @@ h3{
         width: 90%;
         margin: 1rem auto;
     }
+    .top h1{
+        font-size: 1.7rem;
+    }
 
     .next {
         width: 90%;
+    }
+    .select-btn{
+        width: 50%;
     }
 
     h1 {
