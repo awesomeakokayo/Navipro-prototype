@@ -484,8 +484,8 @@ async function getWeeklyProgress() {
     );
     if (response.status === 404) {
       return {
-        completed_hours: [4.5, 6.5, 2.5, 5, 3, 0, 0],
-        planned_hours: [1.5, 2, 1, 2, 2, 7, 6],
+        completed_hours: [0, 0, 0, 0, 0, 0, 0],
+        planned_hours: [2, 2, 2, 2, 2, 2, 2],
       };
     }
     if (!response.ok) return null;
