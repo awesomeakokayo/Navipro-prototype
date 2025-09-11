@@ -26,7 +26,7 @@
         </div>
 
         <div class="bottom-navigation">
-            <a href="#" class="nav-button"><button><img width="24" height="24" src="https://img.icons8.com/fluency-systems-regular/48/FFFFFF/logout-rounded.png" alt="logout-rounded"/> Logout</button></a>
+            <a href="#" class="nav-button"><button id="logoutBtn"><img width="24" height="24" src="https://img.icons8.com/fluency-systems-regular/48/FFFFFF/logout-rounded.png" alt="logout-rounded"/> Logout</button></a>
             <a href="#" class="nav-button"><button><img width="24" height="24" src="https://img.icons8.com/external-anggara-glyph-anggara-putra/32/FFFFFF/external-Setting-user-interface-anggara-basic-outline-anggara-putra-2.png" alt="external-Setting-user-interface-anggara-basic-outline-anggara-putra-2"/> Settings</button></a>
         </div>
     </div>
@@ -300,5 +300,13 @@
     </button>
 
     <script src="script.js"></script>
+    <script>
+        document.getElementById("logoutBtn").addEventListener("click", () => {
+            localStorage.removeItem("userId");
+            localStorage.removeItem("token");
+            localStorage.removeItem("access_token");
+            window.location.href = "/";
+        });
+    </script>
 </body>
 </html>
