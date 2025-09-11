@@ -697,6 +697,15 @@ b{
     background: #1A4156;
     transition: all 0.3s ease;
 }
+.no-roadmap{
+    text-align: center;
+    margin-top: 2em;
+    font-weight: 600;
+}
+.no-roadmap a{
+    text-decoration: none;
+    color: #FF9E00;
+}
 
 /* Mobile Responsive Styles */
 @media screen and (max-width: 768px) {

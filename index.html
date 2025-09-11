@@ -35,12 +35,12 @@
     .badge{display:inline-block;border-radius:999px;padding:6px 12px;border:2px solid #225276;font-size:16px;color:#225276;font-weight: 600;}
     .highlight{color:var(--accent)}
     .sub{color:black;max-width:890px;margin:0 auto 18px;font-size: 24px;}
-    .hero-form{display:flex;gap:12px;max-width:680px;margin:0 auto;align-items:center;justify-content:center}
+    .hero-form{display:flex;gap:12px;max-width:680px;margin:0 auto;align-items:center;justify-content:center; position: relative; z-index: 1000;}
     .input-email{font-family: 'Poppins';font-weight: bold;font-size: 18px;flex:1;padding:14px 16px;border-radius:8px;border:1px solid #e3eefb;background:#fff;min-width:0;}
     .cta-primary{background:var(--cta);color:#fff;font-weight:bold;font-size: 18px;border:none;padding:12px 18px;border-radius:8px;cursor:pointer}
     .cta-secondary{background:transparent;color:#1B455B;font-size: 18px;font-weight: bold;border:1px solid #1B455B;padding:10px 14px;border-radius:8px}
     .illustration{width:100%;max-width:480px;margin:0 auto}
-    header{ position: relative; z-index: 1000; }
+    header{ position: relative; }
     @media (max-width: 768px){.nav-links{ display: none;}}
   </style>
 
@@ -89,11 +89,11 @@
         <h1 class="hero-heading" id="hero-heading">Unlock your <span class="highlight">career potential</span> <br> with AI driven guidance</h1>
         <p class="sub">Get unstuck and start moving forward with Navipro - a personalized, AI smart, career guide, that will show you exactly how to reach your full potential</p>
 
-        <form class="hero-form" action="/signup" method="post" aria-label="Get started form">
+        <form class="hero-form"  aria-label="Get started form">
           <input data-sitekey="reCAPTCHA_site_key" data-callback='onSubmit' data-action='submit' id="email" class="input-email" name="email" type="email" placeholder="Enter e-mail here" required aria-required="true" />
           <span class="ctas">
-            <button class="cta-primary" type="submit">Get started</button>
-          <a class="cta-secondary" href="/why-navipro" role="button">Why navipro?</a>
+            <button  action="/Create Account/index.html" method="post" class="cta-primary">Get started</button>
+          <a class="cta-secondary" href="#about" role="button">Why navipro?</a>
           </span>
         </form>
         <p id="info">We'll never share your info with anyone</p>
@@ -217,10 +217,10 @@
         <h1 class="hero-heading" id="hero-heading">Ready to take <span class="highlight">the next step</span></h1>
         <p class="sub">Sign up for the beta version and get early access before everyone else</p>
 
-        <form class="hero-form" action="/signup" method="post" aria-label="Get started form">
+        <form class="hero-form" action="/Create Account/index.html" method="post" aria-label="Get started form">
           <input data-sitekey="reCAPTCHA_site_key" data-callback='onSubmit' data-action='submit' id="email" class="input-email" name="email" type="email" placeholder="Enter e-mail here" required aria-required="true" />
           <span class="ctas">
-            <button class="cta-primary" type="submit">Get started</button>
+            <button onclick="window.location.href='../Create Account/index.html'" class="cta-primary" >Get started</button>
           <a class="cta-secondary" href="/why-navipro" role="button">Join Discord</a>
           </span>
         </form>

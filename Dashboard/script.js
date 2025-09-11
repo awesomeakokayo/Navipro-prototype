@@ -411,7 +411,7 @@ async function loadRoadmapContent() {
 
     if (!response.ok) {
       if (response.status === 404) {
-        mainContent.innerHTML = `<div>No roadmap found. <a href="../onboarding/index.html">Create one now</a></div>`;
+        mainContent.innerHTML = `<div class="no-roadmap">No roadmap found. <a href="../onboarding/index.html">Create one now</a></div>`;
         return;
       } else {
         throw new Error("Failed to fetch roadmap: " + response.status);
@@ -471,8 +471,8 @@ async function getUserProgress() {
 async function getWeeklyProgress() {
   if (!currentUserId) {
     return {
-      completed_hours: [4.5, 6.5, 2.5, 5, 3, 0, 0],
-      planned_hours: [1.5, 2, 1, 2, 2, 7, 6],
+      completed_hours: [0, 0, 0, 0, 0, 0, 0],
+      planned_hours: [2, 2, 2, 2, 2, 2, 2],
     };
   }
   try {
