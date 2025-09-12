@@ -649,9 +649,9 @@ async function initCharts() {
           y: {
             stacked: true,
             beginAtZero: true,
-            max: 8,
+            max: 4,
             ticks: {
-              stepSize: 2,
+              stepSize: 1,
               font: { size: 15, family: "Poppins" },
               color: "#666",
               padding: 10,
