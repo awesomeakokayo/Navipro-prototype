@@ -254,11 +254,14 @@ justify-content: center;}
 .feature-content p{
     font-size: 20px;
 }
-.ambition{
+.ambition, .ambition1{
     text-align: center;
     font-size: 24px; 
     font-weight: 400;
     padding: 0.5em;
+}
+.ambition1{
+    width: 80vw;
 }
 
 @media (max-width: 768px) {
@@ -266,9 +269,12 @@ justify-content: center;}
         padding-left: 0.5em;
         padding-right: 0.5em;
     }
-    .ambition{
+    .ambition, .ambition1{
         font-size: 18px; 
         font-weight: 400;
+    }
+    .ambition1{
+        width: 95vw;
     }
     .hero::before {
     left: 0;
