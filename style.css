@@ -46,14 +46,16 @@ body{
     font-weight: 600;
 }
 .hero-heading{
+    width: 80vw;
     font-size: 64px;
     padding: 10px;
-    line-height: 84px;
+    line-height: 15vh;
     font-weight: 600;
     font-style: bold;
     text-align: center;
 }
 .sub{
+    font-size: 20px;
     font-weight:400;
 }
 .growth{
@@ -79,10 +81,15 @@ body{
     align-items: center;
 }
 .hero {
-  position: relative;
-  min-height: 80vh;
-  background: url('images/Rectangle\ 36.png') no-repeat center bottom;
-  background-size: contain; /* or cover depending on design */
+    width: 100%;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 80vh;
+    background: url('images/Rectangle\ 36.png') no-repeat center bottom;
+    background-size: contain;
+    padding-top: 2.5em;
 }
 .why {
   position: relative;
@@ -128,6 +135,8 @@ body{
     padding: 0;
 }
 .about-hero{
+    padding-left: 0.5em;
+    padding-right: 0.5em;
     width: 100%;
     text-align: center;
 }
@@ -204,7 +213,7 @@ justify-content: center;}
     background: linear-gradient(to bottom, #1B455B 0%, #3992C1C7 78%);
     border-top-left-radius: 24px;
     border-top-right-radius: 24px;
-    padding: 4em 0;
+    padding: 4em 0.5em;
 }
 .feature-cards{
     padding-top: 4em;
@@ -245,8 +254,22 @@ justify-content: center;}
 .feature-content p{
     font-size: 20px;
 }
+.ambition{
+    text-align: center;
+    font-size: 24px; 
+    font-weight: 400;
+    padding: 0.5em;
+}
 
 @media (max-width: 768px) {
+    .hero{
+        padding-left: 0.5em;
+        padding-right: 0.5em;
+    }
+    .ambition{
+        font-size: 18px; 
+        font-weight: 400;
+    }
     .hero::before {
     left: 0;
     width: 100%;
@@ -264,7 +287,7 @@ justify-content: center;}
     padding: 12px 20px;
     }
     .growth{
-        font-size: 40px;
+        font-size: 35px;
     }
     .hero{grid-template-columns:1fr}
     .nav-links{display: none;}
@@ -292,9 +315,16 @@ justify-content: center;}
         width: 85vw;
         padding: 1em;
     }
+    .cards h2{
+        font-size: 20px;
+    }
+    .cards p{
+        font-size: 16px;
+    }  
     #hero-heading{
+        width: 100%;
         text-align: center;
-        font-size: 45px;
+        font-size: 35px;
         line-height: 50px;
     }
     .sub{
@@ -349,9 +379,16 @@ justify-content: center;}
         font-size: 10px;
         padding-top: 10px;
     }
+    .feature-cards{
+        gap: 2em;
+        padding-top: 2em;
+    }
     .feature-card {
         flex-direction: column;
         align-items: center;
+    }
+    .feature-content p{
+        font-size: 16px;
     }
     .right{
         display: flex;
