@@ -1,6 +1,23 @@
-// course.js
+function getAuthHeaders(additional = {}) {
+  const token =
+    localStorage.getItem("token") ||
+    localStorage.getItem("access_token") ||
+    localStorage.getItem("accessToken") ||
+    null;
 
-const container = document.querySelector(".recommended");
+  const userId =
+    localStorage.getItem("userId") || localStorage.getItem("user_id") || null;
+
+  const headers = {
+    "Content-Type": "application/json",
+    ...additional,
+  };
+
+  if (token) headers["Authorization"] = `Bearer ${token}`;
+  if (userId) headers["X-User-ID"] = userId;
+
+  return headers;
+}
 
 async function getWeeklyVideos() {
   if (!currentUserId) return null;

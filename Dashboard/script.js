@@ -449,6 +449,9 @@ function loadResourcesContent() {
               onerror="console.error('Failed to load resources')"></iframe>
     </div>
   `;
+  setTimeout(() => {
+    displayWeeklyVideos();
+  }, 80);
 }
 
 async function getUserProgress() {
