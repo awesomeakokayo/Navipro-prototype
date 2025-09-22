@@ -29,181 +29,153 @@ body{
     border-radius: 1rem;
     margin: 0.5rem;
 }
+.image-cover{
+    width: 40vw;
+    height: 30vh;
+}
 
 .left{
     display: flex;
     flex-direction: row;
     align-items: center;
     flex: 1;
-    min-width: 0; /* Allows flex items to shrink below content size */
+    min-width: 0;
 }
 
-.video-image{
-    padding-right: 1rem;
-    flex-shrink: 0; /* Prevents image from shrinking */
-}
-
-.video-details {
-    flex: 1;
-    min-width: 0; /* Allows text to wrap properly */
-}
-
-img{
-    width: 100px;
-    height: auto;
-    border-radius: 0.6rem;
-}
-
-.progress-container {
-    width: 100%;
-    background: rgb(231, 229, 229);
+.video-recommendation{
+    background: white;
     border-radius: 10px;
-    overflow: hidden;
-    height: 0.5rem;
-    margin-top: 10px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    padding: 1.5rem;
+    margin: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    color: #737373;
+    height: 418px;
 }
-
-.progress-bar {
-    height: 100%;
-    background: linear-gradient(to right, orange);
-    transition: width 0.4s ease;
-    border-radius: 1rem;
+.video-recommendation-left{
+    display: flex;
+    align-items: center;
 }
-
-button{
-    padding: 0.8rem 1rem;
-    border: 1px solid #225672;
-    background-color: white;
+.video-recommendation-header{
+    display: flex;
+    justify-content: space-between;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+}
+.video-content{
+    display: flex;
+    flex-direction: row;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    padding: 0.3rem;
+    border-radius: 8px;
+    margin-bottom: 5px;
+    margin: 1em;
+    gap: 5em;
+}
+.video-detail{
+    font-size: x-small;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+.video-title{
+    font-size: 1.3em;
     color: black;
-    border-radius: 0.5rem;
-    font-size: 1.2rem;
-    font-weight: bold;
-    cursor: pointer;
-    white-space: nowrap;
-    flex-shrink: 0;
+    text-decoration: none;
 }
-
-button:hover {
-    background-color: #225672;
-    color: white;
+.video-author{
+    font-size: 1em;
+}
+.video-duration{
+    font-size: 1em;
+}
+.video-about{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 2px;
+    margin: 1em;
+}
+.ratings{
+    display: flex;
+    flex-direction: row;
+    margin-left: 10px;
+    align-items: center;
+}
+.video-cover{
+    width: 100%;
+    height: 30vh;
+    border-radius: 0.8em;
 }
 
 /* Tablet styles */
 @media (max-width: 768px) {
-    body {
-        padding: 0.5rem;
+    .image-cover{
+        width: 90vw;
+        height: auto;
     }
-    
-    .header {
-        padding: 0.5rem;
-        text-align: center;
+    .video-cover{
+        object-fit: cover;
     }
-    
-    .header h1 {
-        font-size: 1.5rem;
+    .video-recommendation {
+        height: auto;
+        margin: 10px 0;
     }
-    
-    .course {
-        margin: 0.25rem;
-        padding: 1rem;
+
+    .video-content {
+        flex-direction: column;
+        padding: 10px;
+        gap: 0;
     }
-    
-    img {
-        width: 80px;
+
+    .video-cover {
+        width: 100%;
+        height: auto;
+        max-width: 200px;
+        margin: 0 auto;
     }
-    
-    .video-image {
-        padding-right: 0.75rem;
+    .video-detail{
+        max-width: 200px;
     }
-    
-    button {
-        font-size: 1rem;
-        padding: 0.6rem 0.8rem;
+
+    .video-about {
+        width: 100%;
+        padding: 10px 0;
     }
+
+    .video-title {
+        font-size: 0.9rem;
+    }
+    .course{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    border: 1px solid black;
+    padding: 0.5rem;
+    border-radius: 1rem;
+    margin: 0.5rem;
+}
 }
 
-/* Mobile styles */
-@media (max-width: 480px) {
-    body {
-        padding: 0.25rem;
-    }
-    
-    .header {
-        padding: 0.5rem 0.25rem;
-    }
-    
-    .header h1 {
-        font-size: 1.25rem;
-    }
-    
-    .course {
-        flex-direction: column;
-        align-items: stretch;
-        gap: 1rem;
-        margin: 0.25rem;
-        padding: 0.75rem;
-    }
-    
-    .left {
-        flex-direction: column;
-        text-align: center;
-        gap: 0.5rem;
-    }
-    
-    .video-image {
-        padding-right: 0;
-        align-self: center;
-    }
-    
-    .video-details {
-        width: 100%;
-    }
-    
-    .video-details h3 {
-        font-size: 1rem;
-        margin-bottom: 0.5rem;
-    }
-    
-    .video-details > div:nth-child(2) {
-        font-size: 0.85rem;
-        margin-bottom: 0.5rem;
-    }
-    
-    img {
-        width: 120px;
-    }
-    
-    button {
-        width: 100%;
-        font-size: 1rem;
-        padding: 0.75rem;
-    }
-    
-    .progress-container {
-        margin-top: 0.5rem;
-    }
-}
-
-/* Very small screens */
 @media (max-width: 320px) {
     .header h1 {
         font-size: 1.1rem;
     }
     
-    .video-details h3 {
-        font-size: 0.9rem;
+    .video-author,
+    .video-duration {
+        font-size: 0.7rem;
     }
-    
-    .video-details > div:nth-child(2) {
-        font-size: 0.8rem;
-    }
-    
-    img {
-        width: 100px;
-    }
-    
-    button {
-        font-size: 0.9rem;
-        padding: 0.6rem;
-    }
+    .course{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    border: 1px solid black;
+    padding: 0.5rem;
+    border-radius: 1rem;
+    margin: 0.5rem;
+}
 }

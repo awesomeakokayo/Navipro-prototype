@@ -2,74 +2,85 @@
 
 const container = document.querySelector(".recommended");
 
-// Helper: convert ISO duration to human-readable
-function formatDuration(iso) {
-  const match = iso.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
-  if (!match) return "";
-  const [, h, m, s] = match;
-  return `${h ? h + "h " : ""}${m ? m + "m " : ""}${s ? s + "s" : ""}`.trim();
-}
-
-// Main loader
-async function loadCourses(query) {
-  container.innerHTML = "<p>Loading courses…</p>";
-
+async function getWeeklyVideos() {
+  if (!currentUserId) return null;
   try {
-    const res = await fetch(
-      `https://naviprobackend.onrender.com/api/week_videos/${currentUserId}`
+    const response = await fetch(
+      "https://navipro-backend.onrender.com/api/week_videos",
+      {
+        headers: getAuthHeaders(),
+      }
     );
-    if (!res.ok) throw new Error(`Server returned ${res.status}`);
-    const data = await res.json();
-
-    if (!Array.isArray(data) || data.length === 0) {
-      container.innerHTML = "<p>No courses found. Try another topic.</p>";
-      return;
+    if (!response.ok) {
+      console.error("Failed to get weekly videos", response.status);
+      return null;
     }
-
-    // Render cards
-    container.innerHTML = "";
-    data.forEach((course) => {
-      const courseHTML = `
-        <div class="course">
-          <div class="left">
-            <div class="video-image">
-              <img src="${course.thumbnail}" alt="${course.title}">
-            </div>
-            <div class="video-details">
-              <h3>${course.title}</h3>
-              <div>
-                <span>${course.channel}</span> •  
-                <span>${formatDuration(course.duration)}</span> • 
-                <span>👁️ ${course.views}</span>
-              </div> 
-              <div class="progress-container">
-                <div class="progress-bar" style="width: 0%;"></div>
-              </div>
-            </div>
-          </div>
-          <div class="right">
-            <a href="${course.url}" target="_blank">
-              <button>Start</button>
-            </a>
-          </div>
-        </div>
-      `;
-      container.insertAdjacentHTML("beforeend", courseHTML);
-    });
-  } catch (err) {
-    console.error("Error loading courses:", err);
-    container.innerHTML =
-      "<p>Failed to load courses. Please try again later.</p>";
+    return await response.json();
+  } catch (e) {
+    console.error("Error fetching videos:", e);
+    return null;
   }
 }
 
-// Load default query on page load
-window.addEventListener("DOMContentLoaded", () => {
-  loadCourses("software engineering for beginners");
-});
+// Helper: convert ISO duration to human-readable
+function formatDuration(duration) {
+  const match = (duration || "").match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
+  if (!match) return duration || "";
+  const hours = parseInt(match[1] || 0);
+  const minutes = parseInt(match[2] || 0);
+  const seconds = parseInt(match[3] || 0);
+  if (hours > 0) return `${hours}h ${minutes}m`;
+  if (minutes > 0) return `${minutes}m ${seconds}s`;
+  return `${seconds}s`;
+}
 
-// (Optional) If you have a search input & button, hook them up:
-// document.getElementById("searchBtn").addEventListener("click", () => {
-//   const q = document.getElementById("searchInput").value.trim();
-//   if (q) loadCourses(q);
-// });
+async function displayWeeklyVideos() {
+  const videoData = await getWeeklyVideos();
+  const container = document.getElementById("videoContainer");
+  if (!container) return;
+
+  if (!videoData || !videoData.videos || videoData.videos.length === 0) {
+    container.innerHTML = "<p>No videos available at the moment.</p>";
+    return;
+  }
+
+  container.innerHTML = `
+    <div class="video-content">
+      ${videoData.videos
+        .map(
+          (video) => `
+        <div style="display:flex;gap:10px;margin-bottom:15px;align-items:center;">
+          <a href="${
+            video.url
+          }" target="_blank"><img class="video-cover" width="80" height="50" src="${
+            video.thumbnail
+          }" alt=""></a>
+          <div class="video-about" style="flex:1;">
+            <a class="video-title" href="${video.url}" target="_blank">${
+            video.title
+          }</a>
+            <div class="video-detail">
+              <span class="video-author">${video.channel} • </span>
+              <span class="video-duration">${formatDuration(
+                video.duration
+              )}</span>
+            </div>
+          </div>
+          <div class="ratings">
+            <span class="star"><img width="15" height="15" src="https://img.icons8.com/?size=100&id=MVWV8hpGIZqp&format=png&color=FD7E14" alt=""></span>
+            <span class="rating">${video.rating || 3.9}</span>
+          </div>
+        </div>`
+        )
+        .join("")}
+    </div>
+    <button id="refreshVideosBtn" class="refresh-btn">Refresh Videos</button>
+  `;
+
+  const refreshBtn = document.getElementById("refreshVideosBtn");
+  if (refreshBtn)
+    refreshBtn.addEventListener("click", async () => {
+      container.innerHTML = "<p>Loading fresh video recommendations...</p>";
+      await displayWeeklyVideos();
+    });
+}
