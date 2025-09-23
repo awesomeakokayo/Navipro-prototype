@@ -34,6 +34,32 @@ body{
     border-radius: 16px;
     padding: 12px 53px;
 }
+.btn-login:hover{
+    background-color: white;
+    color: #FF9E00;
+    border: 2px solid #FF9E00;
+    padding: 10px 51px;
+}
+.btn-login1{
+    background-color: inherit;
+    color: #1B455B;
+    font-size: 18px;
+    border: 2px solid #1B455B;
+    font-family: 'Poppins';
+    font-weight: normal;
+    border-radius: 16px;
+    padding: 10px 51px;
+}
+.btn-login1:hover{
+    background-color: #1B455B;
+    color: white;
+    font-size: 18px;
+    border: 2px solid #1B455B;
+    font-family: 'Poppins';
+    font-weight: normal;
+    border-radius: 16px;
+    padding: 10px 51px;
+}
 #info{
     margin-top:8px;
     font-weight:500;
@@ -143,6 +169,13 @@ body{
 #about-heading{
     padding: 0;
     margin: 0;
+}
+.ctas{
+    margin: 0.8em 0;
+    gap: 0.5em;
+}
+.ctas a{
+    margin: 0.3em;
 }
 .why{
     display: flex;
@@ -290,7 +323,11 @@ justify-content: center;}
         width: 100%;
     }
     .btn-login{
+        display: none;
+    }
+    .btn-login1{
     padding: 12px 20px;
+    font-size: medium;
     }
     .growth{
         font-size: 35px;
@@ -363,6 +400,7 @@ justify-content: center;}
         flex-direction: column;
         position: relative;
         z-index: 1000;
+        margin-top: 1.5em;
     }
     .input-email{
         width: 90%;
