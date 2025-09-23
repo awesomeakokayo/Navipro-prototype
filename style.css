@@ -329,6 +329,10 @@ justify-content: center;}
     padding: 12px 20px;
     font-size: medium;
     }
+    .btn-login1:hover{
+    padding: 12px 20px;
+    font-size: medium;
+    }
     .growth{
         font-size: 35px;
     }
