@@ -23,14 +23,18 @@ document.addEventListener("DOMContentLoaded", function () {
 
 function getAuthHeaders(additional = {}) {
   const token =
-    typeof auth !== "undefined" && auth.getToken
-      ? auth.getToken()
-      : localStorage.getItem("token");
+    localStorage.getItem("token") ||
+    localStorage.getItem("access_token") ||
+    localStorage.getItem("accessToken") ||
+    null;
 
   const userId =
-    localStorage.getItem("user_id") || localStorage.getItem("userId");
+    localStorage.getItem("userId") || localStorage.getItem("user_id") || null;
 
-  const headers = { "Content-Type": "application/json", ...additional };
+  const headers = {
+    "Content-Type": "application/json",
+    ...additional,
+  };
 
   if (token) headers["Authorization"] = `Bearer ${token}`;
   if (userId) headers["X-User-ID"] = userId;
