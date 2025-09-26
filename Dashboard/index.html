@@ -301,13 +301,19 @@
         <span></span>
     </button>
 
+    <script src="../login/config.js"></script>
+    <script src="../login/auth.js"></script>
+    <script>
+        // Ensure user is authenticated before loading dashboard
+        auth.requireAuth();
+    </script>
     <script src="script.js"></script>
     <script>
         document.getElementById("logoutBtn").addEventListener("click", () => {
             localStorage.removeItem("userId");
             localStorage.removeItem("token");
             localStorage.removeItem("access_token");
-            window.location.href = "/";
+            window.location.href = "../login/index.html";
         });
     </script>
 </body>

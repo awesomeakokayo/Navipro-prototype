@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Authentication Callback</title>
+</head>
+<body>
+    <p id="status">Processing login...</p>
+    <script src="config.js"></script>
+    <script>
+        // Function to get URL parameters
+        function getQueryParam(param) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(param);
+        }
+
+        // Function to get URL hash fragments
+        function getHashParam(param) {
+            const hashParams = new URLSearchParams(window.location.hash.substring(1));
+            return hashParams.get(param);
+        }
+
+        async function handleCallback() {
+            try {
+                // Try to get token from various locations
+                const token = getQueryParam('token') || 
+                            getHashParam('token') || 
+                            getQueryParam('access_token') ||
+                            getHashParam('access_token');
+
+                if (!token) {
+                    throw new Error('No token found in URL');
+                }
+
+                // Store the token
+                localStorage.setItem('token', token);
+                localStorage.setItem('access_token', token);
+
+                // Try to get user info using the token
+                const response = await fetch(`${backendURL}/auth/me`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to fetch user info');
+                }
+
+                const userData = await response.json();
+                
+                // Store user ID if available
+                const userId = userData?.user_id || 
+                             userData?.userId || 
+                             userData?.id ||
+                             (userData.user && (userData.user.id || userData.user._id));
+
+                if (userId) {
+                    localStorage.setItem('user_id', userId);
+                    localStorage.setItem('userId', userId);
+                }
+
+                // Redirect to dashboard
+                window.location.href = '../Dashboard/index.html';
+            } catch (error) {
+                console.error('Auth callback error:', error);
+                document.getElementById('status').textContent = 
+                    'Authentication failed. Redirecting to login...';
+                // Wait a moment before redirecting to show the error
+                setTimeout(() => {
+                    window.location.href = './index.html';
+                }, 2000);
+            }
+        }
+
+        // Start processing immediately
+        handleCallback();
+    </script>
+</body>
+</html>

@@ -65,6 +65,17 @@
         </div>
     </div>
     <script src="config.js"></script>
+    <script src="auth.js"></script>
     <script src="script.js"></script>
+    <script>
+        // Check if user is already authenticated
+        if (auth.isAuthenticated()) {
+            auth.verifyToken().then(isValid => {
+                if (isValid) {
+                    window.location.href = '../Dashboard/index.html';
+                }
+            });
+        }
+    </script>
 </body>
 </html>

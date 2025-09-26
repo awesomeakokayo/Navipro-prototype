@@ -218,6 +218,9 @@ if (form) {
 const googleBtn = document.getElementById("googleRegister");
 if (googleBtn) {
   googleBtn.addEventListener("click", () => {
-    window.location.href = `${backendURL}/auth/google`;
+    // Construct the OAuth URL with redirect_uri
+    const redirectUri = `${window.location.origin}${window.location.pathname.replace('index.html', 'callback.html')}`;
+    const oauthUrl = `${backendURL}/auth/google?redirect_uri=${encodeURIComponent(redirectUri)}`;
+    window.location.href = oauthUrl;
   });
 }
