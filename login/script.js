@@ -47,7 +47,7 @@ async function fetchUserFromAuth(token) {
       const body = await res.json();
       const uid =
         body?.user_id ||
-        body?.userId || // camelCase support
+        body?.userId ||
         body?.id ||
         body?.sub ||
         null;
@@ -70,6 +70,8 @@ function storeAuth(token, userId) {
     localStorage.setItem("user_id", userId);
     localStorage.setItem("userId", userId);
   }
+  // Clear any pending verification flag if we're storing auth
+  localStorage.removeItem("pendingVerification");
 }
 
 // The submit handler
@@ -127,54 +129,62 @@ if (form) {
           (data.access_token || data.token || data.accessToken || data.jwt)) ||
         null;
 
-      console.log("[login] Found token:", token ? "yes" : "no");
-
-      // Try to find user_id directly in response
+      // Try to find user_id directly in response or token payload first
       let userId = data && (
         data.user_id ||
         data.userId ||
         data.id ||
-        (data.user && (data.user.id || data.user._id || data.user.userId)) ||
-        (data.data && (data.data.user_id || data.data.userId || data.data.id))
+        (data.user && (data.user.id || data.user._id || data.user.userId))
       ) || null;
-      
-      console.log("[login] Initial user ID search result:", userId);
 
-      // If no token and userId present, store and continue
-      if (!token && userId) {
-        storeAuth(null, userId);
-        console.log("[login] stored user id from response (no token)");
+      // If no direct user ID, try to get it from token payload
+      if (!userId && token) {
+        const payload = parseJwt(token);
+        if (payload) {
+          userId = payload.sub ||
+            payload.user_id ||
+            payload.uid ||
+            payload.id ||
+            payload.userId || null;
+          console.log("[login] Found user ID in token payload:", userId);
+        }
+      }
+
+      // If we have a user ID, they're verified - go to dashboard
+      if (userId) {
+        console.log("[login] User ID found, proceeding to dashboard");
+        storeAuth(token, userId);
         window.location.href = "../Dashboard/index.html";
         return;
       }
 
+      // Only check for verification redirect if we don't have a user ID
+      if (data && data.redirectUrl && data.redirectUrl.includes("verification")) {
+        console.log("[login] No user ID found, user needs verification. Redirecting to:", data.redirectUrl);
+        localStorage.setItem("pendingVerification", "true");
+        // Convert the getnavipro.com URL to our local path
+        window.location.href = "../Account Verification/index.html";
+        return;
+      }
+
+      console.log("[login] Found token:", token ? "yes" : "no");
+      
       // If token present, store it
       if (token) {
         localStorage.setItem("access_token", token);
         localStorage.setItem("token", token);
       }
 
-      // If no user id in response, try to decode token
-      if (!userId && token) {
-        const payload = parseJwt(token);
-        if (payload) {
-          userId =
-            payload.sub ||
-            payload.user_id ||
-            payload.uid ||
-            payload.id ||
-            payload.userId || // camelCase fix
-            null;
-          if (userId) {
-            console.log("[login] derived user_id from token payload:", userId);
-            storeAuth(token, userId);
-            window.location.href = "../Dashboard/index.html";
-            return;
-          }
-        }
+      // Only check for verification redirect if we don't have a user ID
+      if (data && data.redirectUrl && data.redirectUrl.includes("verification")) {
+        console.log("[login] No user ID found, user needs verification. Redirecting to:", data.redirectUrl);
+        localStorage.setItem("pendingVerification", "true");
+        // Convert the getnavipro.com URL to our local path
+        window.location.href = "../Account Verification/index.html";
+        return;
       }
 
-      // If still no user id but token present, try calling /auth/me
+      // If still no user id but token present, try calling /auth/me as a final attempt
       if (!userId && token) {
         const fetched = await fetchUserFromAuth(token);
         if (fetched && fetched.user_id) {
@@ -183,42 +193,8 @@ if (form) {
           storeAuth(token, userId);
           window.location.href = "../Dashboard/index.html";
           return;
-        }
-      }
-
-      // If no token but we did get user_id earlier, already handled.
-      // Otherwise, if we have token but no user id, make one final attempt to get user info
-      if (token && !userId) {
-        console.log("[login] No user ID found in initial response, trying /auth/me endpoint");
-        try {
-          const userInfoResponse = await fetch(`${backendURL}/auth/me`, {
-            headers: {
-              'Authorization': `Bearer ${token}`,
-              'Content-Type': 'application/json'
-            }
-          });
-          const userInfo = await userInfoResponse.json();
-          console.log("[login] /auth/me response:", userInfo);
-          
-          userId = userInfo && (
-            userInfo.user_id ||
-            userInfo.userId ||
-            userInfo.id ||
-            (userInfo.user && (userInfo.user.id || userInfo.user._id || userInfo.user.userId))
-          );
-
-          if (userId) {
-            console.log("[login] Successfully retrieved user ID from /auth/me:", userId);
-            storeAuth(token, userId);
-            window.location.href = "../Dashboard/index.html";
-            return;
-          } else {
-            throw new Error("No user ID in /auth/me response");
-          }
-        } catch (error) {
-          console.error("[login] Failed to get user info from /auth/me:", error);
-          alert("Failed to retrieve user information. Please try again or contact support.");
-          return;
+        } else {
+          console.log("[login] No user ID found in /auth/me response");
         }
       }
 
