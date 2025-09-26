@@ -316,8 +316,8 @@ function loadDashboardContent() {
               </div>
               <canvas id="momentumChart" width="250" height="150"></canvas>
               <div class="navi-box">
-                <img src="Images/Naviprologo_only-removebg-preview.png" class="navi-icon" alt="Navi Icon">
-                <div class="navi-text"><span>Navi:</span>Your daily task have been tailored to last a maximum of two hours</div>
+                <img src="Images/naviprologo-whitebackground-removebg-preview.png" class="navi-icon" alt="Navi Icon">
+                <div class="navi-text"><span>Navi: </span> Your daily task have been tailored to last a maximum of two hours</div>
               </div>
             </div>
             <div id="taskContainer" class="task"></div>
@@ -779,7 +779,7 @@ async function displayTodaysTask() {
     </div>
     <div class="task-navi">
       <span class="bottom">
-        <img width="30" height="30" src="Images/Naviprologo_only-removebg-preview.png" alt="">
+        <img width="30" height="30" src="Images/naviprologo-whitebackground-removebg-preview.png" alt="">
         <span><span class="task-navi-ai">Navi:</span> ${
           task.motivation_message || ""
         }</span>
