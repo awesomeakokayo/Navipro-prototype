@@ -1,12 +1,15 @@
 // config.js - Direct connection to Render backend
-const backendURL = "https://naviproai-1.onrender.com";
-
-// Export the backend URL
-if (typeof module !== "undefined" && module.exports) {
-  module.exports = { backendURL };
-} else {
-  window.backendURL = backendURL;
-}
-
-// Log the backend URL for debugging
-console.log(`Using backend URL: ${backendURL}`);
+// Avoid redeclaring backendURL if it's already defined on the page
+;(function() {
+  const _url = "https://naviproai-1.onrender.com";
+  if (typeof module !== "undefined" && module.exports) {
+    module.exports = { backendURL: _url };
+  }
+  if (typeof window !== 'undefined') {
+    if (!window.backendURL) window.backendURL = _url;
+    // Expose a safe accessor
+    try {
+      console.log(`Using backend URL: ${window.backendURL}`);
+    } catch (e) {}
+  }
+})();

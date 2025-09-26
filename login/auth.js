@@ -44,6 +44,13 @@ async function verifyToken() {
                 return { valid: false, status: response.status, networkError: false, data };
             }
 
+            // Treat 404 as non-fatal when we already have a token/userId locally
+            if (response.status === 404) {
+                const hasLocalUser = !!(localStorage.getItem('user_id') || localStorage.getItem('userId'));
+                console.warn('[auth] /auth/me returned 404. hasLocalUser:', hasLocalUser);
+                return { valid: hasLocalUser, status: response.status, networkError: false, data };
+            }
+
             // For other non-OK responses, return invalid but do not necessarily clear stored values
             return { valid: false, status: response.status, networkError: false, data };
         }
