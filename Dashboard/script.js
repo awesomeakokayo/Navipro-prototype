@@ -321,7 +321,7 @@ function loadDashboardContent() {
                   <a href="#" class="milestone-title"><img width="23" height="23" src="Images/next.png" alt="">Next Milestone</a>
                   <div class="milestone-sub">Design Systems</div>
                   <a class="advance-button1" href="#"> <button class="advance-button">Advance →</button></a>
-                  // <div class="streak">🔥 5 - day streak</div>
+                   <div class="streak">🔥 day streak</div>
                 </div>
               </div>
               <div class="summary">
