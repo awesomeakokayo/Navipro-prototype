@@ -172,7 +172,17 @@ if (form) {
         }
 
         console.log("[login] Redirecting to dashboard...");
-        window.location.href = "../Dashboard/index.html";
+        // Pass user_id and token via URL fragment to ensure dashboard can pick them up
+        try {
+          const fragParts = [];
+          if (userId) fragParts.push(`user_id=${encodeURIComponent(userId)}`);
+          if (token) fragParts.push(`token=${encodeURIComponent(token)}`);
+          const frag = fragParts.length ? `#${fragParts.join('&')}` : '';
+          window.location.href = `../Dashboard/index.html${frag}`;
+        } catch (e) {
+          // Fallback
+          window.location.href = "../Dashboard/index.html";
+        }
         return;
       }
 
@@ -209,7 +219,16 @@ if (form) {
           userId = fetched.user_id;
           console.log("[login] fetched user id from auth/me:", userId);
           storeAuth(token, userId);
-          window.location.href = "../Dashboard/index.html";
+          // Pass user_id and token via URL fragment to ensure dashboard can pick them up
+          try {
+            const fragParts = [];
+            if (userId) fragParts.push(`user_id=${encodeURIComponent(userId)}`);
+            if (token) fragParts.push(`token=${encodeURIComponent(token)}`);
+            const frag = fragParts.length ? `#${fragParts.join('&')}` : '';
+            window.location.href = `../Dashboard/index.html${frag}`;
+          } catch (e) {
+            window.location.href = "../Dashboard/index.html";
+          }
           return;
         } else {
           console.log("[login] No user ID found in /auth/me response");

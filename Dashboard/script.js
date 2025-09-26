@@ -1,6 +1,34 @@
 // Replace with your actual backend root URL
 const backendURL = "https://navipro-backend.onrender.com/api";
 
+// Read token/user_id from URL fragment (if redirected immediately after login)
+(function consumeAuthFragment() {
+  try {
+    if (window.location.hash && window.location.hash.length > 1) {
+      const frag = window.location.hash.substring(1); // remove '#'
+      const params = new URLSearchParams(frag);
+      const token = params.get('token');
+      const userId = params.get('user_id') || params.get('userId');
+      if (token) {
+        localStorage.setItem('token', token);
+        localStorage.setItem('access_token', token);
+        console.log('[dashboard] Stored token from fragment');
+      }
+      if (userId) {
+        localStorage.setItem('user_id', userId);
+        localStorage.setItem('userId', userId);
+        console.log('[dashboard] Stored user_id from fragment:', userId);
+      }
+      // Remove fragment from URL to avoid token leakage in history
+      if (token || userId) {
+        history.replaceState(null, '', window.location.pathname + window.location.search);
+      }
+    }
+  } catch (e) {
+    console.warn('[dashboard] Failed to consume auth fragment', e);
+  }
+})();
+
 let currentUserId = null;
 let currentTaskId = null;
 let progressChart = null;
