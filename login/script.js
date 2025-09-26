@@ -93,6 +93,7 @@ if (form) {
     }
 
     try {
+      console.log("[login] Attempting login to:", `${backendURL}/auth/login`);
       const res = await fetch(`${backendURL}/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -103,8 +104,10 @@ if (form) {
       let data = null;
       try {
         data = await res.json();
+        console.log("[login] Auth response:", data);
       } catch (err) {
-        /* not JSON */
+        console.error("[login] Failed to parse response as JSON:", err);
+        throw new Error("Invalid response from server");
       }
 
       // Debug: show what auth returned
@@ -124,8 +127,18 @@ if (form) {
           (data.access_token || data.token || data.accessToken || data.jwt)) ||
         null;
 
+      console.log("[login] Found token:", token ? "yes" : "no");
+
       // Try to find user_id directly in response
-      let userId = (data && (data.user_id || data.userId || data.id)) || null;
+      let userId = data && (
+        data.user_id ||
+        data.userId ||
+        data.id ||
+        (data.user && (data.user.id || data.user._id || data.user.userId)) ||
+        (data.data && (data.data.user_id || data.data.userId || data.data.id))
+      ) || null;
+      
+      console.log("[login] Initial user ID search result:", userId);
 
       // If no token and userId present, store and continue
       if (!token && userId) {
@@ -174,14 +187,39 @@ if (form) {
       }
 
       // If no token but we did get user_id earlier, already handled.
-      // Otherwise, if we have token but no user id, warn and continue but do not redirect silently.
+      // Otherwise, if we have token but no user id, make one final attempt to get user info
       if (token && !userId) {
-        storeAuth(token, null);
-        alert(
-          "Login succeeded but user id could not be resolved. Dashboard will try to derive it automatically. If you see repeated redirects, contact your auth backend developer."
-        );
-        window.location.href = "../Dashboard/index.html";
-        return;
+        console.log("[login] No user ID found in initial response, trying /auth/me endpoint");
+        try {
+          const userInfoResponse = await fetch(`${backendURL}/auth/me`, {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            }
+          });
+          const userInfo = await userInfoResponse.json();
+          console.log("[login] /auth/me response:", userInfo);
+          
+          userId = userInfo && (
+            userInfo.user_id ||
+            userInfo.userId ||
+            userInfo.id ||
+            (userInfo.user && (userInfo.user.id || userInfo.user._id || userInfo.user.userId))
+          );
+
+          if (userId) {
+            console.log("[login] Successfully retrieved user ID from /auth/me:", userId);
+            storeAuth(token, userId);
+            window.location.href = "../Dashboard/index.html";
+            return;
+          } else {
+            throw new Error("No user ID in /auth/me response");
+          }
+        } catch (error) {
+          console.error("[login] Failed to get user info from /auth/me:", error);
+          alert("Failed to retrieve user information. Please try again or contact support.");
+          return;
+        }
       }
 
       // If the auth gave neither token nor user id - critical failure

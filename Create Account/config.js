@@ -7,6 +7,3 @@ if (typeof module !== "undefined" && module.exports) {
 } else {
   window.backendURL = backendURL;
 }
-
-// Log the backend URL for debugging
-console.log(`Using backend URL: ${backendURL}`);

@@ -58,6 +58,7 @@ form.addEventListener("submit", async (e) => {
 
   // Send data to backend
   try {
+    console.log("[register] Attempting registration");
     const response = await fetch(`${backendURL}/auth/register`, {
       method: "POST",
       headers: {
@@ -71,10 +72,29 @@ form.addEventListener("submit", async (e) => {
     });
 
     const data = await response.json();
+    console.log("[register] Registration response:", data);
 
     if (response.ok) {
-      window.location.href = "..Verify Email.index.html"; // Replace with your actual page
+      // Try to extract and store token/user ID if they're in the registration response
+      const token = data.token || data.access_token || data.accessToken || null;
+      let userId = data.user_id || data.userId || data.id || 
+        (data.user && (data.user.id || data.user._id || data.user.userId)) || null;
+
+      if (token) {
+        localStorage.setItem("token", token);
+        localStorage.setItem("access_token", token);
+        console.log("[register] Stored token from registration");
+      }
+      
+      if (userId) {
+        localStorage.setItem("user_id", userId);
+        localStorage.setItem("userId", userId);
+        console.log("[register] Stored user ID from registration:", userId);
+      }
+
+      window.location.href = "../Verify Email/index.html";
     } else {
+      console.error("[register] Registration failed:", data);
       alert(data.message || "Registration failed. Please try again.");
     }
   } catch (error) {
