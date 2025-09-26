@@ -305,11 +305,38 @@
     <script src="../login/auth.js"></script>
     <script>
         // Ensure user is authenticated before loading dashboard
-        auth.requireAuth();
+        async function initializeDashboard() {
+            try {
+                const isAuthed = await auth.requireAuth();
+                if (!isAuthed) {
+                    console.log('[dashboard] Authentication failed, redirecting...');
+                    return;
+                }
+                
+                // If we get here, we're authenticated
+                console.log('[dashboard] Authentication successful, loading dashboard...');
+                
+                // Now it's safe to initialize the rest of the dashboard
+                const token = localStorage.getItem('token') || localStorage.getItem('access_token');
+                const userId = localStorage.getItem('user_id') || localStorage.getItem('userId');
+                console.log('[dashboard] Current auth state:', { 
+                    hasToken: !!token, 
+                    userId: userId 
+                });
+            } catch (error) {
+                console.error('[dashboard] Initialization error:', error);
+                alert('Error loading dashboard. Please try logging in again.');
+                window.location.href = '../login/index.html';
+            }
+        }
+
+        // Start the initialization process
+        initializeDashboard();
     </script>
     <script src="script.js"></script>
     <script>
         document.getElementById("logoutBtn").addEventListener("click", () => {
+            console.log('[dashboard] Logging out...');
             localStorage.removeItem("userId");
             localStorage.removeItem("token");
             localStorage.removeItem("access_token");

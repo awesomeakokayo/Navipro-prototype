@@ -70,10 +70,23 @@
     <script>
         // Check if user is already authenticated
         if (auth.isAuthenticated()) {
-            auth.verifyToken().then(isValid => {
-                if (isValid) {
+            auth.verifyToken().then(result => {
+                // result is now an object: { valid, status, networkError, data }
+                if (result && result.valid) {
                     window.location.href = '../Dashboard/index.html';
+                    return;
                 }
+
+                // If verification failed due to network/TLS, allow staying on login page
+                if (result && result.networkError) {
+                    console.warn('[login] Token verification network error - staying on login page');
+                    return;
+                }
+
+                // Otherwise, token is invalid -> stay on login page (or you can force re-login)
+                console.log('[login] Token invalid or verification failed, staying on login page');
+            }).catch(err => {
+                console.error('[login] verifyToken error:', err);
             });
         }
     </script>

@@ -152,8 +152,26 @@ if (form) {
 
       // If we have a user ID, they're verified - go to dashboard
       if (userId) {
-        console.log("[login] User ID found, proceeding to dashboard");
+        console.log("[login] User ID found:", userId);
+        console.log("[login] Storing auth credentials...");
         storeAuth(token, userId);
+        
+        // Verify credentials were stored
+        const storedToken = localStorage.getItem('token') || localStorage.getItem('access_token');
+        const storedUserId = localStorage.getItem('user_id') || localStorage.getItem('userId');
+        console.log("[login] Stored credentials check:", { 
+            hasToken: !!storedToken, 
+            hasUserId: !!storedUserId 
+        });
+
+        // Double check auth before redirect
+        if (!storedToken || !storedUserId) {
+            console.error("[login] Failed to store credentials");
+            alert("Error saving login information. Please try again.");
+            return;
+        }
+
+        console.log("[login] Redirecting to dashboard...");
         window.location.href = "../Dashboard/index.html";
         return;
       }
@@ -224,3 +242,18 @@ if (googleBtn) {
     window.location.href = oauthUrl;
   });
 }
+
+// If a token exists but verification may have failed due to transient network issues,
+// start a background retry to attempt to validate the token shortly after page load.
+(function startBackgroundRetryIfNeeded() {
+  try {
+    const token = localStorage.getItem('token') || localStorage.getItem('access_token');
+    const userId = localStorage.getItem('user_id') || localStorage.getItem('userId');
+    if (token && userId && window.auth && typeof auth.startBackgroundTokenRetry === 'function') {
+      console.log('[login] Starting background token retry to handle transient network/TLS errors');
+      auth.startBackgroundTokenRetry(5000, 6);
+    }
+  } catch (e) {
+    console.warn('[login] could not start background token retry', e);
+  }
+})();
