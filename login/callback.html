@@ -9,69 +9,121 @@
     <p id="status">Processing login...</p>
     <script src="config.js"></script>
     <script>
-        // Function to get URL parameters
+        // Helper: get URL query param
         function getQueryParam(param) {
-            const urlParams = new URLSearchParams(window.location.search);
-            return urlParams.get(param);
+            try {
+                const urlParams = new URLSearchParams(window.location.search);
+                return urlParams.get(param);
+            } catch (e) {
+                return null;
+            }
         }
 
-        // Function to get URL hash fragments
+        // Helper: get hash fragment param
         function getHashParam(param) {
-            const hashParams = new URLSearchParams(window.location.hash.substring(1));
-            return hashParams.get(param);
+            try {
+                const hashParams = new URLSearchParams(window.location.hash.substring(1));
+                return hashParams.get(param);
+            } catch (e) {
+                return null;
+            }
+        }
+
+        // Try extracting token from a full URL (useful when token is embedded inside redirectUrl)
+        function extractTokenFromUrlString(urlStr) {
+            try {
+                const u = new URL(urlStr);
+                const qp = new URLSearchParams(u.search);
+                return qp.get('token') || qp.get('access_token') || (u.hash ? new URLSearchParams(u.hash.substring(1)).get('token') : null);
+            } catch (e) {
+                return null;
+            }
         }
 
         async function handleCallback() {
+            console.log('[callback] starting callback handler. fullUrl:', window.location.href);
             try {
-                // Try to get token from various locations
-                const token = getQueryParam('token') || 
-                            getHashParam('token') || 
-                            getQueryParam('access_token') ||
-                            getHashParam('access_token');
+                // 1) direct query/hash
+                let token = getQueryParam('token') || getHashParam('token') || getQueryParam('access_token') || getHashParam('access_token');
+                console.log('[callback] token from direct params:', !!token);
+
+                // 2) maybe backend included a redirectUrl param which itself contains the token
+                if (!token) {
+                    const redirectUrl = getQueryParam('redirectUrl') || getQueryParam('redirect') || getQueryParam('redirect_uri');
+                    console.log('[callback] redirectUrl param:', !!redirectUrl);
+                    if (redirectUrl) {
+                        token = extractTokenFromUrlString(decodeURIComponent(redirectUrl));
+                        console.log('[callback] token extracted from redirectUrl:', !!token);
+                    }
+                }
+
+                // 3) If still no token, maybe backend set a cookie session — try /auth/me without Authorization
+                if (!token) {
+                    console.log('[callback] no token in URL, attempting cookie-based /auth/me lookup');
+                    try {
+                        const res = await fetch(`${backendURL}/auth/me`, { headers: { 'Content-Type': 'application/json' }, credentials: 'include' });
+                        if (res.ok) {
+                            const userData = await res.json();
+                            const userId = userData?.user_id || userData?.userId || userData?.id || (userData.user && (userData.user.id || userData.user._id));
+                            const maybeToken = userData?.access_token || userData?.token || null;
+                            if (maybeToken) {
+                                token = maybeToken;
+                                console.log('[callback] obtained token from /auth/me response');
+                            }
+                            if (userId) {
+                                localStorage.setItem('user_id', userId);
+                                localStorage.setItem('userId', userId);
+                                console.log('[callback] stored user_id from /auth/me:', userId);
+                            }
+                        } else {
+                            console.log('[callback] /auth/me cookie lookup returned status', res.status);
+                        }
+                    } catch (e) {
+                        console.warn('[callback] /auth/me cookie lookup failed', e);
+                    }
+                }
 
                 if (!token) {
-                    throw new Error('No token found in URL');
+                    throw new Error('No token could be extracted from callback URL or server');
                 }
 
-                // Store the token
+                // Store token
                 localStorage.setItem('token', token);
                 localStorage.setItem('access_token', token);
+                console.log('[callback] token stored');
 
-                // Try to get user info using the token
-                const response = await fetch(`${backendURL}/auth/me`, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json'
+                // Try to fetch user info using the token
+                try {
+                    const response = await fetch(`${backendURL}/auth/me`, {
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        }
+                    });
+
+                    if (response.ok) {
+                        const userData = await response.json();
+                        const userId = userData?.user_id || userData?.userId || userData?.id || (userData.user && (userData.user.id || userData.user._id));
+                        if (userId) {
+                            localStorage.setItem('user_id', userId);
+                            localStorage.setItem('userId', userId);
+                            console.log('[callback] user_id stored from /auth/me:', userId);
+                        } else {
+                            console.log('[callback] /auth/me returned no user_id in body');
+                        }
+                    } else {
+                        console.warn('[callback] /auth/me returned non-OK status', response.status);
                     }
-                });
-
-                if (!response.ok) {
-                    throw new Error('Failed to fetch user info');
+                } catch (e) {
+                    console.warn('[callback] fetch /auth/me with bearer token failed', e);
                 }
 
-                const userData = await response.json();
-                
-                // Store user ID if available
-                const userId = userData?.user_id || 
-                             userData?.userId || 
-                             userData?.id ||
-                             (userData.user && (userData.user.id || userData.user._id));
-
-                if (userId) {
-                    localStorage.setItem('user_id', userId);
-                    localStorage.setItem('userId', userId);
-                }
-
-                // Redirect to dashboard
+                // Redirect to dashboard (token and possibly user_id now stored)
                 window.location.href = '../Dashboard/index.html';
             } catch (error) {
-                console.error('Auth callback error:', error);
-                document.getElementById('status').textContent = 
-                    'Authentication failed. Redirecting to login...';
-                // Wait a moment before redirecting to show the error
-                setTimeout(() => {
-                    window.location.href = './index.html';
-                }, 2000);
+                console.error('[callback] Auth callback error:', error);
+                document.getElementById('status').textContent = 'Authentication failed. Redirecting to login...';
+                setTimeout(() => { window.location.href = './index.html'; }, 2000);
             }
         }
 

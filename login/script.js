@@ -254,10 +254,14 @@ if (form) {
 // Google button handler (if present)
 const googleBtn = document.getElementById("googleRegister");
 if (googleBtn) {
-  googleBtn.addEventListener("click", () => {
-    // Construct the OAuth URL with redirect_uri
-    const redirectUri = `${window.location.origin}${window.location.pathname.replace('index.html', 'callback.html')}`;
-    const oauthUrl = `${backendURL}/auth/google?redirect_uri=${encodeURIComponent(redirectUri)}`;
+  googleBtn.addEventListener("click", (e) => {
+    e.preventDefault();
+    // Construct an absolute callback URL so the backend receives a valid redirect
+    const origin = window.location.origin || (window.location.protocol + '//' + window.location.host);
+    const callbackAbsolute = `${origin}/login/callback.html`;
+    const oauthUrl = `${backendURL}/auth/google?redirect=${encodeURIComponent(callbackAbsolute)}`;
+    console.log('[login] Google OAuth URL ->', oauthUrl, 'callbackAbsolute ->', callbackAbsolute);
+    // Navigate to the provider
     window.location.href = oauthUrl;
   });
 }

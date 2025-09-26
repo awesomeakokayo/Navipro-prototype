@@ -394,7 +394,23 @@ function loadDashboardContent() {
   setTimeout(() => {
     initCharts();
     displayTodaysTask();
-    displayWeeklyVideos();
+      displayWeeklyVideos();
+
+      // Try to post video recommendations into the embedded Course Recommendation iframe
+      setTimeout(() => {
+        const iframe = document.querySelector('.resources-content iframe');
+        if (!iframe) return;
+        iframe.addEventListener('load', async () => {
+          try {
+            const videosResp = await getWeeklyVideos();
+            const videos = (videosResp && videosResp.videos) || [];
+            console.log('[dashboard] posting weeklyVideos to resources iframe, count:', videos.length);
+            iframe.contentWindow.postMessage({ type: 'weeklyVideos', videos }, '*');
+          } catch (e) {
+            console.warn('[dashboard] failed to post weeklyVideos to iframe', e);
+          }
+        });
+      }, 150);
     updateProgressSection();
     displayWeeksFocus();
   }, 80);
@@ -468,7 +484,7 @@ function loadResourcesContent() {
   if (!mainContent) return;
   mainContent.innerHTML = `
     <div class="section-header">
-      <h2>Learning Resources</h2>
+      <h2>Recommended Videos</h2>
       <p>Discover courses and materials for your journey</p>
     </div>
     <div class="resources-content">
