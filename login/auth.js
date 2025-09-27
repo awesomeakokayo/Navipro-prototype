@@ -9,67 +9,56 @@ function isAuthenticated() {
 // Verify token is still valid
 // Returns a detailed object: { valid: boolean, status: number|null, networkError: boolean, data: any }
 async function verifyToken() {
-    const token = localStorage.getItem('token') || localStorage.getItem('access_token');
-    if (!token) {
-        console.log('[auth] No token found for verification');
-        return { valid: false, status: null, networkError: false, data: null };
-    }
+  const token = localStorage.getItem('token') || localStorage.getItem('access_token') || null;
+  const userId = localStorage.getItem('user_id') || localStorage.getItem('userId') || null;
 
+  // If we have both, try a normal bearer verify (existing behavior)
+  if (token) {
     try {
-        console.log('[auth] Verifying token with backend...');
-        const response = await fetch(`${backendURL}/auth/me`, {
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            }
-        });
-
-        let data = null;
-        try {
-            data = await response.json();
-        } catch (e) {
-            console.warn('[auth] verifyToken: failed to parse JSON', e);
-        }
-
-        console.log('[auth] Token verification response:', response.status, data);
-
-        if (!response.ok) {
-            // If 401 or 403, clear credentials and treat as invalid
-            if (response.status === 401 || response.status === 403) {
-                console.log('[auth] Token invalid (401/403), clearing credentials');
-                localStorage.removeItem('token');
-                localStorage.removeItem('access_token');
-                localStorage.removeItem('user_id');
-                localStorage.removeItem('userId');
-                return { valid: false, status: response.status, networkError: false, data };
-            }
-
-            // Treat 404 as non-fatal when we already have a token/userId locally
-            if (response.status === 404) {
-                const hasLocalUser = !!(localStorage.getItem('user_id') || localStorage.getItem('userId'));
-                console.warn('[auth] /auth/me returned 404. hasLocalUser:', hasLocalUser);
-                return { valid: hasLocalUser, status: response.status, networkError: false, data };
-            }
-
-            // For other non-OK responses, return invalid but do not necessarily clear stored values
-            return { valid: false, status: response.status, networkError: false, data };
-        }
-
-        // If we got a user ID in the response, update it
-        const userId = data?.user_id || data?.userId || data?.id ||
-                      (data && data.user && (data.user.id || data.user._id || data.user.userId));
-        if (userId) {
-            console.log('[auth] Updating user ID from verification response');
-            localStorage.setItem('user_id', userId);
-            localStorage.setItem('userId', userId);
-        }
-
-        return { valid: true, status: response.status, networkError: false, data };
-    } catch (error) {
-        console.error('[auth] Token verification failed (network?):', error);
-        // Network or TLS error - don't immediately clear stored credentials; treat as network issue
-        return { valid: false, status: null, networkError: true, data: null };
+      const res = await fetch(`${backendURL}/auth/me`, {
+        method: 'GET',
+        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
+      });
+      if (res.ok) return { valid: true, status: res.status, data: await res.json() };
+      return { valid: false, status: res.status, networkError: false };
+    } catch (e) {
+      return { valid: false, status: null, networkError: true, error: e };
     }
+  }
+
+  // NO token but we DO have userId: try cookie-based /auth/me once before giving up
+  if (!token && userId) {
+    try {
+      const res = await fetch(`${backendURL}/auth/me`, {
+        method: 'GET',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' }
+      });
+      if (res.ok) {
+        const body = await res.json();
+        // if backend returns a token, save it
+        const newToken = body?.access_token || body?.token || null;
+        const fetchedId = body?.user_id || body?.userId || body?.id || null;
+        if (newToken) {
+          localStorage.setItem('token', newToken);
+          localStorage.setItem('access_token', newToken);
+        }
+        if (fetchedId && !localStorage.getItem('user_id')) {
+          localStorage.setItem('user_id', fetchedId);
+          localStorage.setItem('userId', fetchedId);
+        }
+        return { valid: true, status: res.status, data: body };
+      } else {
+        // treat 401/404 as invalid but log for debugging
+        return { valid: false, status: res.status, networkError: false };
+      }
+    } catch (e) {
+      return { valid: false, status: null, networkError: true, error: e };
+    }
+  }
+
+  // nothing to verify
+  return { valid: false, status: null, networkError: false };
 }
 
 // Function to check if we're on a login-related page
