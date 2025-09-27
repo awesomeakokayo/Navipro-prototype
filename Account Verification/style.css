@@ -50,7 +50,7 @@ h1{
 }
 
 button{
-    padding: 1rem;
+    padding: 0.9rem;
     border-radius: 9px;
     cursor: pointer;
     font-size: 18px;
@@ -65,12 +65,11 @@ button{
 }
 
 .get-started{
-    padding: 0.9rem;
-    border-top: 1px solid #FF9E00;
-    border-right: 1px solid #FF9E00;
-    border-bottom: 1px solid #FF9E00;
-    border-left: 1px solid #FF9E00;
-    border-width: 1.5px;
+    padding: calc(0.9rem - 1.5px);
+    border-top: 1.5px solid #FF9E00;
+    border-right: 1.5px solid #FF9E00;
+    border-bottom: 1.5px solid #FF9E00;
+    border-left: 1.5px solid #FF9E00;
     background-color: white;
     color: #FF9E00;
 }
@@ -84,10 +83,10 @@ button{
     display: none;
     justify-content: center;
     align-items: center;
-    backdrop-filter: blur(8px); /* this blurs the background */
-    background-color: rgba(0, 0, 0, 0.3); /* semi-transparent dark */
+    backdrop-filter: blur(8px);
+    background-color: rgba(0, 0, 0, 0.3);
     z-index: 1000;
-    }
+}
 
     .overlay-content {
     background: white;
@@ -101,6 +100,7 @@ button{
         padding: 1rem;
     }
     .content{
+
         width: 20rem;
     }
     .verified-email{
@@ -109,9 +109,10 @@ button{
     .buttons{
         display: flex;
         flex-direction: column;
-        align-items: center;
+        align-items: flex-start;
+        justify-content: center;
     }
-    .buttons, .visit-dashboard{
+    .visit-dashboard{
         margin-bottom: 1rem;
         justify-content: center;
     }

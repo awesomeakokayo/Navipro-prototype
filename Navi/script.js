@@ -77,8 +77,8 @@ function initializeUserSession() {
   const userId =
     localStorage.getItem("userId") || localStorage.getItem("user_id");
   if (!userId) {
-    console.log("No user session found, redirecting to onboarding...");
-    window.location.href = "../onboarding/index.html";
+    console.log("No user session found, redirecting to login...");
+    window.location.href = "../login/index.html";
     return false;
   }
   currentUserId = userId;
