@@ -13,121 +13,110 @@
 
   <script src="config.js"></script>
   <script>
-    const logEl = document.getElementById('log');
-    function write(...args){ console.log(...args); logEl.textContent += args.map(a=> (typeof a === 'object' ? JSON.stringify(a,null,2) : String(a))).join(' ') + '\n'; }
+    // callback.html simplified processor
+    (async function () {
+      const logEl = document.getElementById('log');
+      function write(...args){ console.log(...args); if (logEl) logEl.textContent += args.map(a => (typeof a === 'object' ? JSON.stringify(a, null, 2) : String(a))).join(' ') + '\n'; }
 
-    function parseParams(searchOrHash){ try { return Object.fromEntries(new URLSearchParams(searchOrHash)); } catch(e){ return {}; } }
-    function decodeJwtPayload(tok){
-      try {
-        const part = tok.split('.')[1];
-        if(!part) return null;
-        const json = atob(part.replace(/-/g,'+').replace(/_/g,'/'));
-        return JSON.parse(json);
-      } catch(e){ return null; }
-    }
+      function parseParams(str) {
+        try { return Object.fromEntries(new URLSearchParams(str)); }
+        catch(e) { return {}; }
+      }
 
-    (async function debugCallback(){
-      write('[callback] window.location.href:', window.location.href);
-      write('[callback] window.location.search:', window.location.search);
-      write('[callback] window.location.hash:', window.location.hash);
+      function decodeJwtPayload(tok) {
+        try {
+          const part = tok.split('.')[1];
+          const json = atob(part.replace(/-/g,'+').replace(/_/g,'/'));
+          return JSON.parse(json);
+        } catch (e) { return null; }
+      }
 
-      const searchParams = parseParams(window.location.search);
-      const hashParams = parseParams(window.location.hash.replace(/^#/,''));
-      write('[callback] parsed searchParams:', searchParams);
-      write('[callback] parsed hashParams:', hashParams);
+      write('[callback] url', window.location.href);
+      const search = parseParams(window.location.search.replace(/^\?/, ''));
+      const hash = parseParams(window.location.hash.replace(/^#/, ''));
+      write('[callback] search', search, 'hash', hash);
 
-      // extract token/user_id from common places
-      let token = searchParams.access_token || searchParams.token || hashParams.access_token || hashParams.token || searchParams.jwt || hashParams.jwt || null;
-      let userId = searchParams.user_id || searchParams.userId || hashParams.user_id || hashParams.userId || searchParams.id || hashParams.id || null;
-      let redirectUrl = searchParams.redirectUrl || searchParams.redirect || searchParams.redirect_uri || null;
-      write('[callback] initial extraction -> hasToken:', !!token, 'hasUserId:', !!userId, 'redirectUrl:', redirectUrl);
+      // token and userId can come in search or hash; check both
+      let token = search.access_token || search.token || hash.access_token || hash.token || search.jwt || hash.jwt || null;
+      let userId = search.user_id || search.userId || hash.user_id || hash.userId || search.id || hash.id || null;
+      let redirectUrl = search.redirectUrl || search.redirect || search.redirect_uri || null;
 
-      // nested redirectUrl extraction
-      if((!token || !userId) && redirectUrl){
+      write('[callback] initial', { hasToken: !!token, hasUserId: !!userId, redirectUrl });
+
+      // If there's a nested redirect param that contains tokens, try to extract
+      if ((!token || !userId) && redirectUrl) {
         try {
           const decoded = decodeURIComponent(redirectUrl);
-          write('[callback] trying nested redirectUrl:', decoded);
-          try {
-            const u = new URL(decoded);
-            const nestedSearch = parseParams(u.search);
-            const nestedHash = parseParams(u.hash.replace(/^#/,''));
-            write('[callback] nestedSearch:', nestedSearch, 'nestedHash:', nestedHash);
-            token = token || nestedSearch.access_token || nestedSearch.token || nestedHash.access_token || nestedHash.token || null;
-            userId = userId || nestedSearch.user_id || nestedSearch.userId || nestedHash.user_id || nestedHash.userId || null;
-            write('[callback] after nested extract -> hasToken:', !!token, 'hasUserId:', !!userId);
-          } catch(e){ write('[callback] nested redirect parse failed:', e); }
-        } catch(e){ write('[callback] decode redirectUrl failed:', e); }
+          const u = new URL(decoded);
+          const nestedSearch = parseParams(u.search.replace(/^\?/, ''));
+          const nestedHash = parseParams(u.hash.replace(/^#/, ''));
+          token = token || nestedSearch.access_token || nestedHash.access_token || nestedSearch.token || nestedHash.token || null;
+          userId = userId || nestedSearch.user_id || nestedHash.user_id || nestedSearch.userId || nestedHash.userId || null;
+          write('[callback] nested extracted', { hasToken: !!token, hasUserId: !!userId });
+        } catch (e) {
+          write('[callback] no nested redirect token', e);
+        }
       }
 
-      // cookie-based /auth/me fallback if no token
-      const backend = (typeof backendURL !== 'undefined' && backendURL) ? backendURL : (window.backendURL || 'https://naviproai-1.onrender.com');
-      if(!token){
-        write('[callback] no token in URL — trying cookie-based /auth/me (credentials: include)');
+      // If no token in URL, try cookie-based /auth/me (backend must allow credentials)
+      const backend = typeof backendURL !== 'undefined' && backendURL ? backendURL : 'https://naviproai-1.onrender.com';
+      if (!token) {
         try {
-          const res = await fetch(`${backend}/auth/me`, { credentials: 'include', headers: { 'Content-Type': 'application/json' } });
-          write('[callback] /auth/me (cookie) status:', res.status);
-          const body = await (res.headers.get('content-type')?.includes('application/json') ? res.json() : res.text());
-          write('[callback] /auth/me (cookie) body:', body);
-          token = token || body?.access_token || body?.token || null;
-          userId = userId || body?.user_id || body?.userId || body?.id || (body.user && (body.user.id || body.user._id)) || null;
-          write('[callback] after cookie /auth/me -> hasToken:', !!token, 'hasUserId:', !!userId);
-        } catch(e){ write('[callback] cookie /auth/me failed:', e); }
+          write('[callback] trying cookie-based /auth/me');
+          const r = await fetch(`${backend}/auth/me`, { credentials: 'include', headers: { 'Content-Type': 'application/json' } });
+          write('[callback] cookie /auth/me status', r.status);
+          if (r.ok) {
+            const body = await r.json();
+            token = token || body.access_token || body.token || null;
+            userId = userId || body.user_id || body.userId || body.id || (body.user && (body.user.id || body.user._id)) || null;
+            write('[callback] cookie-based result hasToken:', !!token, 'hasUserId:', !!userId);
+          }
+        } catch (e) {
+          write('[callback] cookie /auth/me failed', e);
+        }
       }
 
-      // if token but no userId, try bearer /auth/me
-      if(token && !userId){
-        write('[callback] token found but no userId — calling /auth/me with Bearer');
+      // If token present but no userId, attempt bearer /auth/me
+      if (token && !userId) {
         try {
+          write('[callback] calling /auth/me with Bearer token to get user id');
           const r = await fetch(`${backend}/auth/me`, { headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' } });
-          write('[callback] /auth/me (bearer) status:', r.status);
-          const body = await (r.headers.get('content-type')?.includes('application/json') ? r.json() : r.text());
-          write('[callback] /auth/me (bearer) body:', body);
-          userId = userId || body?.user_id || body?.userId || body?.id || (body.user && (body.user.id || body.user._id)) || null;
-          write('[callback] after bearer /auth/me -> hasUserId:', !!userId);
-        } catch(e){ write('[callback] bearer /auth/me failed:', e); }
+          if (r.ok) {
+            const body = await r.json();
+            userId = userId || body.user_id || body.userId || body.id || (body.user && (body.user.id || body.user._id)) || null;
+            write('[callback] bearer /auth/me returned userId:', userId);
+          } else {
+            write('[callback] bearer /auth/me status', r.status);
+          }
+        } catch (e) {
+          write('[callback] bearer /auth/me failed', e);
+        }
       }
 
-      // log token value and decoded payload
-      if(token){
-        write('===== TOKEN (raw) =====');
-        write(token);
-        const payload = decodeJwtPayload(token);
-        write('===== TOKEN (decoded payload) =====');
-        write(payload || 'unable to decode payload');
-      } else {
-        write('[callback] NO token obtained');
-      }
-
-      // write everything to localStorage (for existing app code compatibility)
-      if(token){
+      // Save consistent storage keys
+      if (token) {
         localStorage.setItem('token', token);
         localStorage.setItem('access_token', token);
         localStorage.setItem('jwt', token);
-        write('[callback] token saved to localStorage keys: token / access_token / jwt');
+        write('[callback] saved token');
+        const payload = decodeJwtPayload(token);
+        write('[callback] token payload', payload || 'n/a');
       }
-      if(userId){
+      if (userId) {
         localStorage.setItem('user_id', userId);
         localStorage.setItem('userId', userId);
-        write('[callback] user_id saved to localStorage keys: user_id / userId ->', userId);
+        write('[callback] saved userId', userId);
       } else {
-        write('[callback] user_id NOT available to store');
+        write('[callback] WARNING: no userId obtained');
       }
 
-      write('===== localStorage snapshot =====');
-      write({
-        token: localStorage.getItem('token'),
-        access_token: localStorage.getItem('access_token'),
-        jwt: localStorage.getItem('jwt'),
-        user_id: localStorage.getItem('user_id'),
-        userId: localStorage.getItem('userId')
-      });
-
-      // final redirect
-      const preferred = searchParams.redirectUrl || searchParams.redirect || searchParams.redirect_uri || '../Dashboard/index.html';
-      write('[callback] redirecting to:', preferred);
-      // use replace so URL with token doesn't remain in history
-      setTimeout(()=> window.location.replace(preferred), 800);
+      // final redirect - prefer provided redirectUrl, else dashboard
+      const fallback = '../Dashboard/index.html';
+      const target = (search.redirectUrl || search.redirect || search.redirect_uri) ? (search.redirectUrl || search.redirect || search.redirect_uri) : (redirectUrl || fallback);
+      write('[callback] redirecting to', target);
+      setTimeout(() => window.location.replace(target), 600);
     })();
   </script>
+
 </body>
 </html>

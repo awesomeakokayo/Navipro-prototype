@@ -12,271 +12,147 @@ function togglePassword(inputId, toggleButton) {
   }
 }
 
-// Decode JWT payload
+// scripts.js - login logic (simplified)
 function parseJwt(token) {
   try {
     if (!token) return null;
-    const part = token.split(".")[1];
+    const part = token.split('.')[1];
     if (!part) return null;
-    const json = atob(part.replace(/-/g, "+").replace(/_/g, "/"));
-    try {
-      return JSON.parse(decodeURIComponent(escape(json)));
-    } catch (e) {
-      return JSON.parse(json);
-    }
+    const json = atob(part.replace(/-/g, '+').replace(/_/g, '/'));
+    return JSON.parse(json);
   } catch (e) {
-    console.warn("parseJwt failed:", e);
     return null;
   }
 }
 
-// Try calling auth backend to get user info using token
-async function fetchUserFromAuth(token) {
+async function fetchUserFromAuth(token, backendURL) {
   if (!token) return null;
-  const candidatePaths = ["/auth/me", "/auth/user", "/user/me", "/user"];
-  for (const p of candidatePaths) {
+  const paths = ['/auth/me', '/auth/user', '/user/me', '/user'];
+  for (const p of paths) {
     try {
-      const res = await fetch(`${backendURL}${p}`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
+      const r = await fetch(`${backendURL}${p}`, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
       });
-      if (!res.ok) continue;
-      const body = await res.json();
-      const uid =
-        body?.user_id ||
-        body?.userId ||
-        body?.id ||
-        body?.sub ||
-        null;
+      if (!r.ok) continue;
+      const body = await r.json();
+      const uid = body?.user_id || body?.userId || body?.id || body?.sub || null;
       if (uid) return { user_id: uid, body };
-    } catch (err) {
-      console.warn("fetchUserFromAuth failed for", p, err);
+    } catch (e) {
+      console.warn('[login] fetchUserFromAuth failed for', p, e);
       continue;
     }
   }
   return null;
 }
 
-// Centralized store function
 function storeAuth(token, userId) {
   if (token) {
-    localStorage.setItem("access_token", token);
-    localStorage.setItem("token", token);
+    localStorage.setItem('access_token', token);
+    localStorage.setItem('token', token);
+    localStorage.setItem('jwt', token);
   }
   if (userId) {
-    localStorage.setItem("user_id", userId);
-    localStorage.setItem("userId", userId);
+    localStorage.setItem('user_id', userId);
+    localStorage.setItem('userId', userId);
   }
-  // Clear any pending verification flag if we're storing auth
-  localStorage.removeItem("pendingVerification");
+  localStorage.removeItem('pendingVerification');
 }
 
-// The submit handler
-const form = document.querySelector("form");
-if (form) {
-  form.addEventListener("submit", async function (e) {
-    e.preventDefault();
+document.addEventListener('DOMContentLoaded', () => {
+  const form = document.getElementById('loginForm');
+  if (form) {
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = (document.getElementById('email') || {}).value?.trim();
+      const password = (document.getElementById('password') || {}).value?.trim();
+      if (!email || !password) return alert('Email and password are required');
 
-    const email = (document.getElementById("email") || {}).value?.trim() || "";
-    const password =
-      (document.getElementById("password") || {}).value?.trim() || "";
+      const submitBtn = form.querySelector('button[type=submit]');
+      if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Signing in...'; }
 
-    if (!email) return alert("Email is required");
-    if (!password) return alert("Password is required");
-
-    const submitBtn = form.querySelector("button[type=submit]");
-    if (submitBtn) {
-      submitBtn.disabled = true;
-      submitBtn.dataset.origText = submitBtn.textContent;
-      submitBtn.textContent = "Signing in...";
-    }
-
-    try {
-      console.log("[login] Attempting login to:", `${backendURL}/auth/login`);
-      const res = await fetch(`${backendURL}/auth/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
-
-      // Always try to get JSON body for debugging
-      let data = null;
       try {
-        data = await res.json();
-        console.log("[login] Auth response:", data);
-      } catch (err) {
-        console.error("[login] Failed to parse response as JSON:", err);
-        throw new Error("Invalid response from server");
-      }
-
-      // Debug: show what auth returned
-      console.debug("[login] /auth/login status:", res.status, "body:", data);
-
-      if (!res.ok) {
-        const msg =
-          (data && (data.message || data.error)) ||
-          `Login failed (status ${res.status})`;
-        alert(msg);
-        throw new Error(msg);
-      }
-
-      // Try to find token in common locations
-      const token =
-        (data &&
-          (data.access_token || data.token || data.accessToken || data.jwt)) ||
-        null;
-
-      // Try to find user_id directly in response or token payload first
-      let userId = data && (
-        data.user_id ||
-        data.userId ||
-        data.id ||
-        (data.user && (data.user.id || data.user._id || data.user.userId))
-      ) || null;
-
-      // If no direct user ID, try to get it from token payload
-      if (!userId && token) {
-        const payload = parseJwt(token);
-        if (payload) {
-          userId = payload.sub ||
-            payload.user_id ||
-            payload.uid ||
-            payload.id ||
-            payload.userId || null;
-          console.log("[login] Found user ID in token payload:", userId);
-        }
-      }
-
-      // If we have a user ID, they're verified - go to dashboard
-      if (userId) {
-        console.log("[login] User ID found:", userId);
-        console.log("[login] Storing auth credentials...");
-        storeAuth(token, userId);
-        
-        // Verify credentials were stored
-        const storedToken = localStorage.getItem('token') || localStorage.getItem('access_token');
-        const storedUserId = localStorage.getItem('user_id') || localStorage.getItem('userId');
-        console.log("[login] Stored credentials check:", { 
-            hasToken: !!storedToken, 
-            hasUserId: !!storedUserId 
+        const res = await fetch(`${backendURL}/auth/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
         });
 
-        // Double check auth before redirect
-        if (!storedToken || !storedUserId) {
-            console.error("[login] Failed to store credentials");
-            alert("Error saving login information. Please try again.");
-            return;
+        const data = await (res.headers.get('content-type')?.includes('application/json') ? res.json() : {});
+        if (!res.ok) {
+          const msg = (data && (data.message || data.error)) || `Login failed (status ${res.status})`;
+          alert(msg);
+          throw new Error(msg);
         }
 
-        console.log("[login] Redirecting to dashboard...");
-        // Pass user_id and token via URL fragment to ensure dashboard can pick them up
-        try {
-          const fragParts = [];
-          if (userId) fragParts.push(`user_id=${encodeURIComponent(userId)}`);
-          if (token) fragParts.push(`token=${encodeURIComponent(token)}`);
-          const frag = fragParts.length ? `#${fragParts.join('&')}` : '';
-          window.location.href = `../Dashboard/index.html${frag}`;
-        } catch (e) {
-          // Fallback
-          window.location.href = "../Dashboard/index.html";
+        const token = data?.access_token || data?.token || data?.accessToken || data?.jwt || null;
+        let userId = data?.user_id || data?.userId || data?.id || (data.user && (data.user.id || data.user._id)) || null;
+
+        // fallback: parse userId from token
+        if (!userId && token) {
+          const payload = parseJwt(token);
+          userId = payload?.sub || payload?.user_id || payload?.uid || payload?.id || payload?.userId || null;
         }
-        return;
-      }
 
-      // Only check for verification redirect if we don't have a user ID
-      if (data && data.redirectUrl && data.redirectUrl.includes("verification")) {
-        console.log("[login] No user ID found, user needs verification. Redirecting to:", data.redirectUrl);
-        localStorage.setItem("pendingVerification", "true");
-        // Convert the getnavipro.com URL to our local path
-        window.location.href = "../Account Verification/index.html";
-        return;
-      }
-
-      console.log("[login] Found token:", token ? "yes" : "no");
-      
-      // If token present, store it
-      if (token) {
-        localStorage.setItem("access_token", token);
-        localStorage.setItem("token", token);
-      }
-
-      // Only check for verification redirect if we don't have a user ID
-      if (data && data.redirectUrl && data.redirectUrl.includes("verification")) {
-        console.log("[login] No user ID found, user needs verification. Redirecting to:", data.redirectUrl);
-        localStorage.setItem("pendingVerification", "true");
-        // Convert the getnavipro.com URL to our local path
-        window.location.href = "../Account Verification/index.html";
-        return;
-      }
-
-      // If still no user id but token present, try calling /auth/me as a final attempt
-      if (!userId && token) {
-        const fetched = await fetchUserFromAuth(token);
-        if (fetched && fetched.user_id) {
-          userId = fetched.user_id;
-          console.log("[login] fetched user id from auth/me:", userId);
+        if (userId) {
           storeAuth(token, userId);
-          // Pass user_id and token via URL fragment to ensure dashboard can pick them up
-          try {
-            const fragParts = [];
-            if (userId) fragParts.push(`user_id=${encodeURIComponent(userId)}`);
-            if (token) fragParts.push(`token=${encodeURIComponent(token)}`);
-            const frag = fragParts.length ? `#${fragParts.join('&')}` : '';
-            window.location.href = `../Dashboard/index.html${frag}`;
-          } catch (e) {
-            window.location.href = "../Dashboard/index.html";
-          }
+          // navigate to dashboard (fragment used historically)
+          const frag = `#user_id=${encodeURIComponent(userId)}${token ? `&token=${encodeURIComponent(token)}` : ''}`;
+          window.location.href = `../Dashboard/index.html${frag}`;
           return;
-        } else {
-          console.log("[login] No user ID found in /auth/me response");
         }
+
+        // If token present but no userId, try fetching /auth/me
+        if (token) {
+          const fetched = await fetchUserFromAuth(token, backendURL);
+          if (fetched && fetched.user_id) {
+            storeAuth(token, fetched.user_id);
+            const frag = `#user_id=${encodeURIComponent(fetched.user_id)}&token=${encodeURIComponent(token)}`;
+            window.location.href = `../Dashboard/index.html${frag}`;
+            return;
+          }
+        }
+
+        // check for verification redirect
+        if (data && data.redirectUrl && data.redirectUrl.includes('verification')) {
+          localStorage.setItem('pendingVerification', 'true');
+          window.location.href = '../Account Verification/index.html';
+          return;
+        }
+
+        alert('Login succeeded but server returned no token or user id. Contact support.');
+        console.error('[login] response had no token and no user id:', data);
+      } catch (err) {
+        console.error('[login] error', err);
+      } finally {
+        if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = submitBtn.dataset.origText || 'Sign in'; }
       }
+    });
+  }
 
-      // If the auth gave neither token nor user id - critical failure
-      alert(
-        "Login succeeded but server returned no token or user id. Contact support."
-      );
-      console.error("[login] auth returned no token and no user_id:", data);
-    } catch (err) {
-      console.error("Login flow error:", err);
-    } finally {
-      if (submitBtn) {
-        submitBtn.disabled = false;
-        submitBtn.textContent = submitBtn.dataset.origText || "Sign in";
-      }
-    }
-  });
-}
+  // Google button
+  const googleBtn = document.getElementById('googleRegister');
+  if (googleBtn) {
+    googleBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      // callback must exactly match the OAuth app settings
+      const origin = window.location.origin;
+      const callbackAbsolute = `${origin}/login/callback.html`;
+      const oauthUrl = `${backendURL}/auth/google?redirect=${encodeURIComponent(callbackAbsolute)}`;
+      console.log('[login] redirecting to Google OAuth ->', oauthUrl);
+      window.location.href = oauthUrl;
+    });
+  }
 
-// Google button handler (if present)
-const googleBtn = document.getElementById("googleRegister");
-if (googleBtn) {
-  googleBtn.addEventListener("click", (e) => {
-    e.preventDefault();
-    // Construct an absolute callback URL so the backend receives a valid redirect
-    const origin = window.location.origin || (window.location.protocol + '//' + window.location.host);
-    const callbackAbsolute = `${origin}/login/callback.html`;
-    const oauthUrl = `${backendURL}/auth/google?redirect=${encodeURIComponent(callbackAbsolute)}`;
-    console.log('[login] Google OAuth URL ->', oauthUrl, 'callbackAbsolute ->', callbackAbsolute);
-    // Navigate to the provider
-    window.location.href = oauthUrl;
-  });
-}
-
-// If a token exists but verification may have failed due to transient network issues,
-// start a background retry to attempt to validate the token shortly after page load.
-(function startBackgroundRetryIfNeeded() {
+  // If token/userId exists; attempt a quick verify
   try {
     const token = localStorage.getItem('token') || localStorage.getItem('access_token');
     const userId = localStorage.getItem('user_id') || localStorage.getItem('userId');
     if (token && userId && window.auth && typeof auth.startBackgroundTokenRetry === 'function') {
-      console.log('[login] Starting background token retry to handle transient network/TLS errors');
-      auth.startBackgroundTokenRetry(5000, 6);
+      // optional: start small background retry if desired (not necessary)
+      // auth.startBackgroundTokenRetry(5000, 6);
     }
   } catch (e) {
-    console.warn('[login] could not start background token retry', e);
+    console.warn('[login] background check init failed', e);
   }
-})();
+});
