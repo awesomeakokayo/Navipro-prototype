@@ -29,31 +29,37 @@
             }
         }
 
-        // Try extracting token from a full URL (useful when token is embedded inside redirectUrl)
-        function extractTokenFromUrlString(urlStr) {
+        // Try extracting token/user_id from a full URL (useful when token is embedded inside redirectUrl)
+        function extractFromUrlString(urlStr) {
             try {
                 const u = new URL(urlStr);
                 const qp = new URLSearchParams(u.search);
-                return qp.get('token') || qp.get('access_token') || (u.hash ? new URLSearchParams(u.hash.substring(1)).get('token') : null);
+                const hp = u.hash ? new URLSearchParams(u.hash.substring(1)) : new URLSearchParams();
+                return {
+                    token: qp.get('token') || qp.get('access_token') || hp.get('token') || hp.get('access_token') || null,
+                    userId: qp.get('user_id') || qp.get('userId') || qp.get('id') || hp.get('user_id') || hp.get('userId') || hp.get('id') || null
+                };
             } catch (e) {
-                return null;
+                return { token: null, userId: null };
             }
         }
 
         async function handleCallback() {
             console.log('[callback] starting callback handler. fullUrl:', window.location.href);
             try {
-                // 1) direct query/hash
-                let token = getQueryParam('token') || getHashParam('token') || getQueryParam('access_token') || getHashParam('access_token');
-                console.log('[callback] token from direct params:', !!token);
+                // 1) Extract token and userId directly from query/hash
+                let token = getQueryParam('token') || getHashParam('token') || getQueryParam('access_token') || getHashParam('access_token') || null;
+                let userId = getQueryParam('user_id') || getHashParam('user_id') || getQueryParam('userId') || getHashParam('userId') || getQueryParam('id') || getHashParam('id') || null;
+                console.log('[callback] direct params -> hasToken:', !!token, 'hasUserId:', !!userId);
 
-                // 2) maybe backend included a redirectUrl param which itself contains the token
-                if (!token) {
+                // 2) Maybe backend included a redirectUrl param which itself contains token/userId
+                if (!token || !userId) {
                     const redirectUrl = getQueryParam('redirectUrl') || getQueryParam('redirect') || getQueryParam('redirect_uri');
-                    console.log('[callback] redirectUrl param:', !!redirectUrl);
                     if (redirectUrl) {
-                        token = extractTokenFromUrlString(decodeURIComponent(redirectUrl));
-                        console.log('[callback] token extracted from redirectUrl:', !!token);
+                        const extracted = extractFromUrlString(decodeURIComponent(redirectUrl));
+                        token = token || extracted.token;
+                        userId = userId || extracted.userId;
+                        console.log('[callback] extracted from redirectUrl -> hasToken:', !!token, 'hasUserId:', !!userId);
                     }
                 }
 
@@ -64,16 +70,15 @@
                         const res = await fetch(`${backendURL}/auth/me`, { headers: { 'Content-Type': 'application/json' }, credentials: 'include' });
                         if (res.ok) {
                             const userData = await res.json();
-                            const userId = userData?.user_id || userData?.userId || userData?.id || (userData.user && (userData.user.id || userData.user._id));
                             const maybeToken = userData?.access_token || userData?.token || null;
+                            const maybeId = userData?.user_id || userData?.userId || userData?.id || (userData.user && (userData.user.id || userData.user._id)) || null;
                             if (maybeToken) {
-                                token = maybeToken;
+                                token = token || maybeToken;
                                 console.log('[callback] obtained token from /auth/me response');
                             }
-                            if (userId) {
-                                localStorage.setItem('user_id', userId);
-                                localStorage.setItem('userId', userId);
-                                console.log('[callback] stored user_id from /auth/me:', userId);
+                            if (maybeId) {
+                                userId = userId || maybeId;
+                                console.log('[callback] obtained user_id from /auth/me response:', userId);
                             }
                         } else {
                             console.log('[callback] /auth/me cookie lookup returned status', res.status);
@@ -87,39 +92,51 @@
                     throw new Error('No token could be extracted from callback URL or server');
                 }
 
-                // Store token
+                // Store token under all keys used across app
                 localStorage.setItem('token', token);
                 localStorage.setItem('access_token', token);
-                console.log('[callback] token stored');
+                localStorage.setItem('jwt', token);
+                console.log('[callback] token stored under token/access_token/jwt');
 
-                // Try to fetch user info using the token
-                try {
-                    const response = await fetch(`${backendURL}/auth/me`, {
-                        headers: {
-                            'Authorization': `Bearer ${token}`,
-                            'Content-Type': 'application/json'
-                        }
-                    });
+                // If we already have userId from params, persist and skip /auth/me fetch
+                if (userId) {
+                    localStorage.setItem('user_id', userId);
+                    localStorage.setItem('userId', userId);
+                    console.log('[callback] user_id stored from URL params:', userId);
+                } else {
+                    // Try to fetch user info using the token to obtain userId
+                    try {
+                        const response = await fetch(`${backendURL}/auth/me`, {
+                            headers: {
+                                'Authorization': `Bearer ${token}`,
+                                'Content-Type': 'application/json'
+                            }
+                        });
 
-                    if (response.ok) {
-                        const userData = await response.json();
-                        const userId = userData?.user_id || userData?.userId || userData?.id || (userData.user && (userData.user.id || userData.user._id));
-                        if (userId) {
-                            localStorage.setItem('user_id', userId);
-                            localStorage.setItem('userId', userId);
-                            console.log('[callback] user_id stored from /auth/me:', userId);
+                        if (response.ok) {
+                            const userData = await response.json();
+                            const fetchedId = userData?.user_id || userData?.userId || userData?.id || (userData.user && (userData.user.id || userData.user._id)) || null;
+                            if (fetchedId) {
+                                userId = fetchedId;
+                                localStorage.setItem('user_id', userId);
+                                localStorage.setItem('userId', userId);
+                                console.log('[callback] user_id stored from /auth/me:', userId);
+                            } else {
+                                console.log('[callback] /auth/me returned no user_id in body');
+                            }
                         } else {
-                            console.log('[callback] /auth/me returned no user_id in body');
+                            console.warn('[callback] /auth/me returned non-OK status', response.status);
                         }
-                    } else {
-                        console.warn('[callback] /auth/me returned non-OK status', response.status);
+                    } catch (e) {
+                        console.warn('[callback] fetch /auth/me with bearer token failed', e);
                     }
-                } catch (e) {
-                    console.warn('[callback] fetch /auth/me with bearer token failed', e);
                 }
 
                 // Redirect to dashboard (token and possibly user_id now stored)
-                window.location.href = '../Dashboard/index.html';
+                // Prefer a redirectUrl param if provided by backend, else local dashboard
+                const preferredRedirect = getQueryParam('redirectUrl') || getQueryParam('redirect') || getQueryParam('redirect_uri') || '../Dashboard/index.html';
+                // Use replace so the fragment/query with token doesn't stay in history
+                window.location.replace(preferredRedirect);
             } catch (error) {
                 console.error('[callback] Auth callback error:', error);
                 document.getElementById('status').textContent = 'Authentication failed. Redirecting to login...';
