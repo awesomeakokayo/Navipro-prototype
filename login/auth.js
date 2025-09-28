@@ -1,146 +1,146 @@
-// auth.js 
-const Auth = (function () {
-  const KEYS = {
-    TOKEN: "token",
-    ACCESS_TOKEN: "access_token",
-    JWT: "jwt",
-    USER_ID: "user_id",
-    USERID_ALT: "userId",
-  };
+function isAuthenticated() {
+    const token = localStorage.getItem('token') || localStorage.getItem('access_token');
+    const userId = localStorage.getItem('user_id') || localStorage.getItem('userId');
+    console.log('[auth] Checking authentication:', { hasToken: !!token, hasUserId: !!userId });
+    return !!(token && userId);
+}
 
-  function _readToken() {
-    return (
-      localStorage.getItem(KEYS.TOKEN) ||
-      localStorage.getItem(KEYS.ACCESS_TOKEN) ||
-      null
-    );
-  }
-  function _readUserId() {
-    return (
-      localStorage.getItem(KEYS.USER_ID) ||
-      localStorage.getItem(KEYS.USERID_ALT) ||
-      null
-    );
-  }
-
-  function setAuth(token, userId) {
-    if (token) {
-      localStorage.setItem(KEYS.TOKEN, token);
-      localStorage.setItem(KEYS.ACCESS_TOKEN, token);
-      localStorage.setItem(KEYS.JWT, token);
+async function verifyToken() {
+    const token = localStorage.getItem('token') || localStorage.getItem('access_token');
+    if (!token) {
+        console.log('[auth] No token found for verification');
+        return { valid: false, status: null, networkError: false, data: null };
     }
-    if (userId) {
-      localStorage.setItem(KEYS.USER_ID, userId);
-      localStorage.setItem(KEYS.USERID_ALT, userId);
-    }
-  }
-
-  function clearAuth() {
-    Object.values(KEYS).forEach((k) => localStorage.removeItem(k));
-  }
-
-  function isAuthenticated() {
-    return !!(_readToken() && _readUserId());
-  }
-
-  // Verify token by calling backend /auth/me (should return user info)
-  async function verifyToken(backendURL) {
-    const token = _readToken();
-    if (!token)
-      return { valid: false, status: null, networkError: false, data: null };
 
     try {
-      const res = await fetch(`${backendURL}/auth/me`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      });
+        console.log('[auth] Verifying token with backend...');
+        const response = await fetch(`${backendURL}/auth/me`, {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
 
-      let data = null;
-      const contentType = res.headers.get("content-type") || "";
-      if (contentType.includes("application/json")) {
-        data = await res.json();
-      } else {
-        // non-json body is possible, but treat as error
-        data = null;
-      }
-
-      if (!res.ok) {
-        if (res.status === 401 || res.status === 403) {
-          // token invalid — clear stored credentials
-          clearAuth();
-          console.warn("[auth] Token invalid, cleared stored auth");
+        let data = null;
+        try {
+            data = await response.json();
+        } catch (e) {
+            console.warn('[auth] verifyToken: failed to parse JSON', e);
         }
-        // 404 can be treated as missing endpoint — caller decides
-        return { valid: false, status: res.status, networkError: false, data };
-      }
 
-      // success — ensure we store any user id returned
-      const userId =
-        data?.user_id ||
-        data?.userId ||
-        data?.id ||
-        (data.user && (data.user.id || data.user._id || data.user.userId)) ||
-        null;
+        console.log('[auth] Token verification response:', response.status, data);
 
-      if (userId) setAuth(token, userId);
+        if (!response.ok) {
+            // If 401 or 403, clear credentials and treat as invalid
+            if (response.status === 401 || response.status === 403) {
+                console.log('[auth] Token invalid (401/403), clearing credentials');
+                localStorage.removeItem('token');
+                localStorage.removeItem('access_token');
+                localStorage.removeItem('user_id');
+                localStorage.removeItem('userId');
+                return { valid: false, status: response.status, networkError: false, data };
+            }
 
-      return { valid: true, status: res.status, networkError: false, data };
-    } catch (err) {
-      console.error("[auth] verifyToken network error:", err);
-      return { valid: false, status: null, networkError: true, data: null };
+            // Treat 404 as non-fatal when we already have a token/userId locally
+            if (response.status === 404) {
+                const hasLocalUser = !!(localStorage.getItem('user_id') || localStorage.getItem('userId'));
+                console.warn('[auth] /auth/me returned 404. hasLocalUser:', hasLocalUser);
+                return { valid: hasLocalUser, status: response.status, networkError: false, data };
+            }
+
+            // For other non-OK responses, return invalid but do not necessarily clear stored values
+            return { valid: false, status: response.status, networkError: false, data };
+        }
+
+        // If we got a user ID in the response, update it
+        const userId = data?.user_id || data?.userId || data?.id ||
+                      (data && data.user && (data.user.id || data.user._id || data.user.userId));
+        if (userId) {
+            console.log('[auth] Updating user ID from verification response');
+            localStorage.setItem('user_id', userId);
+            localStorage.setItem('userId', userId);
+        }
+
+        return { valid: true, status: response.status, networkError: false, data };
+    } catch (error) {
+        console.error('[auth] Token verification failed (network?):', error);
+        // Network or TLS error - don't immediately clear stored credentials; treat as network issue
+        return { valid: false, status: null, networkError: true, data: null };
     }
-  }
+}
 
-  // requireAuth: used on protected pages to redirect to login if needed.
-  async function requireAuth(backendURL, options = {}) {
-    // options: { loginPage: '/login/index.html' }
-    const loginPage = options.loginPage || "/login/index.html";
-
-    // If already on login pages, don't redirect
+// Function to check if we're on a login-related page
+function isLoginPage() {
     const path = window.location.pathname.toLowerCase();
-    if (
-      path.includes("/login") ||
-      path.includes("/register") ||
-      path.includes("/create-account") ||
-      path.includes("/callback")
-    ) {
-      return false;
+    return path.includes('login') || 
+           path.includes('register') || 
+           path.includes('create-account') ||
+           path.includes('callback.html');
+}
+
+// Redirect to login if not authenticated
+async function requireAuth() {
+    console.log('[auth] Checking authentication requirements...');
+
+    // If we're already on a login page, don't redirect
+    if (isLoginPage()) {
+        console.log('[auth] Currently on login page, skipping redirect');
+        return false;
     }
 
+    // First check stored credentials
     if (!isAuthenticated()) {
-      window.location.href = loginPage;
-      return false;
+        console.log('[auth] No stored credentials, redirecting to login');
+        window.location.href = '../login/index.html';
+        return false;
     }
 
-    const res = await verifyToken(backendURL);
-    if (res.valid) return true;
-    if (res.networkError) {
-      console.warn(
-        "[auth] Network error verifying token — allowing session to continue (be cautious)"
-      );
-      return true;
+    // Then verify token is still valid
+    console.log('[auth] Verifying token validity...');
+    const result = await verifyToken();
+
+    // If verification succeeded, continue
+    if (result && result.valid) {
+        console.log('[auth] Token valid');
+        return true;
     }
 
-    // invalid token
-    window.location.href = loginPage;
+    // If network error (TLS/connection), allow staying on the page but warn
+    if (result && result.networkError) {
+        console.warn('[auth] Token verification could not complete due to network/TLS error; allowing session for now');
+        return true; // allow and attempt background re-check in the app if desired
+    }
+
+    // If token explicitly invalid (401/403) or verification failed, redirect to login
+    console.log('[auth] Token invalid or verification failed, redirecting to login');
+    window.location.href = '../login/index.html';
     return false;
-  }
+}
 
-  return {
-    isAuthenticated,
-    verifyToken,
-    requireAuth,
-    setAuth,
-    clearAuth,
-    _internal: { _readToken, _readUserId }, // small helpers for debug/testing
-  };
-})();
-
-// Expose for CommonJS/env
-if (typeof module !== "undefined" && module.exports) {
-  module.exports = Auth;
+// Export for use in other files
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = { isAuthenticated, verifyToken, requireAuth };
 } else {
-  window.auth = Auth;
+    // Background token retry: if verifyToken returned networkError, we can retry later
+    let _backgroundRetryHandle = null;
+    async function startBackgroundTokenRetry(intervalMs = 5000, maxAttempts = 6) {
+        let attempts = 0;
+        if (_backgroundRetryHandle) return; // already running
+        _backgroundRetryHandle = setInterval(async () => {
+            attempts++;
+            console.log('[auth] Background token retry attempt', attempts);
+            const result = await verifyToken();
+            if (result && result.valid) {
+                console.log('[auth] Background retry succeeded, stopping retries');
+                clearInterval(_backgroundRetryHandle);
+                _backgroundRetryHandle = null;
+            } else if (attempts >= maxAttempts) {
+                console.warn('[auth] Background retry max attempts reached, stopping');
+                clearInterval(_backgroundRetryHandle);
+                _backgroundRetryHandle = null;
+            }
+        }, intervalMs);
+    }
+
+    window.auth = { isAuthenticated, verifyToken, requireAuth, startBackgroundTokenRetry };
 }
