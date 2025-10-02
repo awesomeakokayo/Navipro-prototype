@@ -10,8 +10,9 @@ body{
     font-size: 20px;
     font-weight: 600;
 }
-.container{
+.main{
     width: 100%;
+    margin-top: 12vh;
 }
 .container nav{
     width: 100%;
@@ -19,6 +20,14 @@ body{
 .navigate{
     display: flex;
     flex-direction: row;
+}
+.banner{
+    top: 0;
+    left: 0;
+    position: fixed;
+    width: 100%;
+    height: 12vh;
+    z-index: 2000;
 }
 .nav-link{
     display: flex;
@@ -35,10 +44,17 @@ body{
     padding: 12px 53px;
 }
 .btn-login:hover{
-    background-color: white;
-    color: #FF9E00;
-    border: 2px solid #FF9E00;
-    padding: 10px 51px;
+    font-size: 19px;
+    transition: cubic-bezier(0.075, 0.82, 0.165, 1);
+    padding: 9px 49px;
+}
+.cta-primary:hover{
+    margin-top: 2px;
+    font-size: 19px;
+}
+.cta-secondary:hover{
+    border: 1.5px solid #1B455B;
+    margin-left: 2px;
 }
 .btn-login1{
     background-color: inherit;
@@ -51,14 +67,8 @@ body{
     padding: 10px 51px;
 }
 .btn-login1:hover{
-    background-color: #1B455B;
-    color: white;
-    font-size: 18px;
     border: 2px solid #1B455B;
-    font-family: 'Poppins';
-    font-weight: normal;
-    border-radius: 16px;
-    padding: 10px 51px;
+    padding: 9px 50px;
 }
 #info{
     margin-top:8px;
@@ -70,6 +80,10 @@ body{
 }
 .menu:active{
     font-weight: 600;
+}
+.menu:hover{
+    font-weight: 650;
+    transition: cubic-bezier(0.075, 0.82, 0.165, 1);
 }
 .hero-heading{
     width: 80vw;
@@ -108,6 +122,7 @@ body{
 }
 .hero {
     width: 100%;
+    height: 90vh;
     position: relative;
     display: flex;
     flex-direction: column;
@@ -210,9 +225,6 @@ body{
     display: flex;
     justify-content: right;
 }
-/* .cta-primary{
-    margin-right: 60px;
-} */
 .icon1{background: #38B0002B; width: 44px; height: 44px;border-radius: 22px;
 display: flex;
 align-items: center;
@@ -302,6 +314,12 @@ justify-content: center;}
         padding-left: 0.5em;
         padding-right: 0.5em;
     }
+    .banner{
+        height: 10vh;
+    }
+    .main{
+        margin-top: 10vh;
+    }
     .ambition, .ambition1{
         font-size: 18px; 
         font-weight: 400;
@@ -328,6 +346,7 @@ justify-content: center;}
     .btn-login1{
     padding: 12px 20px;
     font-size: medium;
+    width: 30px;
     }
     .btn-login1:hover{
     padding: 12px 20px;
@@ -380,7 +399,7 @@ justify-content: center;}
     }
     .hamburger{
         display: block;
-        margin-right: 10px;
+        margin-right: 5px;
     }
     .nav-links.active{
         display: flex;

@@ -63,7 +63,7 @@
   <script src="https://www.google.com/recaptcha/api.js"></script>
 </head>
 <body>
-  <header role="banner">
+  <header role="banner" class="banner">
     <div class="container nav" role="navigation" aria-label="Primary">
       <nav class="nav-link" style="display:flex;align-items:center;gap:18px">
         <span class="navigate">
@@ -79,15 +79,15 @@
             </ul>
         </span>
         <span>
-          <a class="btn-login" href="../Create Account/index.html">Sign up</a>
-          <a class="btn-login1" href="../login">Log in</a>
+          <a class="btn-login" target="_blank" href="../Create Account/index.html">Sign up</a>
+          <a class="btn-login1" target="_blank" href="../login">Log in</a>
         </span>
         <div class="hamburger" id="hamburger">&#9776;</div>
       </nav>
     </div>
   </header>
 
-  <main id="main" class="container" role="main">
+  <main id="main" class="main" role="main">
     <section class="hero" aria-labelledby="hero-heading">
       <div style="text-align:center; display: flex; flex-direction: column; align-items: center;">
         <span class="badge" aria-hidden="true">Join 50+ users guided in early access</span>
@@ -142,7 +142,7 @@
           <h2>Stuck with no direction?</h2>
           <p>You get a <strong> step by step roadmap</strong> so you always know what to do next</p>
           <div class="button-container">
-            <button class="cta-primary" type="button">Generate Roadmap ➔</button>
+            <button onclick="window.location.href='../Create Account/index.html'" class="cta-primary" type="button">Generate Roadmap ➔</button>
           </div>
         </div>
       </div>
