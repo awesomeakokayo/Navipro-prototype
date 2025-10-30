@@ -17,7 +17,7 @@ body{
     flex-direction: column;
     align-items: center;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    padding: 2rem;
+    padding: 0.5rem;
     padding-bottom: 1rem;
 }
 .headline{
@@ -282,8 +282,13 @@ ul li::marker {
     }
     
     .top{
+        height: auto;
         width: 100%;
         padding: 1rem;
+        position: fixed;
+        z-index: 1000;
+        background: white;
+        gap: 0px;
     }
     
     .headline{
@@ -354,8 +359,10 @@ ul li::marker {
     }
     
     .bottom{
+        top: 5rem;
         width: 100%;
         padding: 40px 1rem;
+        padding-top: 10rem;
     }
     
     .monthly-roadmap{

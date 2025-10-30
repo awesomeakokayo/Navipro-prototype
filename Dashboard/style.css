@@ -167,6 +167,7 @@ iframe {
     }
     
     .main-content {
+        position: fixed;
         width: 100%;
         margin-left: 0;
         margin-bottom: 80px;
@@ -676,7 +677,6 @@ b{
     height: 150px !important;
 }
 
-/* Hamburger Menu Icon */
 .hamburger {
     display: none;
     cursor: pointer;
@@ -707,13 +707,13 @@ b{
     color: #FF9E00;
 }
 
-/* Mobile Responsive Styles */
 @media screen and (max-width: 768px) {
     .hamburger {
         display: block;
+        position: fixed;
         top: 20px;
-        right: 20px;  /* Changed from left to right */
-        left: auto;   /* Reset left position */
+        right: 20px; 
+        left: auto;
     }
 
     .navigation {
@@ -888,7 +888,7 @@ b{
     }
 
     .icons-left {
-        margin-right: 50px; /* Add space for hamburger menu */
+        margin-right: 50px;
     }
 }
 
