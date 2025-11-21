@@ -1,3 +1,68 @@
+function storeSessionCredentials({ token, userId }) {
+    if (token) {
+        localStorage.setItem('token', token);
+        localStorage.setItem('access_token', token);
+    }
+    if (userId) {
+        localStorage.setItem('user_id', userId);
+        localStorage.setItem('userId', userId);
+    }
+}
+
+async function fetchUserViaSessionCookie() {
+    const url = `${backendURL}/auth/me`;
+    try {
+        console.log('[auth] Attempting to hydrate session via cookie', url);
+        const response = await fetch(url, {
+            method: 'GET',
+            credentials: 'include',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+
+        let data = null;
+        try {
+            data = await response.json();
+        } catch (e) {
+            console.warn('[auth] fetchUserViaSessionCookie: JSON parse failed', e);
+        }
+
+        if (!response.ok) {
+            console.warn('[auth] fetchUserViaSessionCookie failed', response.status, data);
+            return { ok: false, status: response.status, data };
+        }
+
+        const token =
+            data?.access_token ||
+            data?.token ||
+            data?.jwt ||
+            null;
+
+        const userId =
+            data?.user_id ||
+            data?.userId ||
+            data?.id ||
+            (data?.user && (data.user.id || data.user._id || data.user.userId)) ||
+            null;
+
+        if (token || userId) {
+            storeSessionCredentials({ token, userId });
+        }
+
+        return {
+            ok: true,
+            status: response.status,
+            data,
+            token,
+            userId,
+        };
+    } catch (error) {
+        console.error('[auth] fetchUserViaSessionCookie network error', error);
+        return { ok: false, status: null, networkError: true, data: null };
+    }
+}
+
 function isAuthenticated() {
     const token = localStorage.getItem('token') || localStorage.getItem('access_token');
     const userId = localStorage.getItem('user_id') || localStorage.getItem('userId');
@@ -6,10 +71,25 @@ function isAuthenticated() {
 }
 
 async function verifyToken() {
-    const token = localStorage.getItem('token') || localStorage.getItem('access_token');
+    let token = localStorage.getItem('token') || localStorage.getItem('access_token');
     if (!token) {
-        console.log('[auth] No token found for verification');
-        return { valid: false, status: null, networkError: false, data: null };
+        console.log('[auth] No token found — attempting cookie hydration');
+        const sessionResult = await fetchUserViaSessionCookie();
+        if (sessionResult?.ok && sessionResult.userId) {
+            token = sessionResult.token || localStorage.getItem('token') || localStorage.getItem('access_token');
+            return {
+                valid: true,
+                status: sessionResult.status,
+                networkError: false,
+                data: sessionResult.data,
+            };
+        }
+
+        if (sessionResult?.networkError) {
+            return { valid: false, status: null, networkError: true, data: null };
+        }
+
+        return { valid: false, status: sessionResult?.status ?? null, networkError: false, data: sessionResult?.data ?? null };
     }
 
     try {
@@ -119,7 +199,7 @@ async function requireAuth() {
 
 // Export for use in other files
 if (typeof module !== 'undefined' && module.exports) {
-    module.exports = { isAuthenticated, verifyToken, requireAuth };
+    module.exports = { isAuthenticated, verifyToken, requireAuth, fetchUserViaSessionCookie };
 } else {
     // Background token retry: if verifyToken returned networkError, we can retry later
     let _backgroundRetryHandle = null;

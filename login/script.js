@@ -30,6 +30,38 @@ function parseJwt(token) {
   }
 }
 
+async function fetchUserFromSessionCookie() {
+  try {
+    const res = await fetch(`${backendURL}/auth/me`, {
+      method: "GET",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+    });
+
+    if (!res.ok) {
+      console.warn("[login] fetchUserFromSessionCookie failed:", res.status);
+      return null;
+    }
+
+    const body = await res.json();
+    const token =
+      body?.access_token ||
+      body?.token ||
+      body?.jwt ||
+      null;
+    const uid =
+      body?.user_id ||
+      body?.userId ||
+      body?.id ||
+      (body?.user && (body.user.id || body.user._id || body.user.userId)) ||
+      null;
+    return { token, user_id: uid, body };
+  } catch (err) {
+    console.warn("[login] fetchUserFromSessionCookie network error:", err);
+    return null;
+  }
+}
+
 // Try calling auth backend to get user info using token
 async function fetchUserFromAuth(token) {
   if (!token) return null;
@@ -278,5 +310,26 @@ if (googleBtn) {
     }
   } catch (e) {
     console.warn('[login] could not start background token retry', e);
+  }
+})();
+
+(async function hydrateAuthFromSessionCookie() {
+  try {
+    const hasToken = !!(localStorage.getItem('token') || localStorage.getItem('access_token'));
+    const hasUserId = !!(localStorage.getItem('user_id') || localStorage.getItem('userId'));
+    if (hasToken && hasUserId) {
+      return;
+    }
+
+    console.log('[login] Missing token/userId locally — attempting session hydration via HTTPS cookie');
+    const session = await fetchUserFromSessionCookie();
+    if (session?.user_id) {
+      console.log('[login] Session hydration succeeded, storing credentials');
+      storeAuth(session.token, session.user_id);
+    } else {
+      console.log('[login] Session hydration did not return user_id');
+    }
+  } catch (err) {
+    console.warn('[login] hydrateAuthFromSessionCookie failed', err);
   }
 })();
