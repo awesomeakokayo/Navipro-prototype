@@ -70,6 +70,54 @@ body{
     border: 2px solid #1B455B;
     padding: 9px 50px;
 }
+.maintenance-badge{
+    display: inline-block;
+    background: #FF9E00;
+    color: white;
+    font-weight: 600;
+    font-size: 16px;
+    padding: 8px 16px;
+    border-radius: 16px;
+    animation: pulse 2s infinite;
+}
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.8; }
+}
+.header-notice{
+    display: flex;
+    align-items: center;
+}
+.maintenance-alert{
+    background: #FFF3E0;
+    border: 2px solid #FF9E00;
+    border-radius: 16px;
+    padding: 1.5em 2em;
+    margin: 1.5em auto;
+    max-width: 700px;
+    text-align: center;
+    animation: slideDown 0.5s ease-out;
+}
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+.maintenance-alert p{
+    margin: 0.5em 0;
+    font-size: 18px;
+    color: #1B455B;
+}
+.maintenance-alert p strong{
+    font-weight: 700;
+    display: block;
+    font-size: 20px;
+}
 #info{
     margin-top:8px;
     font-weight:500;
@@ -122,7 +170,7 @@ body{
 }
 .hero {
     width: 100%;
-    height: 90vh;
+    height: auto;
     position: relative;
     display: flex;
     flex-direction: column;
@@ -313,6 +361,20 @@ justify-content: center;}
     .hero{
         padding-left: 0.5em;
         padding-right: 0.5em;
+    }
+    .maintenance-badge{
+        font-size: 14px;
+        padding: 6px 12px;
+    }
+    .maintenance-alert{
+        margin: 1em 0.5em;
+        padding: 1em 1em;
+    }
+    .maintenance-alert p{
+        font-size: 16px;
+    }
+    .maintenance-alert p strong{
+        font-size: 18px;
     }
     .banner{
         height: 10vh;

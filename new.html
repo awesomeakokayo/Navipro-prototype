@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon.png">
+  <title>Navipro — AI career guidance to unlock your career potential</title>
+  <meta name="description" content="Navipro provides personalized AI-driven career roadmaps, daily tasks, and video recommendations to help you reach your full potential." />
+  <link rel="stylesheet" href="style.css">
+  <style>
+    /* Minimal critical CSS to ensure page is readable while waiting for full CSS file */
+    html{scroll-behavior:smooth}
+    body{font-family:'Poppins',sans-serif;margin:0}
+  </style>
+</head>
+<body>
+  <!-- Maintenance banner (prominent & dismissible) -->
+  <div id="maintenance-banner" class="maintenance-banner" role="status" aria-live="polite">
+    <div class="container-banner">
+      <strong>We're improving Navipro.</strong> Sign up / Log in are temporarily disabled while we rebuild for better speed and features. Submit your email to get first access when we launch.
+      <button id="dismiss-banner" aria-label="Dismiss maintenance message">Dismiss</button>
+    </div>
+  </div>
+
+  <header role="banner" class="banner">
+    <div class="container nav" role="navigation" aria-label="Primary">
+      <nav class="nav-link" style="display:flex;align-items:center;gap:18px">
+        <a href="/" aria-label="Navipro home" class="brand">
+          <img src="images/naviprologo-whitebackground-removebg-preview.png" alt="Navipro logo" width="45" height="40" />
+          <span class="name">navipro</span>
+        </a>
+
+        <ul id="navLinks" class="nav-links" role="menubar" aria-label="Main links">
+          <li class="menu" role="none"><a role="menuitem" href="#">Home</a></li>
+          <li class="menu" role="none"><a role="menuitem" href="#about">About Us</a></li>
+          <li class="menu" role="none"><a role="menuitem" href="#feature">Features</a></li>
+          <li class="menu" role="none"><a role="menuitem" href="#footer">Contact</a></li>
+        </ul>
+
+        <!-- Login/Signup are visually replaced with disabled controls + join waitlist CTA -->
+        <div class="auth-area" aria-hidden="false">
+          <button class="btn-disabled" aria-disabled="true" title="Sign up temporarily disabled">Sign up</button>
+          <button class="btn-disabled-outline" aria-disabled="true" title="Log in temporarily disabled">Log in</button>
+          <a href="#waitlist" class="btn-waitlist">Join waitlist</a>
+        </div>
+
+        <div class="hamburger" id="hamburger" aria-controls="navLinks" aria-expanded="false">&#9776;</div>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main" class="main" role="main">
+    <!-- Hero -->
+    <section class="hero" aria-labelledby="hero-heading-main">
+      <div class="hero-inner">
+        <span class="badge" aria-hidden="true">Join 50+ users guided in early access</span>
+        <h1 class="hero-heading" id="hero-heading-main">
+          Unlock your <span class="highlight">career potential</span> with AI-driven guidance
+        </h1>
+        <p class="ambition1">Get unstuck and start moving forward with Navipro — a personalized AI career guide that shows you exactly what to do next.</p>
+
+        <!-- Waitlist email form (primary CTA while maintenance) -->
+        <form id="waitlist" class="hero-form" aria-label="Get early access" novalidate>
+          <label for="email" class="sr-only">Email address</label>
+          <input id="email" class="input-email" name="email" type="email" placeholder="Enter email to get updates" required aria-required="true" />
+          <button id="submit-waitlist" type="submit" class="cta-primary">Notify me</button>
+        </form>
+        <p id="waitlist-status" class="waitlist-status" aria-live="polite"></p>
+        <p id="info">We'll never share your info with anyone.</p>
+      </div>
+    </section>
+
+    <!-- About -->
+    <section id="about" class="about" aria-labelledby="about-heading">
+      <div id="aboutInner" class="container-about-inner">
+        <div class="about-hero">
+          <p style="color:#9aa6b2;margin:0">About Us</p>
+          <h2 id="about-heading" class="growth">Growth should never feel like <span class="highlight">wandering in the dark</span></h2>
+          <p class="ambition">Ambition without direction only leads to frustration. But <span class="highlight">Navipro</span> gives your growth the clarity it’s been missing.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Why / Features (unchanged content structurally) -->
+    <section class="why" aria-labelledby="why-heading">
+      <div class="card top">
+        <div class="cards">
+          <span class="icon1"><img height="23" width="23" src="images/Vector 23.png" alt=""></span>
+          <h2>No support, or momentum?</h2>
+          <p>Navipro will keep you accountable with smart nudges and active progress tracking.</p>
+        </div>
+        <div class="cards">
+          <span class="icon2"><img width="23" height="23" src="images/Vector 22.png" alt=""></span>
+          <h2>Generic advice that doesn't cut it?</h2>
+          <p>You get personalized guidance tailored to your skills and your goals.</p>
+        </div>
+      </div>
+
+      <div class="card bottom">
+        <div class="cards">
+          <span class="icon3"><img width="23" height="23" src="https://img.icons8.com/parakeet-line/48/F25081/clipboard.png" alt=""></span>
+          <h2>Overwhelmed by options?</h2>
+          <p>Navipro helps you prioritize your goals and choose the right path forward.</p>
+        </div>
+        <div class="cards">
+          <span class="icon4"><img width="23" height="23" src="images/Vector 21.png" alt=""></span>
+          <h2>Stuck with no direction?</h2>
+          <p>You get a <strong>step by step roadmap</strong> so you always know what to do next</p>
+          <div class="button-container">
+            <button onclick="document.querySelector('#waitlist input').focus()" class="cta-primary" type="button">Generate Roadmap ➔</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Features (kept) -->
+    <section class="feature" id="feature" aria-labelledby="feature-heading">
+      <p>Features</p>
+      <h2 id="feature-heading" class="hero-heading">Go from confusion to clarity <span class="highlight">in 4 easy steps</span></h2>
+      <p class="ambition">We’ve broken down the journey into four simple stages.</p>
+      <!-- Feature cards... (kept same markup as before) -->
+      <div class="feature-cards">
+          <div class="feature-card right">
+            <div class="image">
+              <img src="images/onboard.png" alt="">
+            </div>
+            <div class="feature-content">
+              <img src="images/number_one.png" alt="">
+              <h3>
+                Set your career destination
+              </h3>
+              <p>Define the role or goal you’re aiming for - Navipro will shape the roadmap to get you there.</p>
+            </div>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-content">
+              <img src="images/number_two.png" alt="">
+              <h3>
+                Pick a time frame that works for you
+              </h3>
+              <p>
+                Whether you want to upskill in 3 months or 12, Navipro will create a plan that fits your life
+              </p>
+            </div>
+             <div class="image">
+              <img src="images/timeframe.png" alt="">
+            </div>
+          </div>
+
+          <div class="feature-card right">
+            <div class="image">
+              <img src="images/roadmap.png" alt="">
+            </div>
+            <div class="feature-content">
+              <img src="images/number_three.png" alt="">
+              <h3>
+                Follow your guided roadmap
+              </h3>
+              <p>Receive step-by-step actions tailored to your journey, with zero guess work</p>
+            </div>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-content">
+              <img src="images/number_four.png" alt="">
+              <h3>
+                Track wins and unlock progress
+              </h3>
+              <p>See your growth in real time, stay motivated, and know exactly what comes next.</p>
+            </div>
+             <div class="image">
+              <img src="images/progress.png" alt="">
+            </div>
+          </div>
+        </div>
+    </section>
+
+    <!-- Secondary CTA hero -->
+    <section class="hero secondary-hero" aria-labelledby="hero-heading-cta">
+      <div style="text-align:center">
+        <h2 class="hero-heading" id="hero-heading-cta">Ready to take <span class="highlight">the next step</span>?</h2>
+        <p class="ambition">Sign up for the beta and get early access before everyone else.</p>
+
+        <form class="hero-form" aria-label="Secondary waitlist" onsubmit="document.getElementById('waitlist').scrollIntoView({behavior:'smooth'}); return false;">
+          <input class="input-email" id="email-2" name="email-2" type="email" placeholder="Enter e-mail here" />
+          <div class="ctas">
+            <button class="cta-primary" onclick="document.querySelector('#waitlist input').focus();">Notify me</button>
+            <a class="cta-secondary" href="/why-navipro" role="button">Join Discord</a>
+          </div>
+        </form>
+        <p id="info">We'll never share your info with anyone</p>
+      </div>
+    </section>
+  </main>
+
+  <footer id="footer" role="contentinfo" style="background:#fafbff;padding:28px 0;">
+    <div class="container" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap; padding: 0 20px;">
+      <ul id="footerNav" class="nav-links" role="menubar" aria-label="Footer links">
+        <li class="menu"><a role="menuitem" href="#">Home</a></li>
+        <li class="menu"><a role="menuitem" href="#about">About Us</a></li>
+        <li class="menu"><a role="menuitem" href="#feature">Features</a></li>
+        <li class="menu"><a role="menuitem" href="#footer">Contact</a></li>
+      </ul>
+      <span style="color:#94a3b8;margin:0" id="year">© 2025 Navipro </span>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
